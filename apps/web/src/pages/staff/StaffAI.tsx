@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { BrainCircuit, Sparkles, Zap, ChevronRight } from 'lucide-react';
+import { BrainCircuit,  Zap, ChevronRight } from 'lucide-react';
 
 const StaffAI = () => {
   return (

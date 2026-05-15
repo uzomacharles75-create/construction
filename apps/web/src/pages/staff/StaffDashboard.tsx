@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { HardHat, CheckCircle2, Clock, MapPin, ClipboardList, MessageSquare, AlertTriangle, Plus } from 'lucide-react';
+import { HardHat, CheckCircle2, Clock,  AlertTriangle, Plus } from 'lucide-react';
 
 const StaffDashboard = () => {
   return (

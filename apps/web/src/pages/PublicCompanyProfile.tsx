@@ -1,7 +1,6 @@
-import React from 'react';
+
 import { PublicNavbar } from '../components/layout/PublicNavbar';
-import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2, Image as ImageIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2 } from 'lucide-react';
 
 const PublicCompanyProfile = () => {
   return (

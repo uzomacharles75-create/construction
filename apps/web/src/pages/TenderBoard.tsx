@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { 
   Briefcase, 
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const TenderCard = ({ title, client, location, budget, deadline, category, priority = false }: any) => (
+const TenderCard = ({ title,  location, budget, deadline, category, priority = false }: any) => (
   <motion.div 
     whileHover={{ x: 10 }}
     className={`bg-white p-6 rounded-[2.5rem] border ${priority ? 'border-brand-blue/30 shadow-blue-50' : 'border-slate-100'} shadow-premium flex flex-col md:flex-row items-center gap-6 group cursor-pointer transition-all`}

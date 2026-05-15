@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { BarChart3, Users, Building2, ShieldAlert, Activity, ArrowUpRight } from 'lucide-react';
+import { BarChart3, Users, Building2, ShieldAlert, Activity } from 'lucide-react';
 
 const AdminDashboard = () => {
   return (

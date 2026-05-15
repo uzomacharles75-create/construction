@@ -1,5 +1,5 @@
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { User, MessageSquare, MapPin, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { User, MessageSquare, MapPin } from 'lucide-react';
 
 const DirectoryLeads = () => {
   const leads = [

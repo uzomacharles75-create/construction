@@ -1,5 +1,5 @@
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { FileText, Plus, Download, Filter, MoreVertical, DollarSign } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 
 const Invoices = () => {
   const invoiceData = [

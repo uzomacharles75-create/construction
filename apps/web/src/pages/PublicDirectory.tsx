@@ -1,5 +1,5 @@
 import { PublicNavbar } from '../components/layout/PublicNavbar';
-import { ShieldCheck, MapPin, Star, Search, Filter } from 'lucide-react';
+import { ShieldCheck, MapPin, Star, Search} from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const PublicDirectory = () => {

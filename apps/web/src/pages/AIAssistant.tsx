@@ -1,7 +1,7 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { Sparkles, Zap, FileSearch, MessageCircle, BarChart, Plus } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Sparkles, Zap, FileSearch,  BarChart, Plus } from 'lucide-react';
+
 
 const AIAssistant = () => {
   return (

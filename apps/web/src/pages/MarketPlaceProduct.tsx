@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { Truck, ShieldCheck, ArrowLeft, Package, Star } from 'lucide-react';
 

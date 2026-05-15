@@ -1,5 +1,5 @@
 import { PublicNavbar } from '../components/layout/PublicNavbar';
-import { ShoppingBag, Truck, Tag, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 const PublicMarketplace = () => {
   return (

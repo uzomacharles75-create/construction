@@ -8,10 +8,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PublicDirectory from './pages/PublicDirectory';
-import PublicCompanyProfile from './pages/PublicCompanyProfile';
-import ServiceDetail from './pages/ServiceDetail';
 
-import MarketplaceProduct from './pages/MarketplaceProduct';
 
 // --- OWNER / COMPANY ADMIN PAGES (/dashboard/*) ---
 import Dashboard from './pages/Dashboard';
@@ -42,12 +39,10 @@ import AdminSettings from './pages/admin/AdminSettings';
 // --- SHARED DETAIL PAGES ---
 import ProjectDetail from './pages/ProjectDetail';
 import TenderBoard from './pages/TenderBoard';
-import CreateTender from './pages/CreateTender';
 import BOQEngine from './pages/BOQEngine';
 import Messages from './pages/Messages';
 import Documents from './pages/Documents';
 import AIAssistant from './pages/AIAssistant';
-import AccountSettings from './pages/AccountSettings';
 import PublicMarketplace from './pages/PublicMarketPlace';
 
 function App() {

@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { Search, MoreVertical, ShieldCheck, Crown, ExternalLink } from 'lucide-react';
+import { Search, Crown, ExternalLink } from 'lucide-react';
 
 const AdminUsers = () => {
   return (

@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { ShieldCheck, Zap, DollarSign, Globe, Bell, Lock, Smartphone, Save } from 'lucide-react';
+import { Zap, DollarSign, Bell,  Save } from 'lucide-react';
 
 const AdminSettings = () => {
   return (

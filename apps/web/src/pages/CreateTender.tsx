@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { FileUp, Info, MapPin, DollarSign, Calendar } from 'lucide-react';
+import { FileUp, MapPin, DollarSign } from 'lucide-react';
 
 const CreateTender = () => {
   return (

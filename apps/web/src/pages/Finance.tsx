@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { 
   FileText, 

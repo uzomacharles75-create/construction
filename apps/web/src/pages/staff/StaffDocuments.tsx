@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { FileText, UploadCloud, Search, Folder } from 'lucide-react';
+import {  UploadCloud,  Folder } from 'lucide-react';
 
 const StaffDocuments = () => {
   return (

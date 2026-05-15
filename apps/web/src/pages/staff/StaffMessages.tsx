@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { Send, User } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 const StaffMessages = () => {
   return (

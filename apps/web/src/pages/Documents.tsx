@@ -1,14 +1,12 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { 
-  File, 
   Search, 
   UploadCloud, 
   FolderPlus, 
   MoreVertical,
   FileText,
   Image as ImageIcon,
-  FileCode
 } from 'lucide-react';
 
 const DocItem = ({ name, type, size, date }: any) => (

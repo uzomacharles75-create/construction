@@ -1,12 +1,9 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { 
-  BarChart3, 
   Clock, 
   MapPin, 
-  CheckCircle2, 
   AlertTriangle,
-  Users,
   HardHat
 } from 'lucide-react';
 

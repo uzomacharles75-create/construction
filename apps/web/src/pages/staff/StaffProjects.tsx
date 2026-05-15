@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { Layers, MapPin, ArrowRight, ClipboardCheck } from 'lucide-react';
+import { Layers, MapPin,  ClipboardCheck } from 'lucide-react';
 
 const StaffProjects = () => {
   const sites = [

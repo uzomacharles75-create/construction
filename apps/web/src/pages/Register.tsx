@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, ArrowRight, HardHat, Store, Briefcase } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';

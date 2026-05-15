@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { 
   Plus, 
   Trash2, 
-  Download, 
-  Eye, 
   Send, 
   ChevronLeft,
   Settings,
-  Printer
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -88,7 +85,7 @@ const InvoiceEditor = () => {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Line Items</h3>
                 <div className="space-y-4">
                   <AnimatePresence>
-                    {items.map((item, index) => (
+                    {items.map((item) => (
                       <motion.div 
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}

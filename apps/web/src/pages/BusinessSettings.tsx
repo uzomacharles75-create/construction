@@ -1,6 +1,6 @@
-import React from 'react';
+
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { Camera, Upload, Globe, Phone, Mail, Award } from 'lucide-react';
+import { Camera,  Globe,  Mail, Award } from 'lucide-react';
 
 const BusinessSettings = () => {
   return (

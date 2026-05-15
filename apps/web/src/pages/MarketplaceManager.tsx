@@ -1,5 +1,5 @@
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { ShoppingBag, Truck, Plus, Package, Search, ChevronRight } from 'lucide-react';
+import { ShoppingBag, Truck,  Package, ChevronRight } from 'lucide-react';
 
 const MarketplaceManager = () => {
   return (

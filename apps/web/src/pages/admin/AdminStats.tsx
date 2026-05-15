@@ -1,5 +1,5 @@
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { BarChart3, Globe2, Activity, Zap, TrendingUp, PieChart } from 'lucide-react';
+import {  Globe2, Activity, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AdminStats = () => {
