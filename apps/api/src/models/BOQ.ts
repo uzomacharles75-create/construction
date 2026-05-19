@@ -69,20 +69,14 @@ const BOQSchema = new Schema<IBOQ>({
 // 5. MIDDLEWARE: Automatically calculate item totals and grand total before saving
 BOQSchema.pre('save', function(next) {
   let grandTotal = 0;
-
-  // Calculate total for each line item
   this.items.forEach(item => {
     item.total = item.qty * item.rate;
     grandTotal += item.total;
   });
-
   this.totalAmount = grandTotal;
-
-  // Logic: Automatically lock the BOQ if every single item is 'verified'
   const allVerified = this.items.length > 0 && this.items.every(item => item.status === 'verified');
   this.isLocked = allVerified;
-
-  next();
+  next(); // Use next() to be safe with all TS versions
 });
 
 // 6. Export the Model

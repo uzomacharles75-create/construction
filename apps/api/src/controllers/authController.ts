@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import multer from 'multer';
 import User from '../models/User';
 import Company from '../models/Company';
 import { ensureCompanyHasSlug } from '../utils/companySlug';
