@@ -1,4 +1,7 @@
 import { NavLink } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import apiClient from '../../api/client';
+import { useState } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { 
   LayoutDashboard, Building2, Briefcase, TrendingUp, Store, 
@@ -6,9 +9,10 @@ import {
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut 
 } from 'lucide-react';
 
-const NavItem = ({ icon: Icon, label, path, badge }: any) => (
+const NavItem = ({ icon: Icon, label, path, badge, onNavigate }: any) => (
   <NavLink 
-    to={path} 
+    to={path}
+    onClick={onNavigate}
     className={({ isActive }) => `
       flex items-center justify-between px-4 py-2.5 rounded-xl transition-all mb-0.5 group
       ${isActive 
@@ -21,19 +25,35 @@ const NavItem = ({ icon: Icon, label, path, badge }: any) => (
       <span className="text-[13px] font-medium tracking-tight">{label}</span>
     </div>
     {badge && (
-      <span className="bg-slate-700/50 text-[10px] px-1.5 py-0.5 rounded-md text-slate-300 font-bold group-hover:bg-slate-600">
+      <span className="bg-slate-700/50 text-[10px] px-1.5 py-0.5 rounded-md text-slate-300 font-bold">
         {badge}
       </span>
     )}
   </NavLink>
 );
 
-export const Sidebar = () => {
+export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
   const role = user?.role; // 'admin', 'owner', or 'staff'
 
+  // MOVE THE HOOK INSIDE THE COMPONENT HERE:
+    const { data: pendingQueue } = useQuery({
+    queryKey: ['admin-pending-count'],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/admin/pending');
+      return data;
+    },
+    enabled: role === 'admin', // Only runs for the SuperAdmin
+    refetchInterval: 30000, // Refresh every 30 seconds to stay "Live"
+  });
+
+  const { data: summary } = useQuery({ 
+    queryKey: ['dashboard-summary'], 
+    queryFn: async () => (await apiClient.get('/auth/company/summary')).data 
+  });
+
   return (
-    <aside className="w-[260px] h-screen bg-[#001529] text-white flex flex-col p-4 sticky top-0 overflow-y-auto no-scrollbar border-r border-white/5">
+    <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-[#001529] text-white flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-white/5">
       {/* LOGO AREA */}
       <div className="flex items-center gap-3 mb-8 px-2">
         <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center font-black text-[#001529] text-xs italic">BH</div>
@@ -47,11 +67,20 @@ export const Sidebar = () => {
         {role === 'admin' && (
           <>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Platform Master</p>
-             <NavItem icon={LayoutDashboard} label="Dashboard" path="/admin" />
-            <NavItem icon={ShieldCheck} label="Verification Queue" path="/admin/verifications" badge="14" />
-            <NavItem icon={Users} label="Manage Companies" path="/admin/users" />
-            <NavItem icon={BarChart3} label="System Stats" path="/admin/stats" />
-            <NavItem icon={Settings} label="Global Settings" path="/admin/settings" />
+            <NavItem icon={LayoutDashboard} label="Dashboard" path="/admin" onNavigate={onNavigate} />
+            
+            {/* REAL BADGE LOGIC: replaced "14" with pendingQueue.length */}
+            <NavItem 
+              icon={ShieldCheck} 
+              label="Verification Queue" 
+              path="/admin/verifications" 
+              badge={pendingQueue?.length > 0 ? pendingQueue.length : null} 
+              onNavigate={onNavigate} 
+            />
+            
+            <NavItem icon={Users} label="Manage Companies" path="/admin/users" onNavigate={onNavigate} />
+            <NavItem icon={BarChart3} label="System Stats" path="/admin/stats" onNavigate={onNavigate} />
+            <NavItem icon={Settings} label="Global Settings" path="/admin/settings" onNavigate={onNavigate} />
           </>
         )}
 
@@ -61,15 +90,15 @@ export const Sidebar = () => {
         {role === 'owner' && (
           <>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Business Ops</p>
-            <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" />
-            <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" />
-            <NavItem icon={TrendingUp} label="Directory Leads" path="/dashboard/directory" badge="12" />
-            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" badge="5" />
-            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" badge="8" />
-            <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" />
-            <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" />
-            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" />
-            <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" />
+            <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
+            <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} />
+            <NavItem icon={TrendingUp} label="Directory Leads" path="/dashboard/directory" badge={summary?.msgCount} onNavigate={onNavigate} />
+            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" badge={summary?.orderCount} onNavigate={onNavigate} />
+            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" badge={summary?.tenderCount} onNavigate={onNavigate} />
+            <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} />
+            <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} />
+            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} />
+            <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} />
           </>
         )}
 
@@ -79,12 +108,12 @@ export const Sidebar = () => {
         {role === 'staff' && (
           <>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-4 mb-2">Field Operations</p>
-            <NavItem icon={HardHat} label="Site Portal" path="/staff/dashboard" />
-            <NavItem icon={Briefcase} label="My Assignments" path="/staff/projects" />
-            <NavItem icon={MessageSquare} label="Site Messages" path="/staff/messages" badge="18" />
-            <NavItem icon={Sparkles} label="Engineering AI" path="/staff/ai" />
-            <NavItem icon={Files} label="Site Documents" path="/staff/documents" />
-            <NavItem icon={Settings} label="My Settings" path="/staff/settings" />
+            <NavItem icon={HardHat} label="Site Portal" path="/staff/dashboard" onNavigate={onNavigate} />
+            <NavItem icon={Briefcase} label="My Assignments" path="/staff/projects" onNavigate={onNavigate} />
+            <NavItem icon={MessageSquare} label="Site Messages" path="/staff/messages" badge="18" onNavigate={onNavigate} />
+            <NavItem icon={Sparkles} label="Engineering AI" path="/staff/ai" onNavigate={onNavigate} />
+            <NavItem icon={Files} label="Site Documents" path="/staff/documents" onNavigate={onNavigate} />
+            <NavItem icon={Settings} label="My Settings" path="/staff/settings" onNavigate={onNavigate} />
           </>
         )}
 

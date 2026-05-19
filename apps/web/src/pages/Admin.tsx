@@ -1,69 +1,102 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import apiClient from '../api/client';
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { 
-  ShieldAlert, 
-  CheckCircle, 
-  XCircle, 
-  BarChart, 
-  Building,
-  ArrowUpRight
-} from 'lucide-react';
+import { ShieldAlert, CheckCircle, XCircle, BarChart, Building, ArrowUpRight } from 'lucide-react';
 
 const Admin = () => {
+  const queryClient = useQueryClient();
+
+  // 1. Fetch Pending Companies
+  const { data: pendingCompanies, isLoading: loadingQueue } = useQuery({
+    queryKey: ['admin-pending'],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/admin/pending');
+      return data;
+    }
+  });
+
+  // 2. Fetch Stats
+  const { data: stats } = useQuery({
+    queryKey: ['admin-stats'],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/admin/stats');
+      return data;
+    }
+  });
+
+  // 3. Mutation to Verify/Reject
+  const verifyMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string, status: string }) => 
+      apiClient.put(`/admin/verify/${id}`, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-pending'] })
+  });
+
   return (
     <DashboardShell>
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto pb-20">
         <div className="flex items-center gap-4 mb-10">
-          <div className="bg-rose-500 p-3 rounded-2xl text-white shadow-lg shadow-rose-100">
+          <div className="bg-rose-500 p-3 rounded-2xl text-white shadow-lg">
             <ShieldAlert size={24} />
           </div>
-          <h1 className="text-4xl font-black text-brand-navy tracking-tight">SuperAdmin</h1>
+          <h1 className="text-4xl font-black text-brand-navy tracking-tight italic">SuperAdmin</h1>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           
-          {/* PENDING APPROVALS LIST */}
+          {/* PENDING APPROVALS LIST (REAL DATA) */}
           <div className="lg:col-span-2 space-y-6">
-            <h2 className="text-xl font-bold text-brand-navy">Company Verification Requests</h2>
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white p-6 rounded-[2.5rem] shadow-premium border border-white flex items-center justify-between">
+            <h2 className="text-xl font-bold text-brand-navy">Company Verification Queue</h2>
+            
+            {loadingQueue ? <p>Loading queue...</p> : pendingCompanies?.map((company: any) => (
+              <div key={company._id} className="bg-white p-6 rounded-[2.5rem] shadow-premium border border-slate-50 flex items-center justify-between transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
-                    <Building size={24} />
+                  <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 font-black">
+                    {company.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="font-bold text-brand-navy">Summit Contractors Ltd.</h4>
-                    <p className="text-xs text-slate-400">Douala, Cameroon • Applied 2 days ago</p>
+                    <h4 className="font-bold text-brand-navy">{company.name}</h4>
+                    <p className="text-xs text-slate-400">{company.city}, {company.country}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="p-3 bg-emerald-50 text-emerald-500 rounded-xl hover:bg-emerald-100 transition-all"><CheckCircle size={20} /></button>
-                  <button className="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-all"><XCircle size={20} /></button>
-                  <button className="px-6 py-3 bg-slate-50 text-brand-navy font-bold rounded-xl text-xs">Review Files</button>
+                  <button 
+                    onClick={() => verifyMutation.mutate({ id: company._id, status: 'verified' })}
+                    className="p-3 bg-emerald-50 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all">
+                    <CheckCircle size={20} />
+                  </button>
+                  <button 
+                    onClick={() => verifyMutation.mutate({ id: company._id, status: 'rejected' })}
+                    className="p-3 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all">
+                    <XCircle size={20} />
+                  </button>
                 </div>
               </div>
             ))}
+            
+            {pendingCompanies?.length === 0 && (
+               <div className="p-10 text-center bg-slate-50 rounded-[3rem] text-slate-400 font-medium">
+                  Queue is empty. All companies are verified.
+               </div>
+            )}
           </div>
 
-          {/* SYSTEM STATS */}
+          {/* SYSTEM STATS (REAL DATA) */}
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-brand-navy">Platform Pulse</h2>
-            <div className="bg-brand-navy p-8 rounded-[2.5rem] text-white">
+            <div className="bg-brand-navy p-8 rounded-[2.5rem] text-white shadow-2xl">
                <BarChart className="text-brand-blue mb-4" />
-               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Total Marketplace Volume</p>
-               <h3 className="text-4xl font-black mb-6">$1.8M</h3>
+               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Marketplace Volume</p>
+               <h3 className="text-4xl font-black mb-6">${stats?.totalMarketplaceVolume.toLocaleString()}</h3>
                <div className="space-y-4">
                  <div className="flex justify-between text-xs">
-                   <span className="text-slate-400">Active Companies</span>
-                   <span className="font-bold">452</span>
+                   <span className="text-slate-500 font-bold">Active Companies</span>
+                   <span className="font-black">{stats?.activeCompanies}</span>
                  </div>
                  <div className="flex justify-between text-xs">
-                   <span className="text-slate-400">Live Tenders</span>
-                   <span className="font-bold">89</span>
+                   <span className="text-slate-500 font-bold">Live Tenders</span>
+                   <span className="font-black">{stats?.liveTenders}</span>
                  </div>
                </div>
-               <button className="w-full mt-10 py-4 bg-white/10 hover:bg-white/20 transition-all rounded-2xl text-xs font-bold flex items-center justify-center gap-2">
-                 View Global Reports <ArrowUpRight size={14} />
-               </button>
             </div>
           </div>
 

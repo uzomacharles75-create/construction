@@ -3,8 +3,12 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
-    @apply bg-white text-slate-900 antialiased;
+    @apply bg-white text-slate-900 antialiased overflow-x-hidden;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }

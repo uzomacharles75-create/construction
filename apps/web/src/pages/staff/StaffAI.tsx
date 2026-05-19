@@ -1,27 +1,149 @@
+import { useState, useRef, useEffect } from 'react';
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { BrainCircuit,  Zap, ChevronRight } from 'lucide-react';
+import { useAuthStore } from '../../store/useAuthStore';
+import apiClient from '../../api/client';
+import { 
+  BrainCircuit, 
+  Zap, 
+  ChevronRight, 
+  Loader2, 
+  Send, 
+  Sparkles,
+  RotateCcw
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const StaffAI = () => {
+  const { user } = useAuthStore();
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState<{role: string, content: string}[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll chat
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSendMessage = async (text: string = input) => {
+    if (!text.trim()) return;
+    
+    const userMsg = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMsg]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const { data } = await apiClient.post('/ai/chat', { 
+        message: text,
+        history: messages.slice(-4), // Context window
+        context: "engineering-technical" // Tells backend to use engineering persona
+      });
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { role: 'assistant', content: "Technical connection lost. Please verify your site connectivity." }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <DashboardShell>
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-gradient-to-br from-[#001529] to-[#002b52] p-16 rounded-[4rem] text-center text-white mb-10 shadow-2xl relative overflow-hidden">
-           <BrainCircuit className="mx-auto mb-8 text-blue-400" size={56} />
-           <h1 className="text-4xl font-black italic tracking-tighter mb-4">BuildHub AI <span className="text-blue-500">Eng.</span></h1>
-           <p className="text-blue-200 font-medium mb-12 max-w-lg mx-auto">Technical assistant for material calculations, site reporting, and safety checklists.</p>
-           
-           <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
-              {['Calculate Concrete Mix', 'Estimate Rebar Weight', 'Draft Daily Progress', 'Safety Risk Analysis'].map(t => (
-                <button key={t} className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl text-[11px] font-bold border border-white/5 transition-all text-left flex items-center justify-between group">
-                  {t} <ChevronRight size={14} className="opacity-0 group-hover:opacity-100" />
-                </button>
-              ))}
-           </div>
+      <div className="max-w-5xl mx-auto h-[calc(100vh-140px)] flex flex-col">
+        
+        {/* HERO HEADER - Collapses when chat starts */}
+        <AnimatePresence>
+          {messages.length === 0 && (
+            <motion.div 
+              exit={{ height: 0, opacity: 0, marginBottom: 0 }}
+              className="bg-gradient-to-br from-[#001529] to-[#002b52] p-12 md:p-16 rounded-[4rem] text-center text-white mb-10 shadow-2xl relative overflow-hidden shrink-0"
+            >
+              <BrainCircuit className="mx-auto mb-8 text-blue-400" size={56} />
+              <h1 className="text-4xl font-black italic tracking-tighter mb-4">BuildHub AI <span className="text-blue-500">Eng.</span></h1>
+              <p className="text-blue-200 font-medium mb-12 max-w-lg mx-auto">Sarah, I'm ready to calculate material weights, draft site logs, or review technical specs.</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 max-w-3xl mx-auto">
+                 {[
+                   'Concrete Mix (C25) Ratio', 
+                   'Estimate Rebar Weight', 
+                   'Draft Daily Site Log', 
+                   'Safety Risk Checklist'
+                 ].map(t => (
+                   <button 
+                    key={t} 
+                    onClick={() => handleSendMessage(t)}
+                    className="p-4 bg-white/10 hover:bg-white/20 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 transition-all text-left flex items-center justify-between group"
+                   >
+                     {t} <ChevronRight size={14} className="opacity-0 group-hover:opacity-100" />
+                   </button>
+                 ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* CHAT DISPLAY */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scrollbar">
+           {messages.map((m, i) => (
+             <motion.div 
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               key={i} 
+               className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+             >
+               <div className={`max-w-[85%] md:max-w-[70%] p-6 rounded-[2.5rem] text-sm leading-relaxed shadow-sm ${
+                 m.role === 'user' 
+                 ? 'bg-blue-600 text-white rounded-tr-none shadow-blue-900/10 font-bold' 
+                 : 'bg-white text-slate-700 border border-slate-100 rounded-tl-none font-medium'
+               }`}>
+                 {m.content}
+               </div>
+             </motion.div>
+           ))}
+           {isLoading && (
+             <div className="flex items-center gap-3 text-blue-600 font-black text-[10px] uppercase tracking-widest px-4">
+                <Loader2 className="animate-spin" size={16} /> Technical Analysis in progress...
+             </div>
+           )}
+           <div ref={scrollRef} />
         </div>
 
-        <div className="bg-white p-4 rounded-[2.5rem] border-2 border-slate-100 shadow-sm flex items-center gap-4 focus-within:border-blue-600 transition-all">
-           <input type="text" placeholder="Sarah, what technical task can I help with?" className="flex-1 px-6 py-4 outline-none text-sm font-medium text-slate-700" />
-           <button className="bg-blue-600 text-white p-5 rounded-[1.5rem] shadow-lg hover:scale-105 transition-transform"><Zap size={24}/></button>
+        {/* INPUT BAR */}
+        <div className="p-6 bg-white rounded-[3rem] border border-slate-100 shadow-premium mt-4">
+          <form 
+            onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
+            className="flex items-center gap-4"
+          >
+             <button 
+              type="button" 
+              onClick={() => setMessages([])}
+              className="p-4 text-slate-300 hover:text-rose-500 transition-colors"
+             >
+                <RotateCcw size={20} />
+             </button>
+             <input 
+                type="text" 
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask Sarah's technical assistant..." 
+                className="flex-1 py-4 outline-none text-sm font-bold text-[#001529] placeholder:text-slate-300" 
+             />
+             <button 
+                disabled={isLoading || !input.trim()}
+                type="submit"
+                className="bg-blue-600 text-white p-5 rounded-[1.5rem] shadow-xl hover:bg-blue-700 disabled:bg-slate-100 disabled:text-slate-300 transition-all flex items-center gap-2 group"
+             >
+                <span className="hidden md:block text-[10px] font-black uppercase tracking-widest px-2 group-hover:pr-4 transition-all">Submit Query</span>
+                <Zap size={20} className={isLoading ? 'animate-pulse' : ''} />
+             </button>
+          </form>
+        </div>
+
+        <div className="py-4 text-center">
+            <p className="text-[9px] font-black text-slate-300 uppercase tracking-[0.3em] flex items-center justify-center gap-2">
+              <Sparkles size={10} className="text-blue-400" /> BuildHub Engineering Cloud • v4.0 Technical Logic
+            </p>
         </div>
       </div>
     </DashboardShell>

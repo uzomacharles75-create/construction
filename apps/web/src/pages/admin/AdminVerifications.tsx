@@ -1,45 +1,153 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../../components/layout/DashboardShell';
-import { Building2, Check, X, FileText, Globe, MapPin } from 'lucide-react';
+import apiClient from '../../api/client';
+import { 
+  Building2, 
+  Check, 
+  X, 
+  FileText, 
+  Globe, 
+  MapPin, 
+  Loader2, 
+  Inbox,
+  ShieldCheck,
+  AlertCircle
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminVerifications = () => {
+  const queryClient = useQueryClient();
+
+  // 1. FETCH REAL PENDING COMPANIES
+  const { data: queue, isLoading } = useQuery({
+    queryKey: ['verification-queue'],
+    queryFn: async () => {
+      const { data } = await apiClient.get('/admin/pending');
+      return data;
+    }
+  });
+
+  // 2. VERIFICATION MUTATION (Approve or Reject)
+  const verifyMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string, status: string }) => 
+      apiClient.put(`/admin/verify/${id}`, { status }),
+    onSuccess: () => {
+      // Refresh the queue immediately after action
+      queryClient.invalidateQueries({ queryKey: ['verification-queue'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-global-stats'] });
+    }
+  });
+
   return (
     <DashboardShell>
-      <div className="max-w-[1400px] mx-auto">
-        <h1 className="text-3xl font-black text-slate-800 mb-10 tracking-tight">Verification Queue</h1>
-
-        <div className="space-y-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 group hover:border-blue-600/20 transition-all">
-              <div className="flex items-center gap-6">
-                <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-300 group-hover:text-blue-600 transition-colors">
-                  <Building2 size={32} />
-                </div>
-                <div>
-                   <h3 className="text-xl font-black text-slate-800">Summit Contractors Africa</h3>
-                   <div className="flex items-center gap-4 mt-1 text-slate-400 text-xs font-medium">
-                      <span className="flex items-center gap-1"><MapPin size={14}/> Douala, CM</span>
-                      <span className="flex items-center gap-1"><Globe size={14}/> summit-build.cm</span>
-                   </div>
-                   <div className="mt-4 flex gap-2">
-                      <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase">Registered 2h ago</span>
-                      <span className="px-3 py-1 bg-slate-50 text-slate-400 rounded-full text-[10px] font-black uppercase">Docs Uploaded</span>
-                   </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                 <button className="px-6 py-3 bg-slate-50 text-slate-600 rounded-2xl font-bold text-xs hover:bg-slate-100 transition-all flex items-center gap-2">
-                    <FileText size={16} /> Review Papers
-                 </button>
-                 <button className="p-4 bg-rose-50 text-rose-600 rounded-2xl hover:bg-rose-600 hover:text-white transition-all">
-                    <X size={20} />
-                 </button>
-                 <button className="p-4 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-xl shadow-emerald-100">
-                    <Check size={20} />
-                 </button>
-              </div>
+      <div className="max-w-[1400px] mx-auto pb-20">
+        
+        {/* HEADER */}
+        <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-4xl font-black text-[#001529] tracking-tight italic">Verification Queue</h1>
+            <p className="text-sm text-slate-400 font-medium">Verify business legitimacy and technical credentials before network activation.</p>
+          </div>
+          {!isLoading && queue?.length > 0 && (
+            <div className="bg-blue-600 text-white px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/20 flex items-center gap-2">
+               <AlertCircle size={14} /> {queue.length} Applications Pending
             </div>
-          ))}
+          )}
+        </header>
+
+        {/* LOADING STATE */}
+        {isLoading ? (
+          <div className="py-20 text-center flex flex-col items-center">
+            <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
+            <p className="font-black text-slate-400 uppercase tracking-widest text-[10px]">Accessing Secure Queue...</p>
+          </div>
+        ) : queue?.length === 0 ? (
+          /* EMPTY STATE */
+          <div className="bg-white p-24 rounded-[4rem] border-2 border-dashed border-slate-100 text-center">
+             <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-500 mx-auto mb-6">
+                <ShieldCheck size={40} />
+             </div>
+             <h3 className="text-2xl font-black text-[#001529]">Queue is Clear</h3>
+             <p className="text-sm text-slate-400 mt-1 font-medium">All registered companies have been processed.</p>
+          </div>
+        ) : (
+          /* QUEUE LIST (REAL DATA) */
+          <div className="space-y-6">
+            <AnimatePresence>
+              {queue?.map((company: any, i: number) => (
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ delay: i * 0.05 }}
+                  key={company._id} 
+                  className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8 group hover:border-blue-600/20 hover:shadow-xl transition-all relative overflow-hidden"
+                >
+                  <div className="flex items-center gap-8 flex-1">
+                    {/* DYNAMIC LOGO / ICON */}
+                    <div className="w-24 h-24 bg-[#001529] rounded-[2.5rem] flex items-center justify-center text-white font-black text-3xl italic shrink-0 shadow-2xl transition-transform group-hover:scale-105">
+                       {company.logo ? (
+                         <img src={company.logo} className="w-full h-full object-cover rounded-[2.5rem]" alt="" />
+                       ) : company.name.charAt(0)}
+                    </div>
+
+                    <div className="flex-1">
+                       <h3 className="text-2xl font-black text-[#001529] mb-2">{company.name}</h3>
+                       <div className="flex flex-wrap items-center gap-5 text-slate-400 text-[10px] font-black uppercase tracking-widest">
+                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-blue-600" /> {company.city}, {company.country}</span>
+                          <span className="flex items-center gap-1.5"><Globe size={14} className="text-blue-600" /> {company.website || 'No Web ID'}</span>
+                       </div>
+                       
+                       <div className="mt-6 flex flex-wrap gap-2">
+                          <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase border border-blue-100">
+                             Applied {new Date(company.createdAt).toLocaleDateString()}
+                          </span>
+                          <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase border ${
+                            company.documentsUploaded ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                          }`}>
+                             {company.documentsUploaded ? 'Docs Verified' : 'Missing KYC Docs'}
+                          </span>
+                       </div>
+                    </div>
+                  </div>
+
+                  {/* ACTION BUTTONS */}
+                  <div className="flex items-center gap-3 w-full lg:w-auto border-t lg:border-t-0 lg:border-l border-slate-50 pt-6 lg:pt-0 lg:pl-10">
+                     <button className="flex-1 lg:flex-none px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center gap-2">
+                        <FileText size={16} /> Review Dossier
+                     </button>
+                     
+                     <button 
+                        onClick={() => verifyMutation.mutate({ id: company._id, status: 'rejected' })}
+                        disabled={verifyMutation.isPending}
+                        className="p-5 bg-rose-50 text-rose-500 rounded-2xl hover:bg-rose-600 hover:text-white transition-all shadow-sm flex items-center justify-center"
+                     >
+                        <X size={20} />
+                     </button>
+                     
+                     <button 
+                        onClick={() => verifyMutation.mutate({ id: company._id, status: 'verified' })}
+                        disabled={verifyMutation.isPending}
+                        className="p-5 bg-emerald-50 text-emerald-600 rounded-2xl hover:bg-emerald-600 hover:text-white transition-all shadow-xl shadow-emerald-900/10 flex items-center justify-center"
+                     >
+                        {verifyMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : <Check size={20} />}
+                     </button>
+                  </div>
+
+                  {/* BACKGROUND DECORATION */}
+                  <div className="absolute top-[-10px] left-[-10px] opacity-[0.02] pointer-events-none group-hover:opacity-[0.05] transition-opacity">
+                    <Building2 size={160} />
+                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* COMPLIANCE FOOTER */}
+        <div className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center opacity-40 px-6">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">BuildHub Platform Governance • Ruler Access Level</p>
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Node: AFR-VERIFY-01</p>
         </div>
       </div>
     </DashboardShell>

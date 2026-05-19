@@ -2,12 +2,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AnimatePresence } from 'framer-motion';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { useAuthStore } from './store/useAuthStore';
+import { Toaster } from 'react-hot-toast';
 
 // --- PUBLIC PAGES ---
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import PublicDirectory from './pages/PublicDirectory';
+import PublicCompanyProfile from './pages/PublicCompanyProfile';
 
 
 // --- OWNER / COMPANY ADMIN PAGES (/dashboard/*) ---
@@ -39,11 +41,14 @@ import AdminSettings from './pages/admin/AdminSettings';
 // --- SHARED DETAIL PAGES ---
 import ProjectDetail from './pages/ProjectDetail';
 import TenderBoard from './pages/TenderBoard';
+import SubmitBid from './pages/SubmitBid';
+import TenderDetail from './pages/TenderDetail'
 import BOQEngine from './pages/BOQEngine';
 import Messages from './pages/Messages';
 import Documents from './pages/Documents';
 import AIAssistant from './pages/AIAssistant';
 import PublicMarketplace from './pages/PublicMarketPlace';
+import PublicPostTender from './pages/PublicPostTender';
 
 function App() {
   const { isAuthenticated, user } = useAuthStore();
@@ -57,6 +62,18 @@ function App() {
 
   return (
     <Router>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            borderRadius: '16px',
+            background: '#001529',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: 'bold',
+          },
+        }}
+      />
       <AnimatePresence mode="wait">
         <Routes>
           {/* ==========================================
@@ -68,6 +85,8 @@ function App() {
 
           <Route path="/directory" element={<PublicDirectory />} />
           <Route path="/marketplace" element={<PublicMarketplace />} />
+          <Route path="/company/:id" element={<PublicCompanyProfile />} />
+          <Route path="/post-project" element={<PublicPostTender />} />
 
 
           {/* ==========================================
@@ -79,8 +98,8 @@ function App() {
           <Route path="/dashboard/invoices/new" element={<ProtectedRoute allowedRoles={['owner']}><InvoiceEditor /></ProtectedRoute>} />
           <Route path="/dashboard/settings/business" element={<ProtectedRoute allowedRoles={['owner']}><BusinessSettings /></ProtectedRoute>} />
           <Route path="/dashboard/directory" element={<ProtectedRoute allowedRoles={['owner']}><DirectoryLeads /></ProtectedRoute>} />
-<Route path="/dashboard/marketplace" element={<ProtectedRoute allowedRoles={['owner']}><MarketplaceManager /></ProtectedRoute>} />
-<Route path="/dashboard/invoices" element={<ProtectedRoute allowedRoles={['owner']}><Invoices /></ProtectedRoute>} />
+          <Route path="/dashboard/marketplace" element={<ProtectedRoute allowedRoles={['owner']}><MarketplaceManager /></ProtectedRoute>} />
+          <Route path="/dashboard/invoices" element={<ProtectedRoute allowedRoles={['owner']}><Invoices /></ProtectedRoute>} />
 
           {/* Owner access to shared tools */}
           <Route path="/dashboard/projects" element={<ProtectedRoute allowedRoles={['owner']}><ProjectDetail /></ProtectedRoute>} />
@@ -89,7 +108,8 @@ function App() {
           <Route path="/dashboard/ai" element={<ProtectedRoute allowedRoles={['owner']}><AIAssistant /></ProtectedRoute>} />
           <Route path="/dashboard/documents" element={<ProtectedRoute allowedRoles={['owner']}><Documents /></ProtectedRoute>} />
           <Route path="/dashboard/tenders" element={<ProtectedRoute allowedRoles={['owner']}><TenderBoard /></ProtectedRoute>} />
-
+          <Route path="/dashboard/tenders/:id/bid" element={<ProtectedRoute allowedRoles={['owner']}><SubmitBid /></ProtectedRoute>} />
+            <Route path="/dashboard/tenders/:id" element={<ProtectedRoute allowedRoles={['owner', 'staff']}><TenderDetail /></ProtectedRoute>} />
 
           {/* ==========================================
               3. STAFF / ENGINEER ROUTES (/staff)

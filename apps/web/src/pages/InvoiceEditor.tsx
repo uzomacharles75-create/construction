@@ -1,208 +1,240 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
+import { useAuthStore } from '../store/useAuthStore';
+import apiClient from '../api/client';
 import { 
   Plus, 
   Trash2, 
   Send, 
   ChevronLeft,
   Settings,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const InvoiceEditor = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore(); // Pulling your real company branding
+
+  // 1. STATE FOR DYNAMIC DATA
   const [items, setItems] = useState([
-    { id: 1, desc: 'Foundation Work - Phase 1', qty: 1, rate: 12500 },
+    { id: Date.now(), desc: '', qty: 1, rate: 0 },
   ]);
 
   const [client, setClient] = useState({
-    name: 'Vertex Real Estate',
-    address: '123 Business Way, Douala',
-    email: 'billing@vertex.com'
+    name: '',
+    address: '',
+    email: ''
   });
 
+  // 2. REAL-TIME CALCULATIONS
   const subtotal = items.reduce((acc, item) => acc + (item.qty * item.rate), 0);
-  const tax = subtotal * 0.15;
+  const tax = subtotal * 0.15; // 15% VAT
   const total = subtotal + tax;
+
+  // 3. BACKEND INTEGRATION (Save to MongoDB)
+  const createInvoiceMutation = useMutation({
+    mutationFn: (invoiceData: any) => apiClient.post('/invoices', invoiceData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoices-list'] });
+      navigate('/dashboard/finance'); // Go back to finance hub after saving
+    }
+  });
 
   const addItem = () => {
     setItems([...items, { id: Date.now(), desc: '', qty: 1, rate: 0 }]);
   };
 
   const removeItem = (id: number) => {
-    setItems(items.filter(item => item.id !== id));
+    if (items.length > 1) {
+      setItems(items.filter(item => item.id !== id));
+    }
+  };
+
+  const updateItem = (id: number, field: string, value: any) => {
+    setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+  };
+
+  const handleSave = () => {
+    if (!client.name) return alert("Please enter a client name.");
+    
+    createInvoiceMutation.mutate({
+      client,
+      items: items.map(({ desc, qty, rate }) => ({ description: desc, quantity: qty, rate, total: qty * rate })),
+      subtotal,
+      totalAmount: total,
+      status: 'Pending'
+    });
   };
 
   return (
     <DashboardShell>
-      <div className="max-w-[1400px] mx-auto h-[calc(100vh-140px)] flex flex-col">
+      <motion.div layout className="max-w-[1400px] mx-auto min-h-0 flex flex-col">
+        
         {/* HEADER */}
-        <header className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <button className="p-2 hover:bg-white rounded-full transition-colors text-slate-400">
+        <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 sm:mb-6 shrink-0">
+          <motion.div layout className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <button onClick={() => navigate(-1)} className="p-2 hover:bg-white rounded-full transition-colors text-slate-400">
               <ChevronLeft size={24} />
             </button>
-            <h1 className="text-2xl font-black text-brand-navy tracking-tight">Create Invoice <span className="text-slate-300 ml-2 font-medium">INV-2023-001</span></h1>
-          </div>
-          <div className="flex items-center gap-3">
-             <button className="flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 text-sm hover:bg-slate-50 transition-all">
-                <Settings size={18} />
-                Branding
+            <h1 className="text-lg sm:text-2xl font-black text-[#001529] tracking-tight truncate">Generate Document</h1>
+          </motion.div>
+          <motion.div layout className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto shrink-0">
+             <button className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-400 text-xs hover:bg-slate-50 transition-all">
+                <Settings size={16} /> Branding
              </button>
-             <button className="flex items-center gap-2 px-6 py-2.5 bg-brand-navy text-white rounded-xl font-bold text-sm shadow-xl hover:bg-slate-800 transition-all">
-                <Send size={18} />
-                Send Invoice
+             <button 
+                onClick={handleSave}
+                disabled={createInvoiceMutation.isPending}
+                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 sm:px-8 py-3 bg-blue-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-xl shadow-blue-900/20 hover:bg-blue-700 transition-all"
+             >
+                {createInvoiceMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                {createInvoiceMutation.isPending ? 'Saving...' : 'Issue Invoice'}
              </button>
-          </div>
+          </motion.div>
         </header>
 
-        <div className="flex-1 flex gap-8 overflow-hidden">
+        <motion.div layout className="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8 overflow-hidden min-h-0">
           
-          {/* LEFT: DATA ENTRY (Scrollable) */}
-          <section className="w-1/2 overflow-y-auto pr-4 custom-scrollbar pb-10">
+          {/* LEFT: DATA ENTRY */}
+          <section className="w-full lg:w-1/2 overflow-y-auto lg:pr-4 custom-scrollbar pb-6 lg:pb-10 max-h-[50vh] lg:max-h-none">
             <div className="space-y-6">
               {/* CLIENT DETAILS */}
               <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Client Information</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 px-1">Recipient Information</h3>
                 <div className="space-y-4">
                   <input 
                     type="text" 
-                    placeholder="Client Name"
-                    className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold text-brand-navy focus:ring-2 focus:ring-brand-blue transition-all outline-none"
+                    placeholder="Client or Project Name"
+                    className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-bold text-[#001529] focus:ring-2 focus:ring-blue-600/20 outline-none"
                     value={client.name}
                     onChange={(e) => setClient({...client, name: e.target.value})}
                   />
                   <input 
                     type="text" 
-                    placeholder="Client Address"
-                    className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm text-slate-600 focus:ring-2 focus:ring-brand-blue transition-all outline-none"
+                    placeholder="Billing Address"
+                    className="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm text-slate-600 focus:ring-2 focus:ring-blue-600/20 outline-none"
                     value={client.address}
+                    onChange={(e) => setClient({...client, address: e.target.value})}
                   />
                 </div>
               </div>
 
               {/* LINE ITEMS */}
               <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Line Items</h3>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6 px-1">Invoice Line Items</h3>
                 <div className="space-y-4">
                   <AnimatePresence>
                     {items.map((item) => (
-                      <motion.div 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        key={item.id} 
-                        className="flex items-center gap-3"
-                      >
+                      <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} key={item.id} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                         <input 
                           type="text" 
                           placeholder="Description"
-                          className="flex-[3] bg-slate-50 border-none rounded-2xl py-4 px-6 text-sm font-medium text-brand-navy outline-none"
+                          className="flex-[3] bg-slate-50 border-none rounded-2xl py-4 px-6 text-xs font-medium text-[#001529] outline-none"
                           value={item.desc}
+                          onChange={(e) => updateItem(item.id, 'desc', e.target.value)}
                         />
                         <input 
                           type="number" 
                           placeholder="Qty"
-                          className="flex-1 bg-slate-50 border-none rounded-2xl py-4 px-4 text-sm font-bold text-brand-navy outline-none text-center"
+                          className="flex-1 bg-slate-50 border-none rounded-2xl py-4 px-2 text-xs font-black text-[#001529] outline-none text-center"
                           value={item.qty}
+                          onChange={(e) => updateItem(item.id, 'qty', parseInt(e.target.value) || 0)}
                         />
                         <input 
                           type="number" 
                           placeholder="Rate"
-                          className="flex-[1.5] bg-slate-50 border-none rounded-2xl py-4 px-4 text-sm font-bold text-brand-navy outline-none text-center"
+                          className="flex-[1.5] bg-slate-50 border-none rounded-2xl py-4 px-2 text-xs font-black text-[#001529] outline-none text-center"
                           value={item.rate}
+                          onChange={(e) => updateItem(item.id, 'rate', parseInt(e.target.value) || 0)}
                         />
-                        <button 
-                          onClick={() => removeItem(item.id)}
-                          className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        <button onClick={() => removeItem(item.id)} className="p-3 text-rose-500 hover:bg-rose-50 rounded-xl transition-all"><Trash2 size={18} /></button>
                       </motion.div>
                     ))}
                   </AnimatePresence>
 
-                  <button 
-                    onClick={addItem}
-                    className="w-full py-4 border-2 border-dashed border-slate-100 rounded-2xl text-slate-400 font-bold text-sm hover:border-brand-blue hover:text-brand-blue transition-all flex items-center justify-center gap-2"
-                  >
-                    <Plus size={18} />
-                    Add New Line Item
+                  <button onClick={addItem} className="w-full py-4 border-2 border-dashed border-slate-100 rounded-2xl text-slate-400 font-bold text-[10px] uppercase tracking-widest hover:border-blue-600 hover:text-blue-600 transition-all flex items-center justify-center gap-2">
+                    <Plus size={14} /> Add Line Item
                   </button>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* RIGHT: LIVE PREVIEW (The "A4" Canvas) */}
-          <section className="w-1/2 bg-slate-800 rounded-[3rem] p-10 flex justify-center overflow-y-auto">
-            <div className="w-[595px] h-[842px] bg-white shadow-2xl p-12 flex flex-col shrink-0">
-              {/* INVOICE CONTENT */}
+          {/* RIGHT: LIVE PREVIEW (THE A4 CANVAS) */}
+          <section className="w-full lg:w-1/2 bg-[#001529] rounded-2xl sm:rounded-[3rem] p-4 sm:p-10 flex justify-center overflow-x-auto overflow-y-auto custom-scrollbar shadow-inner min-h-[320px] lg:min-h-0">
+            <motion.div layout className="w-full max-w-[595px] min-h-[600px] sm:min-h-[842px] bg-white shadow-2xl p-6 sm:p-14 flex flex-col shrink-0">
+              
+              {/* AUTOMATIC BRANDING FROM AUTH STORE */}
               <div className="flex justify-between items-start mb-16">
                 <div>
-                   {/* Automatically pull logo from company profile */}
-                  <div className="w-12 h-12 bg-brand-navy rounded-xl flex items-center justify-center text-white font-bold text-xl mb-4">
-                    B
+                  <div className="w-14 h-14 bg-[#001529] rounded-2xl flex items-center justify-center text-white font-black text-xl italic mb-6">
+                    {user?.company?.charAt(0) || 'B'}
                   </div>
-                  <h2 className="text-xl font-black text-brand-navy">BuildHub Ltd.</h2>
-                  <p className="text-[10px] text-slate-400 font-medium">123 Avenue, Douala, CM</p>
+                  <h2 className="text-xl font-black text-[#001529]">{user?.company || 'My Company'}</h2>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter italic">BuildHub Premium Member</p>
                 </div>
                 <div className="text-right">
-                  <h1 className="text-4xl font-light text-slate-300 uppercase tracking-tighter mb-2">Invoice</h1>
-                  <p className="text-sm font-bold text-brand-navy">#INV-2023-001</p>
-                  <p className="text-[10px] text-slate-400 font-medium mt-1">October 24, 2023</p>
+                  <h1 className="text-5xl font-light text-slate-200 uppercase tracking-tighter mb-4">Invoice</h1>
+                  <p className="text-sm font-black text-[#001529]">#DRAFT-{new Date().getFullYear()}</p>
+                  <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-widest">{new Date().toLocaleDateString()}</p>
                 </div>
               </div>
 
               <div className="mb-12">
-                <p className="text-[10px] font-black uppercase tracking-widest text-slate-300 mb-2">Billed to</p>
-                <h4 className="font-bold text-brand-navy">{client.name}</h4>
-                <p className="text-[10px] text-slate-500 w-1/3">{client.address}</p>
+                <p className="text-[9px] font-black uppercase tracking-widest text-slate-300 mb-2">Billed to</p>
+                <h4 className="font-black text-[#001529] text-sm uppercase">{client.name || 'Recipient Name'}</h4>
+                <p className="text-[10px] text-slate-500 w-2/3 leading-relaxed mt-1">{client.address || 'Recipient Address'}</p>
               </div>
 
               <table className="w-full mb-12">
                 <thead>
-                  <tr className="border-b-2 border-slate-50 text-[10px] uppercase font-black text-slate-300">
-                    <th className="py-4 text-left">Description</th>
+                  <tr className="border-b-2 border-[#001529] text-[9px] uppercase font-black text-[#001529]">
+                    <th className="py-4 text-left">Item Description</th>
                     <th className="py-4 text-center">Qty</th>
                     <th className="py-4 text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100">
                   {items.map((item) => (
-                    <tr key={item.id} className="border-b border-slate-50">
-                      <td className="py-4 text-xs font-bold text-brand-navy">{item.desc || 'New Item'}</td>
-                      <td className="py-4 text-xs font-medium text-slate-500 text-center">{item.qty}</td>
-                      <td className="py-4 text-xs font-bold text-brand-navy text-right">${(item.qty * item.rate).toLocaleString()}</td>
+                    <tr key={item.id}>
+                      <td className="py-4 text-xs font-bold text-slate-700">{item.desc || 'Untitled Service'}</td>
+                      <td className="py-4 text-xs font-medium text-slate-400 text-center">{item.qty}</td>
+                      <td className="py-4 text-xs font-black text-[#001529] text-right">${(item.qty * item.rate).toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
               <div className="mt-auto flex justify-end">
-                <div className="w-48 space-y-3">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Subtotal</span>
-                    <span className="font-bold text-brand-navy">${subtotal.toLocaleString()}</span>
+                <div className="w-56 space-y-3 pt-6 border-t-4 border-slate-50">
+                  <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span>Subtotal</span>
+                    <span className="text-[#001529]">${subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-400">Tax (15%)</span>
-                    <span className="font-bold text-brand-navy">${tax.toLocaleString()}</span>
+                  <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span>Tax (15%)</span>
+                    <span className="text-[#001529]">${tax.toLocaleString()}</span>
                   </div>
-                  <div className="flex justify-between text-lg pt-3 border-t-2 border-brand-navy">
-                    <span className="font-black text-brand-navy uppercase text-[10px] mt-1.5">Total</span>
-                    <span className="font-black text-brand-navy">${total.toLocaleString()}</span>
+                  <div className="flex justify-between text-xl pt-4 border-t border-slate-100">
+                    <span className="font-black text-[#001529] uppercase text-xs mt-1.5 tracking-tighter">Total Amount</span>
+                    <span className="font-black text-blue-600">${total.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-20 pt-8 border-t border-slate-50">
-                <p className="text-[8px] text-slate-400 text-center uppercase tracking-[0.2em] font-bold">Thank you for choosing BuildHub Services</p>
-              </div>
-            </div>
+              <motion.div layout className="mt-20 pt-10 border-t border-slate-50 text-center">
+                <p className="text-[9px] text-slate-300 font-bold uppercase tracking-[0.3em]">BuildHub Digital Document • Securing African Infrastructure</p>
+              </motion.div>
+            </motion.div>
           </section>
 
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </DashboardShell>
   );
 };

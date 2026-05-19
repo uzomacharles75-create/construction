@@ -11,11 +11,12 @@ import {
   PlayCircle
 } from 'lucide-react';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
+import { PublicFooter } from '../components/layout/PublicFooter';
 
 const FeatureCard = ({ icon: Icon, title, desc }: any) => (
   <motion.div 
     whileHover={{ y: -10 }}
-    className="p-10 bg-slate-50 rounded-[3rem] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500"
+    className="p-6 sm:p-10 bg-slate-50 rounded-2xl sm:rounded-[3rem] border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500"
   >
     <div className="w-14 h-14 bg-brand-blue/10 text-brand-blue rounded-2xl flex items-center justify-center mb-6">
       <Icon size={28} />
@@ -32,7 +33,7 @@ const Landing = () => {
      <PublicNavbar />
 
       {/* HERO SECTION */}
-      <section className="pt-48 pb-32 px-10 text-center relative">
+      <section className="pt-28 sm:pt-40 md:pt-48 pb-16 sm:pb-32 px-4 sm:px-6 md:px-10 text-center relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-brand-blue/5 blur-[120px] rounded-full -z-10" />
         
         <motion.div
@@ -44,10 +45,10 @@ const Landing = () => {
           <span className="px-4 py-2 bg-slate-100 rounded-full text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-8 inline-block">
             The Industry Standard for Construction
           </span>
-          <h1 className="text-7xl md:text-8xl font-black text-brand-navy tracking-tighter mb-8 leading-[0.9]">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-brand-navy tracking-tighter mb-6 sm:mb-8 leading-[0.95] sm:leading-[0.9]">
             The Operating System for <span className="text-brand-blue">Build.</span>
           </h1>
-          <p className="text-xl md:text-2xl text-slate-500 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
+          <p className="text-base sm:text-xl md:text-2xl text-slate-500 mb-8 sm:mb-12 max-w-2xl mx-auto font-medium leading-relaxed px-2">
             From BOQs and Invoices to Marketplace sourcing. Run your entire construction office from one elegant workspace.
           </p>
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -64,9 +65,9 @@ const Landing = () => {
       </section>
 
       {/* BENTO GRID FEATURES */}
-      <section id="features" className="py-32 px-10 max-w-7xl mx-auto">
-        <div className="text-center mb-24">
-          <h2 className="text-5xl font-black text-brand-navy tracking-tight mb-4">Built for every phase.</h2>
+      <section id="features" className="py-16 sm:py-32 px-4 sm:px-6 md:px-10 max-w-7xl mx-auto">
+        <div className="text-center mb-12 sm:mb-24">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-navy tracking-tight mb-4">Built for every phase.</h2>
           <p className="text-slate-500 text-lg font-medium">Everything you need to scale your construction business.</p>
         </div>
 
@@ -126,6 +127,7 @@ const Landing = () => {
           Create your office now
         </button>
       </section>
+       <PublicFooter />
     </div>
   );
 };

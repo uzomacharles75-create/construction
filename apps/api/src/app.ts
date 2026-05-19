@@ -1,0 +1,60 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import dotenv from 'dotenv';
+
+// 1. ROUTE IMPORTS
+import authRoutes from './routes/authRoutes';
+import projectRoutes from './routes/ProjectRoutes'; // Ensure your filename is 'ProjectRoutes.ts'
+import invoiceRoutes from './routes/invoiceRoutes';
+import marketplaceRoutes from './routes/marketplaceRoutes';
+import workforceRoutes from './routes/workforceRoutes';
+import boqRoutes from './routes/boqRoutes';
+import tenderRoutes from './routes/tenderRoutes';
+import messageRoutes from './routes/messageRoutes';
+import adminRoutes from './routes/adminRoutes';
+import exploreRoutes from './routes/exploreRoutes';
+import documentRoutes from './routes/documentRoutes';
+import aiRoutes from './routes/aiRoutes'; 
+
+import { errorHandler } from './middleware/errorMiddleware';
+
+dotenv.config();
+const app = express();
+
+// 2. GLOBAL MIDDLEWARES
+app.use(helmet()); 
+
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(morgan('dev')); 
+app.use(express.json()); 
+
+// 3. API ENDPOINTS (Version 1)
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1/invoices', invoiceRoutes);
+app.use('/api/v1/marketplace', marketplaceRoutes);
+app.use('/api/v1/workforce', workforceRoutes);
+app.use('/api/v1/boq', boqRoutes);
+app.use('/api/v1/tenders', tenderRoutes);
+app.use('/api/v1/messages', messageRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/explore', exploreRoutes);
+app.use('/api/v1/documents', documentRoutes);
+app.use('/api/v1/ai', aiRoutes); 
+
+// 4. HEALTH CHECK ROUTE
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'BuildHub API Engine is healthy', timestamp: new Date() });
+});
+
+app.use(errorHandler);
+
+export default app;

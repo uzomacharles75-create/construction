@@ -1,38 +1,52 @@
 import { create } from 'zustand';
-
-// We added 'persist' so that if you refresh the page, you stay logged in
 import { persist } from 'zustand/middleware';
+
+interface User {
+  id: string;
+  name: string;
+  role: 'owner' | 'staff' | 'admin' | 'client';
+  companyId?: string;
+  company?: string;
+  email: string;
+  avatar?: string;
+  slug: string; // The human-readable ID
+}
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: {
-    name: string;
-    role: 'owner' | 'staff' | 'admin' | 'client';
-    company: string;
-  } | null;
-  login: (role: 'owner' | 'staff' | 'admin') => void;
+  user: User | null;
+  token: string | null;
+  setAuth: (user: User, token: string) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      isAuthenticated: false, 
+      isAuthenticated: false,
       user: null,
+      token: null,
 
-      login: (role) => {
+      setAuth: (user, token) => {
+        localStorage.setItem('token', token);
         set({ 
           isAuthenticated: true, 
-          user: { 
-            name: role === 'owner' ? 'Banye Victor' : 'Engineer Sarah', 
-            role: role, 
-            company: 'Vertex Builders Ltd' 
-          } 
+          user, 
+          token 
         });
       },
 
-      logout: () => set({ isAuthenticated: false, user: null }),
+      logout: () => {
+        localStorage.removeItem('token');
+        set({ 
+          isAuthenticated: false, 
+          user: null, 
+          token: null 
+        });
+      },
     }),
-    { name: 'buildhub-auth' } // Saves session in browser storage
+    { 
+      name: 'buildhub-storage', 
+    }
   )
 );
