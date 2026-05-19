@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import apiClient from '../api/client'; // Your real Axios instance
-import { Loader2, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Loader2, AlertCircle, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 
 const Login = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const [showPassword, setShowPassword] = useState(false);
   
   // 1. FORM STATE
   const [email, setEmail] = useState('');
@@ -95,7 +96,7 @@ const Login = () => {
                <button type="button" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot?</button>
             </div>
             <input 
-              type="password" 
+              type={showPassword ? "text" : "password"} 
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -112,22 +113,24 @@ const Login = () => {
           <button 
             type="submit"
             disabled={isLoading}
+            onClick={() => setShowPassword(!showPassword)}
             className="w-full bg-[#001F3F] text-white p-5 rounded-2xl font-black shadow-2xl shadow-blue-900/20 hover:bg-blue-700 hover:translate-y-[-2px] active:translate-y-[0px] disabled:bg-slate-300 disabled:translate-y-0 transition-all mt-2 flex items-center justify-center gap-3"
           >
+             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin" size={20} />
                 Authenticating...
               </>
             ) : (
-              'Enter Dashboard'
+              'Login'
             )}
           </button>
         </form>
 
-        <div className="mt-10 text-center border-t border-slate-50 pt-8">
+        <div className="mt-5 text-center border-t border-slate-50 pt-8">
           <p className="text-xs text-slate-400 font-medium">
-            New to the platform? <br/>
+            Don't have an account? <br/>
             <Link to="/register" className="text-blue-600 font-bold hover:underline mt-2 inline-block">Create a Business ID</Link>
           </p>
         </div>

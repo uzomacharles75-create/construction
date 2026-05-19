@@ -123,9 +123,9 @@ const Landing = () => {
       {/* FINAL CTA */}
       <section className="py-40 text-center">
         <h2 className="text-6xl font-black text-brand-navy tracking-tighter mb-8">Ready to modernize?</h2>
-        <button className="bg-brand-navy text-white px-12 py-6 rounded-3xl font-black text-xl shadow-2xl hover:scale-105 transition-transform">
+        <Link to="/register" className="bg-brand-navy text-white px-12 py-6 rounded-3xl font-black text-xl shadow-2xl hover:scale-105 transition-transform">
           Create your office now
-        </button>
+        </Link>
       </section>
        <PublicFooter />
     </div>

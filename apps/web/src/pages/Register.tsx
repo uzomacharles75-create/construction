@@ -234,7 +234,7 @@ const Register = () => {
             <div>
                {step === 1 && (
                   <p className="text-xs text-slate-400 font-medium px-2">
-                    Member already? <Link to="/login" className="text-blue-600 font-black hover:underline">Log in</Link>
+                    Already have an account? <Link to="/login" className="text-blue-600 font-black hover:underline">Log in</Link>
                   </p>
                )}
                {step > 1 && (
