@@ -66,11 +66,10 @@ const BOQSchema = new Schema<IBOQ>({
   timestamps: true // Automatically adds createdAt and updatedAt
 });
 
-BOQSchema.pre<IBOQ>('save', function (next) {
+BOQSchema.pre('save', function (next) {
   try {
     let grandTotal = 0;
 
-    // Perform the math for each item
     if (this.items && this.items.length > 0) {
       this.items.forEach((item) => {
         item.total = (item.qty || 0) * (item.rate || 0);
@@ -80,12 +79,10 @@ BOQSchema.pre<IBOQ>('save', function (next) {
 
     this.totalAmount = grandTotal;
 
-    // Enforce the "Verification-First" logic
-    // isLocked becomes true ONLY if there are items and all are 'verified'
-    const allVerified = 
-      this.items.length > 0 && 
+    const allVerified =
+      this.items.length > 0 &&
       this.items.every((item) => item.status === 'verified');
-    
+
     this.isLocked = allVerified;
 
     next();
@@ -93,7 +90,3 @@ BOQSchema.pre<IBOQ>('save', function (next) {
     next(error);
   }
 });
-
-// 6. Export the Model (With internal check for existing models)
-const BOQ = mongoose.models.BOQ || mongoose.model<IBOQ>('BOQ', BOQSchema);
-export default BOQ;
