@@ -90,3 +90,4 @@ BOQSchema.pre('save', function (next) {
     next(error);
   }
 });
+export default mongoose.model<IBOQ>('BOQ', BOQSchema);
