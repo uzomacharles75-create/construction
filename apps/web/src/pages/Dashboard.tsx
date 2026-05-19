@@ -88,6 +88,18 @@ const Dashboard = () => {
              </Link>
           </div>
         </div>
+  {/* QUICK ACCESS BAR */}
+        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 flex justify-between shadow-premium mb-10 overflow-x-auto no-scrollbar gap-10">
+          <QuickAccess icon={Building2} label="Directory" bg="bg-blue-600" path="/dashboard/directory" />
+          <QuickAccess icon={Store} label="Market" bg="bg-emerald-500" path="/dashboard/marketplace" />
+          <QuickAccess icon={ClipboardList} label="Tenders" bg="bg-orange-500" path="/dashboard/tenders" />
+          <QuickAccess icon={FileText} label="Invoices" bg="bg-purple-600" path="/dashboard/invoices" />
+          <QuickAccess icon={Calculator} label="BOQ Tool" bg="bg-rose-500" path="/dashboard/boq" />
+          <QuickAccess icon={Briefcase} label="Projects" bg="bg-indigo-600" path="/dashboard/projects" />
+          <QuickAccess icon={MessageCircle} label="Messages" bg="bg-teal-600" path="/dashboard/messages" />
+          <QuickAccess icon={Sparkles} label="AI Hub" bg="bg-violet-600" path="/dashboard/ai" />
+          <QuickAccess icon={BarChart} label="Reports" bg="bg-rose-600" path="/dashboard/finance" />
+        </div>
 
         {/* TOP STATS GRID (WITH SKELETONS) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-10">
@@ -201,20 +213,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* QUICK ACCESS BAR */}
-        <div className="bg-white p-10 rounded-[3rem] border border-slate-100 flex justify-between shadow-premium mb-10 overflow-x-auto no-scrollbar gap-10">
-          <QuickAccess icon={Building2} label="Directory" bg="bg-blue-600" path="/dashboard/directory" />
-          <QuickAccess icon={Store} label="Market" bg="bg-emerald-500" path="/dashboard/marketplace" />
-          <QuickAccess icon={ClipboardList} label="Tenders" bg="bg-orange-500" path="/dashboard/tenders" />
-          <QuickAccess icon={FileText} label="Invoices" bg="bg-purple-600" path="/dashboard/invoices" />
-          <QuickAccess icon={Calculator} label="BOQ Tool" bg="bg-rose-500" path="/dashboard/boq" />
-          <QuickAccess icon={Briefcase} label="Projects" bg="bg-indigo-600" path="/dashboard/projects" />
-          <QuickAccess icon={MessageCircle} label="Messages" bg="bg-teal-600" path="/dashboard/messages" />
-          <QuickAccess icon={Sparkles} label="AI Hub" bg="bg-violet-600" path="/dashboard/ai" />
-          <QuickAccess icon={BarChart} label="Reports" bg="bg-rose-600" path="/dashboard/finance" />
-        </div>
-
       </div>
     </DashboardShell>
   );
