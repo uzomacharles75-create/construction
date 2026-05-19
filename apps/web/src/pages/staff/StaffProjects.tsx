@@ -8,7 +8,6 @@ import {
   ClipboardCheck, 
   Loader2, 
   Activity, 
-  ArrowRight,
   Inbox
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

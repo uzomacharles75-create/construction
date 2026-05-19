@@ -9,7 +9,6 @@ import {
   Globe, 
   MapPin, 
   Loader2, 
-  Inbox,
   ShieldCheck,
   AlertCircle
 } from 'lucide-react';

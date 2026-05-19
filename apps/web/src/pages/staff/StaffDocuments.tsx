@@ -9,7 +9,8 @@ import {
   FileText, 
   ShieldCheck, 
   Layers,
-  Inbox
+  Inbox,
+  CheckCircle2
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

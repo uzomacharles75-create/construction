@@ -7,14 +7,13 @@ import {
   Zap, 
   ChevronRight, 
   Loader2, 
-  Send, 
   Sparkles,
   RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const StaffAI = () => {
-  const { user } = useAuthStore();
+  useAuthStore();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{role: string, content: string}[]>([]);
   const [isLoading, setIsLoading] = useState(false);

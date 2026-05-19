@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   HardHat,
   Loader2,
-  CheckCircle2,
   TrendingUp,
   Users
 } from 'lucide-react';
@@ -18,7 +17,7 @@ const ProjectDetail = () => {
   const { id } = useParams(); // Get Project ID from URL
 
   // 1. FETCH FULL PROJECT DATA
-  const { data: project, isLoading, isError } = useQuery({
+  const { data: project, isLoading } = useQuery({
     queryKey: ['project', id],
     queryFn: async () => {
       const { data } = await apiClient.get(`/projects/${id}`);

@@ -4,9 +4,9 @@ import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 import { 
   BarChart3, Users, Building2, ShieldAlert, Activity, 
-  Loader2, TrendingUp, Globe2, Server, Inbox
+  Loader2, TrendingUp, Globe2, Server
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion} from 'framer-motion';
 
 const AdminDashboard = () => {
   const { user } = useAuthStore();

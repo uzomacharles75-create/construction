@@ -8,11 +8,11 @@ import {
   Star, 
   ShieldCheck, 
   Calendar, 
-  MessageCircle, 
   Share2,
   ArrowLeft,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

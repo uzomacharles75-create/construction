@@ -10,7 +10,6 @@ import {
   FileText,
   Image as ImageIcon,
   Loader2,
-  FileCode,
   Inbox
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

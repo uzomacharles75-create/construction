@@ -8,8 +8,6 @@ import {
   Package, 
   ChevronRight, 
   Loader2, 
-  Search, 
-  Inbox,
   TrendingUp,
   FileText
 } from 'lucide-react';

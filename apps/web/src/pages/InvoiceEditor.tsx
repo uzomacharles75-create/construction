@@ -11,7 +11,6 @@ import {
   ChevronLeft,
   Settings,
   Loader2,
-  CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

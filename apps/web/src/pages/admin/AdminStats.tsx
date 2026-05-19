@@ -6,7 +6,6 @@ import {
   Activity, 
   Zap, 
   TrendingUp, 
-  BarChart3, 
   Loader2, 
   Server,
   ArrowUpRight

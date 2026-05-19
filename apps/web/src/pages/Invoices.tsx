@@ -6,7 +6,6 @@ import {
   Plus, 
   Download, 
   FileText, 
-  Filter, 
   Search, 
   Loader2, 
   Inbox,

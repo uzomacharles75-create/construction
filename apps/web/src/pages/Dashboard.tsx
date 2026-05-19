@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion} from 'framer-motion';
 import { Skeleton } from '../components/ui/Skeleton'; // Assuming your skeleton is here
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
 import apiClient from '../api/client';
 import { 
-  Briefcase, MessageCircle, ClipboardList, DollarSign, 
-  FileText, Plus, ChevronRight, Users, Shield, 
+  Briefcase, MessageCircle, ClipboardList, 
+  FileText, Plus, ChevronRight, 
   BarChart, Sparkles, MapPin, Store, Building2, Calculator,
   Loader2, TrendingUp
 } from 'lucide-react';

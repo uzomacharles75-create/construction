@@ -21,6 +21,7 @@ interface CompanyProfile {
   address?: string;
   logo?: string;
   name?: string;
+   slug?: string;
   status?: string;
   portfolio?: string[];
 }

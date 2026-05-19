@@ -15,7 +15,7 @@ import PublicCompanyProfile from './pages/PublicCompanyProfile';
 // --- OWNER / COMPANY ADMIN PAGES (/dashboard/*) ---
 import Dashboard from './pages/Dashboard';
 import Finance from './pages/Finance';
-import Workforce from './pages/WorkForce';
+import Workforce from './pages/Workforce';
 import BusinessSettings from './pages/BusinessSettings';
 import InvoiceEditor from './pages/InvoiceEditor';
 import DirectoryLeads from './pages/DirectoryLeads';

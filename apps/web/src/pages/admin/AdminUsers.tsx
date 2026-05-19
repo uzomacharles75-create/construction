@@ -7,7 +7,6 @@ import {
   Crown, 
   ExternalLink, 
   Loader2, 
-  Building2, 
   ShieldCheck, 
   MoreVertical,
   Inbox,

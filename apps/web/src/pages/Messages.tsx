@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
 import apiClient from '../api/client';
@@ -8,16 +8,14 @@ import {
   Search, 
   Paperclip, 
   Send, 
-  MoreHorizontal, 
   Phone, 
   Video,
   Sparkles,
   CheckCheck,
-  Loader2,
   MessageSquare,
   ArrowLeft
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion} from 'framer-motion';
 
 // Initialize Socket.io (URL should match your backend)
 const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');

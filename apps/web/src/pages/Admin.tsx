@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/client';
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { ShieldAlert, CheckCircle, XCircle, BarChart, Building, ArrowUpRight } from 'lucide-react';
+import { ShieldAlert, CheckCircle, XCircle, BarChart } from 'lucide-react';
 
 const Admin = () => {
   const queryClient = useQueryClient();

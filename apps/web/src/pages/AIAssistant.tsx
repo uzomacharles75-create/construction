@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { Sparkles, Zap, FileSearch, BarChart, Plus, Send, Loader2 } from 'lucide-react';
 import apiClient from '../api/client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion} from 'framer-motion';
 
 const AIAssistant = () => {
   const [input, setInput] = useState('');
