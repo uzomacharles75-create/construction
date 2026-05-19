@@ -63,15 +63,18 @@ const BOQSchema = new Schema<IBOQ>({
     default: false 
   }
 }, { 
-  timestamps: true // Automatically adds createdAt and updatedAt
+  timestamps: true
 });
 
-BOQSchema.pre('save', function (next) {
+// 5. THE FIX: Add <IBOQ> generic to the .pre call
+// This specifically resolves the TS2349 "This expression is not callable" error
+BOQSchema.pre<IBOQ>('save', function (next) {
   try {
     let grandTotal = 0;
 
     if (this.items && this.items.length > 0) {
       this.items.forEach((item) => {
+        // Perform calculation
         item.total = (item.qty || 0) * (item.rate || 0);
         grandTotal += item.total;
       });
@@ -79,6 +82,7 @@ BOQSchema.pre('save', function (next) {
 
     this.totalAmount = grandTotal;
 
+    // Logic for the Export Lock
     const allVerified =
       this.items.length > 0 &&
       this.items.every((item) => item.status === 'verified');
@@ -90,4 +94,6 @@ BOQSchema.pre('save', function (next) {
     next(error);
   }
 });
-export default mongoose.model<IBOQ>('BOQ', BOQSchema);
+
+// 6. Export with Model existence check
+export default mongoose.models.BOQ || mongoose.model<IBOQ>('BOQ', BOQSchema);
