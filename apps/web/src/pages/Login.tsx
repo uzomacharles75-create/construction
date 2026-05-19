@@ -92,26 +92,37 @@ const Login = () => {
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center px-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Security Key</label>
-              <button type="button" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot?</button>
-            </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
-            >
-              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-            </button>
-          </div>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                Security Key
+              </label>
 
+              <button
+                type="button"
+                className="text-[10px] font-bold text-blue-600 hover:underline"
+              >
+                Forgot?
+              </button>
+            </div>
+
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full p-4 pr-12 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]"
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+          </div>
           <div className="flex items-center gap-2 px-2 pb-2">
             <ShieldCheck size={14} className="text-emerald-500" />
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">End-to-End Encrypted</span>
