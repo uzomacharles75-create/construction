@@ -66,19 +66,34 @@ const BOQSchema = new Schema<IBOQ>({
   timestamps: true // Automatically adds createdAt and updatedAt
 });
 
-// 5. MIDDLEWARE: Automatically calculate item totals and grand total before saving
-BOQSchema.pre('save', function(next) {
-  let grandTotal = 0;
-  this.items.forEach(item => {
-    item.total = item.qty * item.rate;
-    grandTotal += item.total;
-  });
-  this.totalAmount = grandTotal;
-  const allVerified = this.items.length > 0 && this.items.every(item => item.status === 'verified');
-  this.isLocked = allVerified;
-  next(); // Use next() to be safe with all TS versions
+BOQSchema.pre<IBOQ>('save', function (next) {
+  try {
+    let grandTotal = 0;
+
+    // Perform the math for each item
+    if (this.items && this.items.length > 0) {
+      this.items.forEach((item) => {
+        item.total = (item.qty || 0) * (item.rate || 0);
+        grandTotal += item.total;
+      });
+    }
+
+    this.totalAmount = grandTotal;
+
+    // Enforce the "Verification-First" logic
+    // isLocked becomes true ONLY if there are items and all are 'verified'
+    const allVerified = 
+      this.items.length > 0 && 
+      this.items.every((item) => item.status === 'verified');
+    
+    this.isLocked = allVerified;
+
+    next();
+  } catch (error: any) {
+    next(error);
+  }
 });
 
-// 6. Export the Model
-const BOQ = mongoose.models.BOQ || model<IBOQ>('BOQ', BOQSchema);
+// 6. Export the Model (With internal check for existing models)
+const BOQ = mongoose.models.BOQ || mongoose.model<IBOQ>('BOQ', BOQSchema);
 export default BOQ;
