@@ -148,7 +148,7 @@ const Login = () => {
         <div className="mt-5 text-center border-t border-slate-50 pt-8">
           <p className="text-xs text-slate-400 font-medium">
             Don't have an account? <br />
-            <Link to="/register" className="text-blue-600 font-bold hover:underline mt-2 inline-block">Create a Business ID</Link>
+            <Link to="/register" className="text-blue-600 font-bold hover:underline mt-2 inline-block">Create</Link>
           </p>
         </div>
       </motion.div>
