@@ -10,7 +10,7 @@ const Login = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // 1. FORM STATE
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +26,7 @@ const Login = () => {
     try {
       // API call to Backend
       const response = await apiClient.post('/auth/login', { email, password });
-      
+
       const { user, token } = response.data;
 
       // Save token and user to Zustand Store & LocalStorage
@@ -53,7 +53,7 @@ const Login = () => {
   return (
     <div className="min-h-[100dvh] flex items-center justify-center bg-brand-soft p-4 sm:p-6 pt-24 sm:pt-28">
       <PublicNavbar /> {/* Optional: A simple navbar for public pages */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl w-full max-w-md border border-white"
@@ -68,7 +68,7 @@ const Login = () => {
 
         {/* ERROR DISPLAY */}
         {error && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 text-rose-600 text-xs font-bold"
@@ -77,32 +77,39 @@ const Login = () => {
             {error}
           </motion.div>
         )}
-        
+
         <form className="space-y-5" onSubmit={handleLogin}>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">Account Email</label>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@company.com" 
-              className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]" 
+              placeholder="name@company.com"
+              className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]"
             />
           </div>
           <div className="space-y-2">
             <div className="flex justify-between items-center px-2">
-               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Security Key</label>
-               <button type="button" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot?</button>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Security Key</label>
+              <button type="button" className="text-[10px] font-bold text-blue-600 hover:underline">Forgot?</button>
             </div>
-            <input 
-              type={showPassword ? "text" : "password"} 
+            <input
+              type={showPassword ? "text" : "password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••" 
-              className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]" 
+              placeholder="••••••••"
+              className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
           <div className="flex items-center gap-2 px-2 pb-2">
@@ -110,13 +117,12 @@ const Login = () => {
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">End-to-End Encrypted</span>
           </div>
 
-          <button 
+          <button
             type="submit"
             disabled={isLoading}
             onClick={() => setShowPassword(!showPassword)}
             className="w-full bg-[#001F3F] text-white p-5 rounded-2xl font-black shadow-2xl shadow-blue-900/20 hover:bg-blue-700 hover:translate-y-[-2px] active:translate-y-[0px] disabled:bg-slate-300 disabled:translate-y-0 transition-all mt-2 flex items-center justify-center gap-3"
           >
-             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin" size={20} />
@@ -130,7 +136,7 @@ const Login = () => {
 
         <div className="mt-5 text-center border-t border-slate-50 pt-8">
           <p className="text-xs text-slate-400 font-medium">
-            Don't have an account? <br/>
+            Don't have an account? <br />
             <Link to="/register" className="text-blue-600 font-bold hover:underline mt-2 inline-block">Create a Business ID</Link>
           </p>
         </div>
