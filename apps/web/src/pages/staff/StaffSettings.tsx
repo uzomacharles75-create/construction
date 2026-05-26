@@ -15,18 +15,18 @@ import { motion } from 'framer-motion';
 const SettingItem = ({ icon: Icon, title, desc }: any) => (
   <motion.div 
     whileHover={{ x: 5 }}
-    className="bg-white p-6 rounded-[2.5rem] border border-slate-100 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-all group shadow-sm"
+    className="bg-brand-navy-card border border-brand-border p-6 rounded-[2.5rem] border border-brand-border flex items-center justify-between hover:bg-brand-navy-light cursor-pointer transition-all group shadow-sm"
   >
     <div className="flex items-center gap-5">
-      <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 group-hover:text-blue-600 group-hover:bg-blue-50 transition-all">
+      <div className="w-12 h-12 bg-brand-navy-light rounded-2xl flex items-center justify-center text-white/50 group-hover:text-brand-yellow group-hover:bg-brand-yellow-pale transition-all">
         <Icon size={22} />
       </div>
       <div>
-        <h4 className="text-sm font-black text-[#001529] tracking-tight">{title}</h4>
-        <p className="text-[11px] text-slate-400 font-medium">{desc}</p>
+        <h4 className="text-sm font-black text-white tracking-tight">{title}</h4>
+        <p className="text-[11px] text-white/50 font-medium">{desc}</p>
       </div>
     </div>
-    <ChevronRight size={18} className="text-slate-200 group-hover:text-blue-600 transition-colors" />
+    <ChevronRight size={18} className="text-white/15 group-hover:text-brand-yellow transition-colors" />
   </motion.div>
 );
 
@@ -43,31 +43,31 @@ const StaffSettings = () => {
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-32 h-32 rounded-[3rem] bg-slate-100 border-4 border-white shadow-2xl overflow-hidden flex items-center justify-center"
+              className="w-32 h-32 rounded-[3rem] bg-brand-navy-light border-4 border-brand-border shadow-2xl overflow-hidden flex items-center justify-center"
             >
                {user?.avatar ? (
                  <img src={user.avatar} className="w-full h-full object-cover" alt={user.name} />
                ) : (
-                 <span className="text-4xl font-black text-[#001529] italic opacity-20">{user?.name?.charAt(0)}</span>
+                 <span className="text-4xl font-black text-white italic opacity-20">{user?.name?.charAt(0)}</span>
                )}
             </motion.div>
-            <button className="absolute bottom-0 right-0 bg-blue-600 text-white p-3 rounded-2xl shadow-xl border-4 border-white hover:bg-blue-700 hover:scale-110 transition-all">
+            <button className="absolute bottom-0 right-0 bg-brand-yellow text-brand-navy p-3 rounded-2xl shadow-xl border-4 border-brand-border hover:bg-brand-yellow-dim hover:scale-110 transition-all">
                <Camera size={18} />
             </button>
           </div>
-          <h1 className="text-3xl font-black text-[#001529] tracking-tight">{user?.name}</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight">{user?.name}</h1>
           <div className="flex items-center justify-center gap-2 mt-2">
-             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">
+             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest bg-brand-navy-light px-3 py-1 rounded-full">
                 {user?.role === 'staff' ? 'Field Engineer' : 'Team Member'}
              </span>
-             <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+             <span className="text-[10px] font-black text-brand-yellow uppercase tracking-widest bg-brand-yellow-pale px-3 py-1 rounded-full border border-brand-yellow">
                 ID: #BH-{user?.id?.slice(-4) || '9920'}
              </span>
           </div>
         </header>
 
         <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] px-4 mb-2">Account Configuration</h3>
+          <h3 className="text-[10px] font-black text-white/35 uppercase tracking-[0.3em] px-4 mb-2">Account Configuration</h3>
           
           <SettingItem 
             icon={User} 
@@ -106,7 +106,7 @@ const StaffSettings = () => {
             onClick={logout}
             className="w-full flex items-center justify-between p-6 bg-rose-50/50 rounded-[2.5rem] border border-rose-100 hover:bg-rose-100 transition-all group"
           >
-            <div className="flex items-center gap-4 text-rose-600">
+            <div className="flex items-center gap-4 text-rose-400">
                <LogOut size={22} className="group-hover:translate-x-1 transition-transform" />
                <span className="font-black text-sm uppercase tracking-widest">Terminate Session</span>
             </div>
@@ -115,8 +115,8 @@ const StaffSettings = () => {
         </div>
 
         {/* COMPLIANCE FOOTER */}
-        <div className="mt-20 pt-8 border-t border-slate-100 text-center opacity-40">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">BuildHub Staff Security Protocol • v4.2.1</p>
+        <div className="mt-20 pt-8 border-t border-brand-border text-center opacity-40">
+            <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.3em]">BuildHub Staff Security Protocol • v4.2.1</p>
         </div>
       </div>
     </DashboardShell>

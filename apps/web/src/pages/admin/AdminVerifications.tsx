@@ -44,11 +44,11 @@ const AdminVerifications = () => {
         {/* HEADER */}
         <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-4xl font-black text-[#001529] tracking-tight italic">Verification Queue</h1>
-            <p className="text-sm text-slate-400 font-medium">Verify business legitimacy and technical credentials before network activation.</p>
+            <h1 className="text-4xl font-black text-white tracking-tight italic">Verification Queue</h1>
+            <p className="text-sm text-white/50 font-medium">Verify business legitimacy and technical credentials before network activation.</p>
           </div>
           {!isLoading && queue?.length > 0 && (
-            <div className="bg-blue-600 text-white px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-blue-900/20 flex items-center gap-2">
+            <div className="bg-brand-yellow text-brand-navy px-5 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-yellow flex items-center gap-2">
                <AlertCircle size={14} /> {queue.length} Applications Pending
             </div>
           )}
@@ -57,17 +57,17 @@ const AdminVerifications = () => {
         {/* LOADING STATE */}
         {isLoading ? (
           <div className="py-20 text-center flex flex-col items-center">
-            <Loader2 className="animate-spin text-blue-600 mb-4" size={40} />
-            <p className="font-black text-slate-400 uppercase tracking-widest text-[10px]">Accessing Secure Queue...</p>
+            <Loader2 className="animate-spin text-brand-yellow mb-4" size={40} />
+            <p className="font-black text-white/50 uppercase tracking-widest text-[10px]">Accessing Secure Queue...</p>
           </div>
         ) : queue?.length === 0 ? (
           /* EMPTY STATE */
-          <div className="bg-white p-24 rounded-[4rem] border-2 border-dashed border-slate-100 text-center">
+          <div className="bg-brand-navy-card border border-brand-border p-24 rounded-[4rem] border-2 border-dashed border-brand-border text-center">
              <div className="w-20 h-20 bg-emerald-50 rounded-[2rem] flex items-center justify-center text-emerald-500 mx-auto mb-6">
                 <ShieldCheck size={40} />
              </div>
-             <h3 className="text-2xl font-black text-[#001529]">Queue is Clear</h3>
-             <p className="text-sm text-slate-400 mt-1 font-medium">All registered companies have been processed.</p>
+             <h3 className="text-2xl font-black text-white">Queue is Clear</h3>
+             <p className="text-sm text-white/50 mt-1 font-medium">All registered companies have been processed.</p>
           </div>
         ) : (
           /* QUEUE LIST (REAL DATA) */
@@ -80,29 +80,29 @@ const AdminVerifications = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ delay: i * 0.05 }}
                   key={company._id} 
-                  className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8 group hover:border-blue-600/20 hover:shadow-xl transition-all relative overflow-hidden"
+                  className="bg-brand-navy-card border border-brand-border p-8 rounded-[3rem] border border-brand-border shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8 group hover:border-brand-yellow/20 hover:shadow-card transition-all relative overflow-hidden"
                 >
                   <div className="flex items-center gap-8 flex-1">
                     {/* DYNAMIC LOGO / ICON */}
-                    <div className="w-24 h-24 bg-[#001529] rounded-[2.5rem] flex items-center justify-center text-white font-black text-3xl italic shrink-0 shadow-2xl transition-transform group-hover:scale-105">
+                    <div className="w-24 h-24 bg-brand-navy rounded-[2.5rem] flex items-center justify-center text-white font-black text-3xl italic shrink-0 shadow-2xl transition-transform group-hover:scale-105">
                        {company.logo ? (
                          <img src={company.logo} className="w-full h-full object-cover rounded-[2.5rem]" alt="" />
                        ) : company.name.charAt(0)}
                     </div>
 
                     <div className="flex-1">
-                       <h3 className="text-2xl font-black text-[#001529] mb-2">{company.name}</h3>
-                       <div className="flex flex-wrap items-center gap-5 text-slate-400 text-[10px] font-black uppercase tracking-widest">
-                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-blue-600" /> {company.city}, {company.country}</span>
-                          <span className="flex items-center gap-1.5"><Globe size={14} className="text-blue-600" /> {company.website || 'No Web ID'}</span>
+                       <h3 className="text-2xl font-black text-white mb-2">{company.name}</h3>
+                       <div className="flex flex-wrap items-center gap-5 text-white/50 text-[10px] font-black uppercase tracking-widest">
+                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-brand-yellow" /> {company.city}, {company.country}</span>
+                          <span className="flex items-center gap-1.5"><Globe size={14} className="text-brand-yellow" /> {company.website || 'No Web ID'}</span>
                        </div>
                        
                        <div className="mt-6 flex flex-wrap gap-2">
-                          <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[9px] font-black uppercase border border-blue-100">
+                          <span className="px-3 py-1 bg-brand-yellow-pale text-brand-yellow rounded-lg text-[9px] font-black uppercase border border-brand-yellow">
                              Applied {new Date(company.createdAt).toLocaleDateString()}
                           </span>
                           <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase border ${
-                            company.documentsUploaded ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'
+                            company.documentsUploaded ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-400 border-rose-100'
                           }`}>
                              {company.documentsUploaded ? 'Docs Verified' : 'Missing KYC Docs'}
                           </span>
@@ -111,8 +111,8 @@ const AdminVerifications = () => {
                   </div>
 
                   {/* ACTION BUTTONS */}
-                  <div className="flex items-center gap-3 w-full lg:w-auto border-t lg:border-t-0 lg:border-l border-slate-50 pt-6 lg:pt-0 lg:pl-10">
-                     <button className="flex-1 lg:flex-none px-6 py-4 bg-slate-50 text-slate-500 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center justify-center gap-2">
+                  <div className="flex items-center gap-3 w-full lg:w-auto border-t lg:border-t-0 lg:border-l border-brand-border pt-6 lg:pt-0 lg:pl-10">
+                     <button className="flex-1 lg:flex-none px-6 py-4 bg-brand-navy-light text-brand-muted rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-brand-navy-light transition-all flex items-center justify-center gap-2">
                         <FileText size={16} /> Review Dossier
                      </button>
                      
@@ -144,9 +144,9 @@ const AdminVerifications = () => {
         )}
 
         {/* COMPLIANCE FOOTER */}
-        <div className="mt-20 pt-8 border-t border-slate-100 flex justify-between items-center opacity-40 px-6">
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">BuildHub Platform Governance • Ruler Access Level</p>
-            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">Node: AFR-VERIFY-01</p>
+        <div className="mt-20 pt-8 border-t border-brand-border flex justify-between items-center opacity-40 px-6">
+            <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.4em]">BuildHub Platform Governance • Ruler Access Level</p>
+            <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.4em]">Node: AFR-VERIFY-01</p>
         </div>
       </div>
     </DashboardShell>
