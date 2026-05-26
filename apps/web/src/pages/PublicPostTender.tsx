@@ -48,7 +48,7 @@ const PublicPostTender = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#F8FAFC] font-inter">
+        <div className="min-h-screen bg-brand-navy font-inter">
             <PublicNavbar />
 
             <main className="pt-32 pb-24 px-6 max-w-4xl mx-auto">
@@ -57,71 +57,71 @@ const PublicPostTender = () => {
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-2 rounded-full mb-6"
+                        className="inline-flex items-center gap-2 bg-brand-yellow-pale text-brand-yellow px-4 py-2 rounded-full mb-6"
                     >
                         <Sparkles size={14} />
                         <span className="text-[10px] font-black uppercase tracking-[0.2em]">BuildHub Network Broadcast</span>
                     </motion.div>
-                    <h1 className="text-5xl md:text-6xl font-black text-[#001529] tracking-tighter mb-4 leading-tight">
-                        Post your <span className="text-blue-600 italic">Project.</span>
+                    <h1 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-4 leading-tight">
+                        Post your <span className="text-brand-yellow italic">Project.</span>
                     </h1>
-                    <p className="text-slate-400 font-medium text-lg max-w-xl mx-auto">
+                    <p className="text-white/50 font-medium text-lg max-w-xl mx-auto">
                         Provide your project details to receive professional, competitive bids from our verified builders.
                     </p>
                 </header>
 
                 <form className="space-y-8" onSubmit={handleSubmit}>
                     {/* MAIN FORM CARD */}
-                    <div className="bg-white p-8 md:p-12 rounded-[3.5rem] shadow-2xl border border-white space-y-10 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full blur-3xl" />
+                    <div className="bg-brand-navy-card border border-brand-border p-8 md:p-12 rounded-[3.5rem] shadow-2xl border border-brand-border space-y-10 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-brand-yellow/5 rounded-full blur-3xl" />
 
                         {/* PROJECT TITLE */}
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Essential Title</label>
+                            <label className="text-[10px] font-black uppercase text-white/50 tracking-widest px-2">Essential Title</label>
                             <input
                                 required
                                 value={formData.title}
                                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                className="w-full p-6 bg-slate-50 border-none rounded-3xl text-xl font-black text-[#001529] focus:ring-4 ring-blue-600/5 transition-all outline-none"
+                                className="w-full p-6 bg-brand-navy-light border-none rounded-3xl text-xl font-black text-white focus:ring-4 ring-brand-yellow/5 transition-all outline-none"
                                 placeholder="e.g. Modern Residential Villa Construction"
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Your Name / Client Identity</label>
+                            <label className="text-[10px] font-black uppercase text-white/50 tracking-widest px-2">Your Name / Client Identity</label>
                             <input
                                 required
                                 value={formData.clientName}
                                 onChange={(e) => setFormData({ ...formData, clientName: e.target.value })}
-                                className="w-full p-5 bg-slate-50 border-none rounded-2xl text-sm font-bold text-[#001529]"
+                                className="w-full p-5 bg-brand-navy-light border-none rounded-2xl text-sm font-bold text-white"
                                 placeholder="e.g.  Horizon Estates"
                             />
                         </div>
                         {/* LOCATION & BUDGET */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Site Location</label>
+                                <label className="text-[10px] font-black uppercase text-white/50 tracking-widest px-2">Site Location</label>
                                 <div className="relative group">
-                                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-blue-600" size={20} />
+                                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-yellow" size={20} />
                                     <input
                                         required
                                         value={formData.location}
                                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                        className="w-full p-6 pl-14 bg-slate-50 border-none rounded-3xl text-sm font-bold text-[#001529] focus:ring-4 ring-blue-600/5 outline-none transition-all"
+                                        className="w-full p-6 pl-14 bg-brand-navy-light border-none rounded-3xl text-sm font-bold text-white focus:ring-4 ring-brand-yellow/5 outline-none transition-all"
                                         placeholder="City, Region"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Est. Budget ($)</label>
+                                <label className="text-[10px] font-black uppercase text-white/50 tracking-widest px-2">Est. Budget ($)</label>
                                 <div className="relative group">
-                                    <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-blue-600" size={20} />
+                                    <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-yellow" size={20} />
                                     <input
                                         required
                                         type="number"
                                         value={formData.budget}
                                         onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
-                                        className="w-full p-6 pl-14 bg-slate-50 border-none rounded-3xl text-sm font-bold text-[#001529] focus:ring-4 ring-blue-600/5 outline-none transition-all"
+                                        className="w-full p-6 pl-14 bg-brand-navy-light border-none rounded-3xl text-sm font-bold text-white focus:ring-4 ring-brand-yellow/5 outline-none transition-all"
                                         placeholder="Target Amount"
                                     />
                                 </div>
@@ -130,28 +130,28 @@ const PublicPostTender = () => {
 
                         {/* WHATSAPP CONTACT */}
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">WhatsApp for Bids (Required)</label>
+                            <label className="text-[10px] font-black uppercase text-white/50 tracking-widest px-2">WhatsApp for Bids (Required)</label>
                             <div className="relative group">
-                                <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-blue-600" size={20} />
+                                <Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-brand-yellow" size={20} />
                                 <input
                                     required
                                     value={formData.whatsappNumber}
                                     onChange={(e) => setFormData({ ...formData, whatsappNumber: e.target.value })}
-                                    className="w-full p-6 pl-14 bg-slate-50 border-none rounded-3xl text-sm font-black text-[#001529] focus:ring-4 ring-blue-600/5 outline-none transition-all"
+                                    className="w-full p-6 pl-14 bg-brand-navy-light border-none rounded-3xl text-sm font-black text-white focus:ring-4 ring-brand-yellow/5 outline-none transition-all"
                                     placeholder="e.g. 237670000000"
                                 />
                             </div>
-                            <p className="text-[9px] text-slate-400 px-4 font-bold uppercase tracking-widest italic">Include country code. Builders will contact you here.</p>
+                            <p className="text-[9px] text-white/50 px-4 font-bold uppercase tracking-widest italic">Include country code. Builders will contact you here.</p>
                         </div>
 
                         {/* DESCRIPTION */}
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest px-2">Project Scope</label>
+                            <label className="text-[10px] font-black uppercase text-white/50 tracking-widest px-2">Project Scope</label>
                             <textarea
                                 required
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                className="w-full p-8 bg-slate-50 border-none rounded-[3rem] text-sm font-medium text-slate-600 h-48 resize-none focus:ring-4 ring-blue-600/5 outline-none transition-all"
+                                className="w-full p-8 bg-brand-navy-light border-none rounded-[3rem] text-sm font-medium text-white/70 h-48 resize-none focus:ring-4 ring-brand-yellow/5 outline-none transition-all"
                                 placeholder="Detail the work, materials, and specialized expertise required..."
                             />
                         </div>
@@ -162,7 +162,7 @@ const PublicPostTender = () => {
                         <button
                             type="submit"
                             disabled={tenderMutation.isPending}
-                            className="w-full bg-[#001529] text-white py-7 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl hover:bg-blue-700 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 disabled:bg-slate-300"
+                            className="w-full bg-brand-navy text-white py-7 rounded-[2.5rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl hover:bg-brand-yellow-dim hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-4 disabled:bg-white/10"
                         >
                             {tenderMutation.isPending ? <Loader2 className="animate-spin" /> : <Send size={20} />}
                             Broadcast Project to Network

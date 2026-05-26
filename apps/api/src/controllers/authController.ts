@@ -211,3 +211,21 @@ export const deleteCompanyPortfolioImage = async (req: any, res: Response) => {
     res.status(500).json({ message: "Failed to remove image" });
   }
 };
+// @desc    Update company profile using JWT companyId (no slug needed — safe for new accounts)
+export const updateMyCompanyProfile = async (req: any, res: Response) => {
+  try {
+    const companyId = req.user?.companyId;
+    if (!companyId) return res.status(403).json({ message: 'No company linked to this account.' });
+
+    const allowed = ['phone', 'website', 'sector', 'address', 'city', 'country', 'email'];
+    const update: Record<string, any> = {};
+    allowed.forEach(field => { if (req.body[field] !== undefined) update[field] = req.body[field]; });
+
+    const company = await Company.findByIdAndUpdate(companyId, update, { new: true });
+    if (!company) return res.status(404).json({ message: 'Company not found.' });
+
+    res.status(200).json({ message: 'Profile updated.', company });
+  } catch {
+    res.status(500).json({ message: 'Profile update failed.' });
+  }
+};

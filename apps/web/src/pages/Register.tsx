@@ -71,32 +71,32 @@ const Register = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4 md:p-6">
+    <div className="min-h-screen bg-brand-navy flex items-center justify-center p-4 md:p-6 relative">
       <PublicNavbar />
       
-      <div className="bg-white w-full max-w-lg lg:max-w-4xl rounded-[3rem] shadow-2xl flex overflow-hidden min-h-[600px] border border-white mt-10">
+      <div className="bg-brand-navy-card w-full max-w-lg lg:max-w-4xl rounded-[3rem] shadow-2xl flex overflow-hidden min-h-[600px] border border-brand-border mt-10">
         
         {/* LEFT SIDEBAR: PROGRESS (Visible on Desktop) */}
-        <div className="hidden lg:flex w-1/3 bg-[#001529] p-12 text-white flex flex-col justify-between relative overflow-hidden">
-          <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-blue-600/10 blur-[80px] rounded-full" />
+        <div className="hidden lg:flex w-1/3 bg-brand-navy p-12 text-white flex flex-col justify-between relative overflow-hidden">
+          <div className="absolute top-[-20px] left-[-20px] w-40 h-40 bg-brand-yellow/10 blur-[80px] rounded-full" />
           
           <div className="relative z-10">
             <div className="text-2xl font-black mb-12 italic tracking-tighter">BuildHub</div>
             <div className="space-y-10">
               {steps.map((item) => (
                 <div key={item.s} className={`flex gap-4 items-center transition-all duration-500 ${step >= item.s ? 'opacity-100' : 'opacity-20'}`}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${step >= item.s ? 'bg-blue-600 border-blue-600 shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'border-white'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${step >= item.s ? 'bg-brand-yellow border-brand-yellow shadow-[0_0_20px_rgba(37,99,235,0.4)]' : 'border-brand-border'}`}>
                     {step > item.s ? <CheckCircle2 size={20} /> : <span className="text-sm font-bold">{item.s}</span>}
                   </div>
                   <div>
                     <p className="text-sm font-bold tracking-tight">{item.t}</p>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{item.d}</p>
+                    <p className="text-[10px] text-brand-muted font-bold uppercase tracking-widest">{item.d}</p>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-          <div className="text-[9px] text-slate-500 uppercase tracking-[0.3em] font-black relative z-10">
+          <div className="text-[9px] text-brand-muted uppercase tracking-[0.3em] font-black relative z-10">
             Certified Cloud Infrastructure
           </div>
         </div>
@@ -105,7 +105,7 @@ const Register = () => {
         <div className="flex-1 p-8 md:p-16 relative flex flex-col justify-center">
           
           {error && (
-             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 text-rose-600 text-xs font-bold">
+             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center gap-3 text-rose-400 text-xs font-bold">
                 <AlertCircle size={16} /> {error}
              </motion.div>
           )}
@@ -113,45 +113,45 @@ const Register = () => {
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                <h2 className="text-3xl font-black text-[#001529] mb-2 tracking-tight">Personal Identity</h2>
-                <p className="text-slate-400 mb-10 text-sm font-medium leading-relaxed">Let's set up your master administrative account.</p>
+                <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Personal Identity</h2>
+                <p className="text-white/50 mb-10 text-sm font-medium leading-relaxed">Let's set up your master administrative account.</p>
                 
                 <div className="space-y-4">
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-white/35" size={18} />
                     <input 
                       type="text" 
                       placeholder="Full Legal Name" 
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full p-5 pl-12 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-600/20 transition-all font-medium text-sm" 
+                      className="w-full p-5 pl-12 bg-brand-navy-light border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 transition-all font-medium text-sm" 
                     />
                   </div>
                   
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-white/35" size={18} />
                     <input 
                       type="email" 
                       placeholder="Email Address" 
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full p-5 pl-12 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-600/20 transition-all font-medium text-sm" 
+                      className="w-full p-5 pl-12 bg-brand-navy-light border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 transition-all font-medium text-sm" 
                     />
                   </div>
 
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-white/35" size={18} />
                     <input 
                       type={showPassword ? "text" : "password"} 
                       placeholder="Create Secure Password" 
                       value={formData.password}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      className="w-full p-5 pl-12 pr-14 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-600/20 transition-all font-medium text-sm" 
+                      className="w-full p-5 pl-12 pr-14 bg-brand-navy-light border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 transition-all font-medium text-sm" 
                     />
                     <button 
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors"
+                      className="absolute right-5 top-1/2 -translate-y-1/2 text-white/50 hover:text-brand-yellow transition-colors"
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -162,17 +162,17 @@ const Register = () => {
 
             {step === 2 && (
               <motion.div key="step2" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                <h2 className="text-3xl font-black text-[#001529] mb-2 tracking-tight">Business Profile</h2>
-                <p className="text-slate-400 mb-10 text-sm font-medium leading-relaxed">This branding will appear on your public directory listing.</p>
+                <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Business Profile</h2>
+                <p className="text-white/50 mb-10 text-sm font-medium leading-relaxed">This branding will appear on your public directory listing.</p>
                 <div className="space-y-4">
                   <div className="relative">
-                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={18} />
+                    <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 text-white/35" size={18} />
                     <input 
                         type="text" 
                         placeholder="Registered Company Name" 
                         value={formData.companyName}
                         onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                        className="w-full p-5 pl-12 bg-slate-50 border-none rounded-2xl outline-none focus:ring-2 ring-blue-600/20 transition-all font-bold text-[#001529]" 
+                        className="w-full p-5 pl-12 bg-brand-navy-light border-none rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 transition-all font-bold text-white" 
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -181,21 +181,21 @@ const Register = () => {
                         placeholder="City" 
                         value={formData.city}
                         onChange={(e) => setFormData({...formData, city: e.target.value})}
-                        className="p-5 bg-slate-50 border-none rounded-2xl outline-none font-medium text-sm focus:ring-2 ring-blue-600/20" 
+                        className="p-5 bg-brand-navy-light border-none rounded-2xl outline-none font-medium text-sm focus:ring-2 ring-brand-yellow/30" 
                     />
                     <input 
                         type="text" 
                         placeholder="Country" 
                         value={formData.country}
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
-                        className="p-5 bg-slate-50 border-none rounded-2xl outline-none font-medium text-sm focus:ring-2 ring-blue-600/20" 
+                        className="p-5 bg-brand-navy-light border-none rounded-2xl outline-none font-medium text-sm focus:ring-2 ring-brand-yellow/30" 
                     />
                   </div>
                   <textarea 
                     placeholder="Brief description of construction services..." 
                     value={formData.description}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="w-full p-6 bg-slate-50 rounded-[2rem] border-none h-32 resize-none outline-none text-sm font-medium focus:ring-2 ring-blue-600/20" 
+                    className="w-full p-6 bg-brand-navy-light rounded-[2rem] border-none h-32 resize-none outline-none text-sm font-medium focus:ring-2 ring-brand-yellow/30" 
                   />
                 </div>
               </motion.div>
@@ -203,24 +203,31 @@ const Register = () => {
 
             {step === 3 && (
               <motion.div key="step3" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}>
-                <h2 className="text-3xl font-black text-[#001529] mb-2 tracking-tight">Select Specialty</h2>
-                <p className="text-slate-400 mb-8 text-sm font-medium leading-relaxed">Choose how you will engage with the BuildHub ecosystem.</p>
+                <h2 className="text-3xl font-black text-white mb-2 tracking-tight">Select Specialty</h2>
+                <p className="text-white/50 mb-8 text-sm font-medium leading-relaxed">Choose how you will engage with the BuildHub ecosystem.</p>
                 <div className="grid grid-cols-1 gap-3">
                   {[
-                    { id: 'owner', title: 'Builder / Contractor', icon: HardHat, desc: 'Manage projects, workers, and BOQs.' },
-                    { id: 'supplier', title: 'Material Supplier', icon: Store, desc: 'Sell equipment and materials.' },
+                    { id: 'owner', title: 'Builder / Contractor', icon: HardHat, desc: 'Manage projects, workers, and BOQs.', disabled: false },
+                    { id: 'supplier', title: 'Material Supplier', icon: Store, desc: 'Supplier accounts are coming soon. Stay tuned.', disabled: true },
                   ].map((item) => (
                     <button 
                       key={item.id}
-                      onClick={() => setFormData({...formData, role: item.id})}
-                      className={`flex items-start gap-5 p-6 rounded-[2rem] border-2 transition-all text-left ${formData.role === item.id ? 'border-blue-600 bg-blue-50' : 'border-slate-50 bg-slate-50 hover:border-slate-200'}`}
+                      disabled={item.disabled}
+                      onClick={() => !item.disabled && setFormData({...formData, role: item.id})}
+                      className={`flex items-start gap-5 p-6 rounded-[2rem] border-2 transition-all text-left relative overflow-hidden
+                        ${item.disabled ? 'opacity-50 cursor-not-allowed border-brand-border bg-brand-navy-light' : formData.role === item.id ? 'border-brand-yellow bg-brand-yellow/5' : 'border-brand-border bg-brand-navy-light hover:border-brand-border'}`}
                     >
-                      <div className={`p-4 rounded-2xl shrink-0 ${formData.role === item.id ? 'bg-blue-600 text-white shadow-xl' : 'bg-white text-slate-400'}`}>
+                      {item.disabled && (
+                        <span className="absolute top-3 right-3 text-[9px] font-black uppercase tracking-widest bg-brand-navy-light text-white/50 px-2 py-1 rounded-full">
+                          Coming Soon
+                        </span>
+                      )}
+                      <div className={`p-4 rounded-2xl shrink-0 ${!item.disabled && formData.role === item.id ? 'bg-brand-navy text-brand-yellow shadow-xl' : 'bg-brand-navy-card text-white/50'}`}>
                         <item.icon size={24} />
                       </div>
                       <div>
-                        <span className={`font-black text-sm block mb-1 ${formData.role === item.id ? 'text-blue-600' : 'text-[#001529]'}`}>{item.title}</span>
-                        <span className="text-[11px] text-slate-400 font-medium">{item.desc}</span>
+                        <span className={`font-black text-sm block mb-1 ${!item.disabled && formData.role === item.id ? 'text-brand-navy' : 'text-white'}`}>{item.title}</span>
+                        <span className="text-[11px] text-white/50 font-medium">{item.desc}</span>
                       </div>
                     </button>
                   ))}
@@ -233,12 +240,12 @@ const Register = () => {
           <div className="mt-12 flex items-center justify-between shrink-0">
             <div>
                {step === 1 && (
-                  <p className="text-xs text-slate-400 font-medium px-2">
-                    Already have an account? <Link to="/login" className="text-blue-600 font-black hover:underline">Log in</Link>
+                  <p className="text-xs text-white/50 font-medium px-2">
+                    Already have an account? <Link to="/login" className="text-brand-yellow font-black hover:underline">Log in</Link>
                   </p>
                )}
                {step > 1 && (
-                  <button onClick={() => setStep(step - 1)} className="text-slate-400 font-black hover:text-[#001529] transition-colors text-[10px] uppercase tracking-widest px-4 py-2 hover:bg-slate-50 rounded-xl">
+                  <button onClick={() => setStep(step - 1)} className="text-white/50 font-black hover:text-white transition-colors text-[10px] uppercase tracking-widest px-4 py-2 hover:bg-brand-navy-light rounded-xl">
                     Back
                   </button>
                )}
@@ -246,7 +253,7 @@ const Register = () => {
             <button 
               onClick={() => step < 3 ? handleNext() : handleFinish()}
               disabled={registerMutation.isPending}
-              className="px-10 py-5 bg-[#001529] text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-2xl shadow-blue-900/20 hover:bg-blue-700 hover:scale-[1.02] transition-all flex items-center gap-3 disabled:bg-slate-300"
+              className="px-10 py-5 bg-brand-yellow text-brand-navy rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.2em] shadow-yellow hover:bg-brand-yellow-dim hover:scale-[1.02] transition-all flex items-center gap-3 disabled:opacity-50"
             >
               {registerMutation.isPending ? <Loader2 className="animate-spin" size={18} /> : (
                 <>

@@ -2,153 +2,101 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
-import apiClient from '../api/client'; // Your real Axios instance
+import apiClient from '../api/client';
 import { Loader2, AlertCircle, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 
 const Login = () => {
   const navigate = useNavigate();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const setAuth = useAuthStore(s => s.setAuth);
   const [showPassword, setShowPassword] = useState(false);
-
-  // 1. FORM STATE
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 2. REAL AUTHENTICATION LOGIC
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
-
     try {
-      // API call to Backend
       const response = await apiClient.post('/auth/login', { email, password });
-
       const { user, token } = response.data;
-
-      // Save token and user to Zustand Store & LocalStorage
       setAuth(user, token);
-
-      // 3. ROLE-BASED REDIRECTION (Now based on Database Role)
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else if (user.role === 'staff') {
-        navigate('/staff/dashboard');
-      } else {
-        navigate('/dashboard'); // Owners go here
-      }
-
+      if (user.role === 'admin') navigate('/admin');
+      else if (user.role === 'staff') navigate('/staff/dashboard');
+      else navigate('/dashboard');
     } catch (err: any) {
-      // Real error handling from Backend response
-      const message = err.response?.data?.message || "Connection failed. Please try again.";
-      setError(message);
+      setError(err.response?.data?.message || 'Connection failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[100dvh] flex items-center justify-center bg-brand-soft p-4 sm:p-6 pt-24 sm:pt-28">
-      <PublicNavbar /> {/* Optional: A simple navbar for public pages */}
+    <div className="min-h-[100dvh] bg-brand-navy flex items-center justify-center p-4 pt-24">
+      <PublicNavbar />
+      {/* Background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-yellow/5 blur-[120px] rounded-full pointer-events-none" />
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[3rem] shadow-2xl w-full max-w-md border border-white"
+        className="relative bg-brand-navy-card border border-brand-border p-8 md:p-12 rounded-[2.5rem] shadow-card w-full max-w-md"
       >
+        {/* Logo */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-[#001F3F] rounded-2xl flex items-center justify-center text-white font-black italic mx-auto mb-6 shadow-xl shadow-blue-900/20">
-            B
-          </div>
-          <h2 className="text-3xl font-black text-[#001F3F] mb-2 tracking-tighter">Welcome back</h2>
-          <p className="text-slate-400 text-sm font-medium">Access your construction workspace.</p>
+          <div className="w-14 h-14 bg-brand-yellow rounded-2xl flex items-center justify-center text-brand-navy font-black italic mx-auto mb-6 shadow-yellow text-xl">B</div>
+          <h2 className="text-3xl font-black text-white mb-2 tracking-tighter">Welcome back</h2>
+          <p className="text-white/40 text-sm font-medium">Access your construction workspace.</p>
         </div>
 
-        {/* ERROR DISPLAY */}
         {error && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 p-4 bg-rose-50 border border-rose-100 rounded-2xl flex items-center gap-3 text-rose-600 text-xs font-bold"
-          >
-            <AlertCircle size={16} />
-            {error}
+          <motion.div initial={{ opacity:0, scale:0.95 }} animate={{ opacity:1, scale:1 }}
+            className="mb-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center gap-3 text-rose-400 text-xs font-bold">
+            <AlertCircle size={16} />{error}
           </motion.div>
         )}
 
         <form className="space-y-5" onSubmit={handleLogin}>
-          <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 px-2">Account Email</label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 px-1 block">Account Email</label>
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
               placeholder="name@company.com"
-              className="w-full p-4 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]"
-            />
+              className="w-full p-4 rounded-2xl bg-brand-navy-light border border-brand-border text-white placeholder-white/20 outline-none focus:ring-2 focus:ring-brand-yellow/40 transition-all font-medium text-sm" />
           </div>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center px-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                Security Key
-              </label>
 
-              <button
-                type="button"
-                className="text-[10px] font-bold text-blue-600 hover:underline"
-              >
-                Forgot?
-              </button>
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center px-1">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Security Key</label>
+              <button type="button" className="text-[10px] font-bold text-brand-yellow hover:underline">Forgot?</button>
             </div>
-
             <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+              <input type={showPassword ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full p-4 pr-12 rounded-2xl bg-slate-50 border-none outline-none focus:ring-2 focus:ring-blue-600/20 transition-all font-medium text-sm text-[#001F3F]"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 transition-colors"
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                className="w-full p-4 pr-12 rounded-2xl bg-brand-navy-light border border-brand-border text-white placeholder-white/20 outline-none focus:ring-2 focus:ring-brand-yellow/40 transition-all font-medium text-sm" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors">
+                {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
               </button>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-2 pb-2">
-            <ShieldCheck size={14} className="text-emerald-500" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">End-to-End Encrypted</span>
+
+          <div className="flex items-center gap-2 px-1 pb-1">
+            <ShieldCheck size={14} className="text-emerald-400" />
+            <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">End-to-End Encrypted</span>
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            onClick={() => setShowPassword(!showPassword)}
-            className="w-full bg-[#001F3F] text-white p-5 rounded-2xl font-black shadow-2xl shadow-blue-900/20 hover:bg-blue-700 hover:translate-y-[-2px] active:translate-y-[0px] disabled:bg-slate-300 disabled:translate-y-0 transition-all mt-2 flex items-center justify-center gap-3"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="animate-spin" size={20} />
-                Authenticating...
-              </>
-            ) : (
-              'Login'
-            )}
+          <button type="submit" disabled={isLoading}
+            className="w-full bg-brand-yellow text-brand-navy p-5 rounded-2xl font-black shadow-yellow hover:bg-brand-yellow-dim hover:scale-[1.01] disabled:opacity-50 disabled:scale-100 transition-all flex items-center justify-center gap-3">
+            {isLoading ? <><Loader2 className="animate-spin" size={20} />Authenticating...</> : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-5 text-center border-t border-slate-50 pt-8">
-          <p className="text-xs text-slate-400 font-medium">
-            Don't have an account? <br />
-            <Link to="/register" className="text-blue-600 font-bold hover:underline mt-2 inline-block">Create</Link>
+        <div className="mt-6 text-center border-t border-brand-border pt-6">
+          <p className="text-xs text-white/30 font-medium">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-brand-yellow font-bold hover:underline">Create one</Link>
           </p>
         </div>
       </motion.div>
