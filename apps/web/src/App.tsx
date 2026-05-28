@@ -13,6 +13,8 @@ import PublicDirectory from './pages/PublicDirectory';
 import PublicCompanyProfile from './pages/PublicCompanyProfile';
 import About from './pages/About';
 import Contact from './pages/Contact';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // --- OWNER / COMPANY ADMIN PAGES (/dashboard/*) ---
 import Dashboard from './pages/Dashboard';
@@ -95,6 +97,8 @@ function App() {
           <Route path="/post-project" element={<PublicPostTender />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* ── OWNER ROUTES — wrapped in OnboardingGate ── */}
           <Route path="/dashboard" element={<OwnerRoute><Dashboard /></OwnerRoute>} />
