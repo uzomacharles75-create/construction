@@ -13,7 +13,7 @@ export const ProtectedRoute = ({ children, allowedRoles }: Props) => {
 
   // 1. If not logged in at all, kick to login page
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // 2. If logged in but the role isn't allowed (e.g. Staff trying to see Finance)

@@ -35,7 +35,7 @@ const Admin = () => {
     <DashboardShell>
       <div className="max-w-7xl mx-auto pb-20">
         <div className="flex items-center gap-4 mb-10">
-          <div className="bg-rose-500 p-3 rounded-2xl text-white shadow-lg">
+          <div className="bg-rose-500 p-3 rounded-2xl text-foreground shadow-lg">
             <ShieldAlert size={24} />
           </div>
           <h1 className="text-4xl font-black text-brand-navy tracking-tight italic">SuperAdmin</h1>
@@ -48,25 +48,25 @@ const Admin = () => {
             <h2 className="text-xl font-bold text-brand-navy">Company Verification Queue</h2>
             
             {loadingQueue ? <p>Loading queue...</p> : pendingCompanies?.map((company: any) => (
-              <div key={company._id} className="bg-brand-navy-card border border-brand-border p-6 rounded-[2.5rem] shadow-premium border border-brand-border flex items-center justify-between transition-all">
+              <div key={company._id} className="bg-card border border-border p-6 rounded-[2.5rem] shadow-premium border border-border flex items-center justify-between transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 bg-brand-navy-light rounded-2xl flex items-center justify-center text-white/50 font-black">
+                  <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center text-muted-foreground font-black">
                     {company.name.charAt(0)}
                   </div>
                   <div>
                     <h4 className="font-bold text-brand-navy">{company.name}</h4>
-                    <p className="text-xs text-white/50">{company.city}, {company.country}</p>
+                    <p className="text-xs text-muted-foreground">{company.city}, {company.country}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button 
                     onClick={() => verifyMutation.mutate({ id: company._id, status: 'verified' })}
-                    className="p-3 bg-emerald-50 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all">
+                    className="p-3 bg-emerald-50 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-foreground transition-all">
                     <CheckCircle size={20} />
                   </button>
                   <button 
                     onClick={() => verifyMutation.mutate({ id: company._id, status: 'rejected' })}
-                    className="p-3 bg-rose-50 text-rose-400 rounded-xl hover:bg-rose-600 hover:text-white transition-all">
+                    className="p-3 bg-rose-50 text-rose-400 rounded-xl hover:bg-rose-600 hover:text-foreground transition-all">
                     <XCircle size={20} />
                   </button>
                 </div>
@@ -74,7 +74,7 @@ const Admin = () => {
             ))}
             
             {pendingCompanies?.length === 0 && (
-               <div className="p-10 text-center bg-brand-navy-light rounded-[3rem] text-white/50 font-medium">
+               <div className="p-10 text-center bg-muted rounded-[3rem] text-muted-foreground font-medium">
                   Queue is empty. All companies are verified.
                </div>
             )}
@@ -83,9 +83,9 @@ const Admin = () => {
           {/* SYSTEM STATS (REAL DATA) */}
           <div className="space-y-6">
             <h2 className="text-xl font-bold text-brand-navy">Platform Pulse</h2>
-            <div className="bg-brand-navy p-8 rounded-[2.5rem] text-white shadow-2xl">
-               <BarChart className="text-brand-yellow mb-4" />
-               <p className="text-white/50 text-xs font-bold uppercase tracking-widest mb-1">Marketplace Volume</p>
+            <div className="bg-background p-8 rounded-[2.5rem] text-foreground shadow-2xl">
+               <BarChart className="text-primary mb-4" />
+               <p className="text-muted-foreground text-xs font-bold uppercase tracking-widest mb-1">Marketplace Volume</p>
                <h3 className="text-4xl font-black mb-6">${stats?.totalMarketplaceVolume.toLocaleString()}</h3>
                <div className="space-y-4">
                  <div className="flex justify-between text-xs">

@@ -28,7 +28,7 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
           <Icon size={18} className="shrink-0" />
           <span className="text-[13px] font-medium tracking-tight">{label}</span>
         </div>
-        <Lock size={12} className="text-white/40" />
+        <Lock size={12} className="text-foreground/40" />
       </div>
     );
   }
@@ -40,8 +40,8 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
       className={({ isActive }) => `
         flex items-center justify-between px-4 py-2.5 rounded-xl transition-all mb-0.5 group
         ${isActive
-          ? 'bg-brand-yellow text-brand-navy shadow-lg shadow-yellow-900/20'
-          : 'text-white/70 hover:bg-white/5 hover:text-brand-yellow'}
+          ? 'bg-primary text-brand-navy shadow-lg shadow-yellow-900/20'
+          : 'text-foreground/70 hover:bg-white/5 hover:text-primary'}
       `}
     >
       <div className="flex items-center gap-3">
@@ -49,7 +49,7 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
         <span className="text-[13px] font-medium tracking-tight">{label}</span>
       </div>
       {badge != null && badge > 0 && (
-        <span className="bg-brand-yellow/20 text-brand-yellow text-[10px] px-1.5 py-0.5 rounded-md font-bold">
+        <span className="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded-md font-bold">
           {badge}
         </span>
       )}
@@ -93,18 +93,18 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   });
 
   return (
-    <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-brand-navy text-white flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-brand-border/5">
+    <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-background text-foreground flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-border/5">
       {/* LOGO */}
       <div className="flex items-center gap-3 mb-8 px-2">
-        <div className="w-8 h-8 bg-brand-yellow rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">BH</div>
-        <h2 className="text-lg font-bold tracking-tight text-white">BuildHub</h2>
+        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">BH</div>
+        <h2 className="text-lg font-bold tracking-tight text-foreground">BuildHub</h2>
       </div>
 
       {/* Setup banner is hidden when navLocked is false */}
       {navLocked && (
-        <div className="mb-4 mx-1 px-4 py-3 bg-brand-yellow/10 border border-brand-yellow/20 rounded-2xl">
-          <p className="text-[10px] font-black uppercase tracking-widest text-brand-yellow mb-0.5">Setup in progress</p>
-          <p className="text-[11px] text-white/50 font-medium">
+        <div className="mb-4 mx-1 px-4 py-3 bg-primary/10 border border-primary/20 rounded-2xl">
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-0.5">Setup in progress</p>
+          <p className="text-[11px] text-muted-foreground font-medium">
             {onboardingStep === 'wallet' && 'Top up wallet to continue →'}
             {onboardingStep === 'profile' && 'Complete business profile →'}
             {onboardingStep === 'service' && 'Add your first service →'}
@@ -117,7 +117,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         {/* ADMIN */}
         {role === 'admin' && (
           <>
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest px-4 mb-2">Platform Master</p>
+            <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Platform Master</p>
             <NavItem icon={LayoutDashboard} label="Dashboard"          path="/admin"               onNavigate={onNavigate} />
             <NavItem icon={ShieldCheck}     label="Verification Queue" path="/admin/verifications" onNavigate={onNavigate} badge={pendingQueue?.length ?? null} />
             <NavItem icon={Users}           label="Manage Companies"   path="/admin/users"         onNavigate={onNavigate} />
@@ -129,7 +129,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         {/* OWNER */}
         {role === 'owner' && (
           <>
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
+            <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
             <NavItem icon={LayoutDashboard} label="Dashboard"          path="/dashboard"                       onNavigate={onNavigate} />
             <NavItem icon={Wallet}          label="Wallet"             path="/dashboard/wallet"                onNavigate={onNavigate} />
             <NavItem icon={Building2}       label="Business Profile"   path="/dashboard/settings/business"     onNavigate={onNavigate} locked={navLocked} />
@@ -147,7 +147,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         {/* STAFF */}
         {role === 'staff' && (
           <>
-            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest px-4 mb-2">Field Operations</p>
+            <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Field Operations</p>
             <NavItem icon={HardHat}   label="Site Portal"      path="/staff/dashboard"  onNavigate={onNavigate} />
             <NavItem icon={Briefcase} label="My Assignments"   path="/staff/projects"   onNavigate={onNavigate} />
             <NavItem icon={Sparkles}  label="Engineering AI"   path="/staff/ai"         onNavigate={onNavigate} />
@@ -156,10 +156,10 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           </>
         )}
 
-        <div className="mt-4 pt-4 border-t border-brand-border/5">
+        <div className="mt-4 pt-4 border-t border-border/5">
           <button
             onClick={logout}
-            className="flex items-center gap-3 px-4 py-2.5 w-full text-white/40 hover:text-rose-400 transition-all"
+            className="flex items-center gap-3 px-4 py-2.5 w-full text-foreground/40 hover:text-rose-400 transition-all"
           >
             <LogOut size={18} />
             <span className="text-[13px] font-medium">Sign Out</span>
@@ -173,13 +173,13 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           <NavLink
             to="/dashboard/wallet"
             onClick={onNavigate}
-            className="flex items-center justify-between px-4 py-3 bg-brand-yellow/10 border border-brand-yellow/20 rounded-2xl hover:border-brand-yellow/40 transition-all group"
+            className="flex items-center justify-between px-4 py-3 bg-primary/10 border border-primary/20 rounded-2xl hover:border-primary/40 transition-all group"
           >
             <div className="flex items-center gap-2">
-              <Wallet size={15} className="text-brand-yellow" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-brand-yellow">Wallet</span>
+              <Wallet size={15} className="text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-primary">Wallet</span>
             </div>
-            <span className="text-xs font-black text-white group-hover:text-brand-yellow transition-colors">
+            <span className="text-xs font-black text-foreground group-hover:text-primary transition-colors">
               {walletData
                 ? `${Number(walletData.balance).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${walletData.currency}`
                 : '…'}
@@ -190,23 +190,23 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
           {role === 'staff' ? (
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-brand-yellow/20 rounded-xl flex items-center justify-center text-brand-yellow">
+              <div className="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary">
                 <HardHat size={20} />
               </div>
               <div>
-                <p className="text-[10px] text-white/30 font-bold uppercase tracking-tighter">Site Engineer</p>
-                <p className="text-xs font-bold text-white truncate w-28">{user?.name}</p>
+                <p className="text-[10px] text-foreground/30 font-bold uppercase tracking-tighter">Site Engineer</p>
+                <p className="text-xs font-bold text-foreground truncate w-28">{user?.name}</p>
               </div>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">{role === 'admin' ? 'Admin' : 'Owner'}</p>
-                <Crown size={14} className="text-brand-yellow" />
+                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">{role === 'admin' ? 'Admin' : 'Owner'}</p>
+                <Crown size={14} className="text-primary" />
               </div>
-              <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+              <p className="text-sm font-bold text-foreground truncate">{user?.name}</p>
               {role === 'owner' && (
-                <div className={`mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center ${onboarded ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-rose-500/10 text-rose-400'}`}>
+                <div className={`mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center ${onboarded ? 'bg-primary/10 text-primary' : 'bg-rose-500/10 text-rose-400'}`}>
                   {onboarded ? 'Active' : 'Setup required'}
                 </div>
               )}

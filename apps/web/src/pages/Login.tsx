@@ -34,21 +34,21 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-brand-navy flex items-center justify-center p-4 pt-24">
+    <div className="min-h-[100dvh] bg-background flex items-center justify-center p-4 pt-24">
       <PublicNavbar />
       {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-yellow/5 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative bg-brand-navy-card border border-brand-border p-8 md:p-12 rounded-[2.5rem] shadow-card w-full max-w-md"
+        className="relative bg-card border border-border p-8 md:p-12 rounded-[2.5rem] shadow-card w-full max-w-md"
       >
         {/* Logo */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 bg-brand-yellow rounded-2xl flex items-center justify-center text-brand-navy font-black italic mx-auto mb-6 shadow-yellow text-xl">B</div>
-          <h2 className="text-3xl font-black text-white mb-2 tracking-tighter">Welcome back</h2>
-          <p className="text-white/40 text-sm font-medium">Access your construction workspace.</p>
+          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center text-brand-navy font-black italic mx-auto mb-6 shadow-yellow text-xl">B</div>
+          <h2 className="text-3xl font-black text-foreground mb-2 tracking-tighter">Welcome back</h2>
+          <p className="text-foreground/40 text-sm font-medium">Access your construction workspace.</p>
         </div>
 
         {error && (
@@ -60,23 +60,23 @@ const Login = () => {
 
         <form className="space-y-5" onSubmit={handleLogin}>
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 px-1 block">Account Email</label>
+            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40 px-1 block">Account Email</label>
             <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
               placeholder="name@company.com"
-              className="w-full p-4 rounded-2xl bg-brand-navy-light border border-brand-border text-white placeholder-white/20 outline-none focus:ring-2 focus:ring-brand-yellow/40 transition-all font-medium text-sm" />
+              className="w-full p-4 rounded-2xl bg-muted border border-border text-foreground placeholder-white/20 outline-none focus:ring-2 focus:ring-primary/40 transition-all font-medium text-sm" />
           </div>
 
           <div className="space-y-1.5">
             <div className="flex justify-between items-center px-1">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Security Key</label>
-              <button type="button" className="text-[10px] font-bold text-brand-yellow hover:underline">Forgot?</button>
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Security Key</label>
+              <button type="button" className="text-[10px] font-bold text-primary hover:underline">Forgot?</button>
             </div>
             <div className="relative">
               <input type={showPassword ? 'text' : 'password'} required value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full p-4 pr-12 rounded-2xl bg-brand-navy-light border border-brand-border text-white placeholder-white/20 outline-none focus:ring-2 focus:ring-brand-yellow/40 transition-all font-medium text-sm" />
+                className="w-full p-4 pr-12 rounded-2xl bg-muted border border-border text-foreground placeholder-white/20 outline-none focus:ring-2 focus:ring-primary/40 transition-all font-medium text-sm" />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/70 transition-colors">
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/70 transition-colors">
                 {showPassword ? <EyeOff size={18}/> : <Eye size={18}/>}
               </button>
             </div>
@@ -84,19 +84,19 @@ const Login = () => {
 
           <div className="flex items-center gap-2 px-1 pb-1">
             <ShieldCheck size={14} className="text-emerald-400" />
-            <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">End-to-End Encrypted</span>
+            <span className="text-[10px] font-bold text-foreground/30 uppercase tracking-widest">End-to-End Encrypted</span>
           </div>
 
           <button type="submit" disabled={isLoading}
-            className="w-full bg-brand-yellow text-brand-navy p-5 rounded-2xl font-black shadow-yellow hover:bg-brand-yellow-dim hover:scale-[1.01] disabled:opacity-50 disabled:scale-100 transition-all flex items-center justify-center gap-3">
+            className="w-full bg-primary text-brand-navy p-5 rounded-2xl font-black shadow-yellow hover:bg-primary-dim hover:scale-[1.01] disabled:opacity-50 disabled:scale-100 transition-all flex items-center justify-center gap-3">
             {isLoading ? <><Loader2 className="animate-spin" size={20} />Authenticating...</> : 'Sign In'}
           </button>
         </form>
 
-        <div className="mt-6 text-center border-t border-brand-border pt-6">
-          <p className="text-xs text-white/30 font-medium">
+        <div className="mt-6 text-center border-t border-border pt-6">
+          <p className="text-xs text-foreground/30 font-medium">
             Don't have an account?{' '}
-            <Link to="/register" className="text-brand-yellow font-bold hover:underline">Create one</Link>
+            <Link to="/register" className="text-primary font-bold hover:underline">Create one</Link>
           </p>
         </div>
       </motion.div>

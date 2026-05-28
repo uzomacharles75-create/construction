@@ -77,7 +77,7 @@ export const DashboardShell = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex min-h-screen h-screen bg-brand-navy overflow-hidden font-inter text-white"
+      className="flex min-h-screen h-screen bg-background overflow-hidden font-inter text-foreground"
     >
       {/* DESKTOP SIDEBAR */}
       <div className="hidden lg:block shrink-0">
@@ -92,7 +92,7 @@ export const DashboardShell = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-brand-navy/60 backdrop-blur-sm z-[60] lg:hidden"
+              className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[60] lg:hidden"
               onClick={() =>
                 setIsMobileMenuOpen(false)
               }
@@ -123,7 +123,7 @@ export const DashboardShell = ({
       <main className="flex-1 flex flex-col min-w-0 relative">
 
         {/* HEADER */}
-        <header className="h-16 sm:h-20 bg-brand-navy-card/80 backdrop-blur-md border-b border-brand-border flex items-center justify-between px-3 sm:px-4 md:px-8 shrink-0 z-50">
+        <header className="h-16 sm:h-20 bg-card/80 backdrop-blur-md border-b border-border flex items-center justify-between px-3 sm:px-4 md:px-8 shrink-0 z-50">
 
           {/* LEFT */}
           <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
@@ -134,18 +134,18 @@ export const DashboardShell = ({
               onClick={() =>
                 setIsMobileMenuOpen(true)
               }
-              className="p-2 sm:p-2.5 bg-brand-navy-light rounded-xl lg:hidden shrink-0"
+              className="p-2 sm:p-2.5 bg-muted rounded-xl lg:hidden shrink-0"
               aria-label="Open menu"
             >
               <Menu size={20} />
             </button>
 
             {/* DESKTOP SEARCH */}
-            <div className="hidden md:flex items-center gap-3 bg-brand-navy-light px-4 py-2.5 rounded-2xl border border-brand-border w-full max-w-md focus-within:ring-2 ring-brand-yellow/10 transition-all">
+            <div className="hidden md:flex items-center gap-3 bg-muted px-4 py-2.5 rounded-2xl border border-border w-full max-w-md focus-within:ring-2 ring-primary/10 transition-all">
 
               <Search
                 size={18}
-                className="text-white/50 shrink-0"
+                className="text-muted-foreground shrink-0"
               />
 
               <input
@@ -161,7 +161,7 @@ export const DashboardShell = ({
               onClick={() =>
                 setShowMobileSearch((prev) => !prev)
               }
-              className="p-2 sm:p-2.5 bg-brand-navy-light rounded-xl md:hidden shrink-0"
+              className="p-2 sm:p-2.5 bg-muted rounded-xl md:hidden shrink-0"
               aria-label="Search"
             >
               <Search
@@ -180,7 +180,7 @@ export const DashboardShell = ({
               {/* MAIL */}
               <button
                 type="button"
-                className="p-2 sm:p-2.5 text-white/50 hover:bg-brand-navy-light rounded-xl relative transition-all"
+                className="p-2 sm:p-2.5 text-muted-foreground hover:bg-muted rounded-xl relative transition-all"
               >
                 <Mail
                   size={18}
@@ -188,7 +188,7 @@ export const DashboardShell = ({
                 />
 
                 {(summary?.msgCount ?? 0) > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-brand-border animate-pulse" />
+                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-border animate-pulse" />
                 )}
               </button>
 
@@ -202,8 +202,8 @@ export const DashboardShell = ({
                   }
                   className={`p-2 sm:p-2.5 rounded-xl transition-all relative ${
                     showNotifications
-                      ? 'bg-brand-yellow text-brand-navy shadow-lg shadow-yellow-200'
-                      : 'text-white/50 hover:bg-brand-navy-light'
+                      ? 'bg-primary text-brand-navy shadow-lg shadow-yellow-200'
+                      : 'text-muted-foreground hover:bg-muted'
                   }`}
                   aria-label="Notifications"
                 >
@@ -213,7 +213,7 @@ export const DashboardShell = ({
                   />
 
                   {(summary?.tenderCount ?? 0) > 0 && (
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-brand-border" />
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-border" />
                   )}
                 </button>
 
@@ -233,7 +233,7 @@ export const DashboardShell = ({
                         opacity: 0,
                         y: 10,
                       }}
-                      className="absolute right-0 mt-3 w-[min(20rem,calc(100vw-1.5rem))] bg-brand-navy-card rounded-2xl sm:rounded-[2rem] shadow-2xl border border-brand-border p-4 sm:p-6 z-[100]"
+                      className="absolute right-0 mt-3 w-[min(20rem,calc(100vw-1.5rem))] bg-card rounded-2xl sm:rounded-[2rem] shadow-2xl border border-border p-4 sm:p-6 z-[100]"
                     >
                       <h4 className="font-black text-xs uppercase tracking-widest mb-4">
                         Latest Alerts
@@ -241,13 +241,13 @@ export const DashboardShell = ({
 
                       {isLoading ? (
                         <div className="flex items-center justify-center py-6">
-                          <Loader2 className="animate-spin text-brand-yellow" />
+                          <Loader2 className="animate-spin text-primary" />
                         </div>
                       ) : (
                         <div className="space-y-4">
 
                           <div className="text-[11px] font-bold text-brand-muted flex gap-3">
-                            <div className="w-2 h-2 bg-brand-yellow rounded-full mt-1 shrink-0" />
+                            <div className="w-2 h-2 bg-primary rounded-full mt-1 shrink-0" />
 
                             {(summary?.tenderCount ?? 0) > 0
                               ? `${summary?.tenderCount} New Tenders available for bidding.`
@@ -270,19 +270,19 @@ export const DashboardShell = ({
             </div>
 
             {/* USER */}
-            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-brand-border py-1 sm:py-2">
+            <div className="flex items-center gap-2 sm:gap-3 pl-2 sm:pl-4 border-l border-border py-1 sm:py-2">
 
               <div className="text-right hidden sm:block">
                 <p className="text-xs font-black truncate max-w-[100px] md:max-w-[150px]">
                   {user?.company || 'Building Co.'}
                 </p>
 
-                <p className="text-[10px] font-bold text-brand-yellow uppercase tracking-tighter">
+                <p className="text-[10px] font-bold text-primary uppercase tracking-tighter">
                   Premium Member
                 </p>
               </div>
 
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-navy flex items-center justify-center text-white font-black text-xs shadow-lg shrink-0">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-background flex items-center justify-center text-foreground font-black text-xs shadow-lg shrink-0">
                 {user?.company?.charAt(0) || 'B'}
               </div>
             </div>
@@ -305,13 +305,13 @@ export const DashboardShell = ({
                 height: 0,
                 opacity: 0,
               }}
-              className="md:hidden px-3 pb-3 bg-brand-navy-card border-b border-brand-border overflow-hidden"
+              className="md:hidden px-3 pb-3 bg-card border-b border-border overflow-hidden"
             >
-              <div className="flex items-center gap-3 bg-brand-navy-light px-4 py-2.5 rounded-2xl border border-brand-border">
+              <div className="flex items-center gap-3 bg-muted px-4 py-2.5 rounded-2xl border border-border">
 
                 <Search
                   size={18}
-                  className="text-white/50 shrink-0"
+                  className="text-muted-foreground shrink-0"
                 />
 
                 <input
@@ -330,7 +330,7 @@ export const DashboardShell = ({
                 >
                   <X
                     size={18}
-                    className="text-white/50"
+                    className="text-muted-foreground"
                   />
                 </button>
               </div>

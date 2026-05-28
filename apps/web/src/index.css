@@ -2,12 +2,31 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #001529;
+    
+    --card: #ffffff;
+    --card-foreground: #001529;
+    
+    --muted: #f1f5f9;
+    --muted-foreground: #64748b;
+    
+    --border: #e2e8f0;
+    
+    --primary: #F5C518;
+    --primary-foreground: #001529;
+    
+    --primary-dim: #c9a000;
+    --primary-pale: rgba(245,197,24,0.12);
+  }
+
   html {
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
   }
   body {
-    @apply bg-brand-navy text-white antialiased overflow-x-hidden;
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
