@@ -18,6 +18,8 @@ import {
   AnimatePresence,
 } from 'framer-motion';
 
+import { Link } from 'react-router-dom';
+
 interface DashboardSummary {
   msgCount?: number;
   tenderCount?: number;
@@ -57,6 +59,14 @@ export const DashboardShell = ({
     },
 
     retry: 1,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // FETCH COMPANY PROFILE FOR DYNAMIC LOGO
+  const { data: companyProfile } = useQuery({
+    queryKey: ['company-profile'],
+    queryFn: async () => (await apiClient.get('/auth/company/profile')).data,
+    enabled: !!user,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -285,9 +295,13 @@ export const DashboardShell = ({
                 </p>
               </div>
 
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-background flex items-center justify-center text-foreground font-black text-xs shadow-lg shrink-0">
-                {user?.company?.charAt(0) || 'B'}
-              </div>
+              <Link to="/dashboard/settings/business" className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-background border border-border flex items-center justify-center text-foreground font-black text-xs shadow-lg shrink-0 hover:scale-105 transition-all overflow-hidden cursor-pointer">
+                {companyProfile?.logo || (user as any)?.logo ? (
+                  <img src={companyProfile?.logo || (user as any)?.logo} alt="Company Logo" className="w-full h-full object-cover" />
+                ) : (
+                  companyProfile?.name?.charAt(0) || user?.company?.charAt(0) || 'B'
+                )}
+              </Link>
             </div>
           </div>
         </header>

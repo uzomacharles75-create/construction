@@ -36,6 +36,7 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
   return (
     <NavLink
       to={path}
+      end={path === '/dashboard' || path === '/admin' || path === '/staff/dashboard'}
       onClick={onNavigate}
       className={({ isActive }) => `
         flex items-center justify-between px-4 py-2.5 rounded-xl transition-all mb-0.5 group
@@ -131,7 +132,6 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           <>
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
-            <NavItem icon={Users} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} />
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} locked={navLocked} />
@@ -142,6 +142,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
           </>
         )}
 
