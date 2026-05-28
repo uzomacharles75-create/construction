@@ -5,6 +5,7 @@ export interface IService extends Document {
   name: string;
   category: string;
   description?: string;
+  image?: string;
   priceFrom?: number;
   priceTo?: number;
   unit: string;
@@ -17,6 +18,7 @@ const ServiceSchema = new Schema<IService>({
   name:        { type: String, required: true, trim: true },
   category:    { type: String, required: true },
   description: { type: String, default: '' },
+  image:       { type: String, default: '' },
   priceFrom:   { type: Number },
   priceTo:     { type: Number },
   unit:        { type: String, default: 'project' },

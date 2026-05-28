@@ -35,11 +35,16 @@ const CompanySchema = new Schema({
   status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
   owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   plan: { type: String, enum: ['basic', 'pro', 'enterprise'], default: 'pro' },
+  currency: { type: String, default: 'XAF' },
+  countryCode: { type: String, default: 'CM' },
   walletBalance: { type: Number, default: 0 },
   walletHistory: [{
     type: { type: String, enum: ['credit', 'debit'], default: 'credit' },
     amount: Number,
+    amountUSD: Number,
+    currency: String, 
     note: String,
+    transactionId: String,
     date: { type: Date, default: Date.now },
   }],
 }, { timestamps: true });

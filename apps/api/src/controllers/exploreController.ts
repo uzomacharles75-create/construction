@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Company from '../models/Company';
+import Service from '../models/Service';
 
 /**
  * @desc    Get all verified companies for the public directory
@@ -13,11 +14,17 @@ export const getCompanies = async (req: Request, res: Response) => {
     // 1. Base Filter: Only show approved companies
     let filter: any = { status: 'verified' }; 
 
-    // 2. SEARCH LOGIC: Search in Company Name OR Services Array
+    // 2. SEARCH LOGIC: company name, sector, or linked public services
     if (service) {
+      const serviceRegex = { $regex: service as string, $options: 'i' };
+      const companiesWithService = await Service.distinct('company', {
+        isPublic: true,
+        $or: [{ name: serviceRegex }, { category: serviceRegex }, { description: serviceRegex }],
+      });
       filter.$or = [
-        { name: { $regex: service as string, $options: 'i' } },     // Search by Company Name
-        { services: { $regex: service as string, $options: 'i' } } // Search by Services offered
+        { name: serviceRegex },
+        { sector: serviceRegex },
+        { _id: { $in: companiesWithService } },
       ];
     }
 
@@ -55,20 +62,24 @@ export const getPublicProfile = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Professional profile not found." });
     }
 
-    res.status(200).json(company);
+    const offeredServices = await Service.find({ company: company._id, isPublic: true })
+      .sort({ createdAt: -1 })
+      .select('name category description image priceFrom priceTo unit createdAt');
+
+    res.status(200).json({ ...company.toObject(), offeredServices });
   } catch (error) {
     res.status(500).json({ message: "Error retrieving profile details." });
   }
 };
+
 /**
- * @desc    Get company public profile by SLUG
- * @route   GET /api/v1/explore/company/:slug
+ * @desc    Get company public profile by SLUG (any status — used for preview links)
+ * @route   GET /api/v1/explore/company/:slug/preview
  */
 export const getCompanyBySlug = async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
 
-    // Search MongoDB for the unique name string
     const company = await Company.findOne({ slug })
       .select('-owner -updatedAt -__v');
 
@@ -76,8 +87,12 @@ export const getCompanyBySlug = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Professional profile not found." });
     }
 
-    res.status(200).json(company);
-  } catch (error) {
+    const offeredServices = await Service.find({ company: company._id, isPublic: true })
+      .sort({ createdAt: -1 })
+      .select('name category description image priceFrom priceTo unit createdAt');
+
+    res.status(200).json({ ...company.toObject(), offeredServices });
+  } catch {
     res.status(500).json({ message: "Infrastructure error retrieving profile." });
   }
 };

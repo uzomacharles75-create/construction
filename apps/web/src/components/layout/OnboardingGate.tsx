@@ -1,350 +1,418 @@
-import { useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate, useLocation } from 'react-router-dom'; // Added useLocation
 import { useAuthStore } from '../../store/useAuthStore';
+import { useOnboardingStore } from '../../store/useOnboardingStore';
 import apiClient from '../../api/client';
-import {
-  Building2, Wallet, CheckCircle2, ArrowRight, Loader2,
-  MapPin, Globe, Phone, Briefcase, Sparkles, X,
-  LayoutDashboard, FileText, Calculator, Store, Inbox, Wrench
-} from 'lucide-react';
 import toast from 'react-hot-toast';
+import {
+  Wallet, Building2, Wrench, CheckCircle2, ArrowRight, Loader2,
+  Phone, Globe, MapPin, Briefcase, DollarSign, ImagePlus, Camera,
+  LayoutDashboard, Calculator, Store, FileText, Inbox, Lock, X, ExternalLink,
+} from 'lucide-react';
 
-// ─── Tour Steps ────────────────────────────────────────────────────
-const TOUR_STEPS = [
-  {
-    icon: LayoutDashboard,
-    title: 'Your Command Centre',
-    desc: 'The dashboard gives you a real-time snapshot of projects, invoices, tenders, and business health at a glance.',
-    color: 'bg-brand-yellow',
-  },
-  {
-    icon: Wrench,
-    title: 'My Services',
-    desc: 'List your construction specialties. They appear on your public profile so clients can find and contact you directly.',
-    color: 'bg-brand-yellow text-brand-navy',
-    textColor: 'text-brand-navy',
-  },
-  {
-    icon: Calculator,
-    title: 'BOQ Engine',
-    desc: 'Generate precise Bills of Quantities. Every line item is verified before export — no AI pricing errors slip through.',
-    color: 'bg-rose-500',
-  },
-  {
-    icon: Store,
-    title: 'Marketplace',
-    desc: 'Source materials and equipment from verified suppliers. Live pricing syncs directly into your BOQs.',
-    color: 'bg-emerald-500',
-  },
-  {
-    icon: FileText,
-    title: 'Invoices & Finance',
-    desc: 'Create professional invoices, track payments, and get full P&L reports — all in one place.',
-    color: 'bg-purple-600',
-  },
-  {
-    icon: Inbox,
-    title: 'Inquiries',
-    desc: 'Clients from the public directory send you messages here. Respond fast to win more contracts.',
-    color: 'bg-orange-500',
-  },
+// ─── Tour steps ────────────────────────────────────────────────────
+const TOUR = [
+  { icon: LayoutDashboard, color: 'bg-brand-yellow', title: 'Command Centre', desc: 'Real-time snapshot of your projects, invoices, tenders and business health.' },
+  { icon: Wrench,          color: 'bg-brand-yellow', title: 'My Services',     desc: 'List your specialties. They show on your public directory profile for clients to find you.' },
+  { icon: Calculator,      color: 'bg-rose-500',     title: 'BOQ Engine',      desc: 'Generate precise Bills of Quantities verified before export — no pricing errors.' },
+  { icon: Store,           color: 'bg-emerald-500',  title: 'Marketplace',     desc: 'Source materials from verified suppliers. Live pricing syncs straight into your BOQs.' },
+  { icon: FileText,        color: 'bg-purple-600',   title: 'Invoices',        desc: 'Professional invoices, payment tracking, and full P&L reports in one place.' },
+  { icon: Inbox,           color: 'bg-orange-500',   title: 'Inquiries',       desc: 'Clients contact you through the directory. Fast replies win more contracts.' },
 ];
 
-// ─── Main Onboarding Gate ─────────────────────────────────────────
-interface OnboardingGateProps {
-  children: React.ReactNode;
-}
+// ─── Shared card shell ──────────────────────────────────────────────
+const Card = ({ children }: { children: React.ReactNode }) => (
+  <div className="bg-[#0a1628] rounded-[3rem] w-full max-w-2xl shadow-2xl overflow-hidden border border-white/5">
+    {children}
+  </div>
+);
 
-const STORAGE_KEY = 'buildhub-onboarded';
-
-export const OnboardingGate = ({ children }: OnboardingGateProps) => {
-  const { user } = useAuthStore();
-  const [phase, setPhase] = useState<'loading' | 'setup' | 'wallet' | 'tour' | 'done'>('loading');
-  const [setupStep, setSetupStep] = useState(1); // 1=profile, 2=wallet
-  const [tourStep, setTourStep] = useState(0);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Profile form state
-  const [profile, setProfile] = useState({
-    phone: '', website: '', sector: '', address: '', city: '', country: ''
-  });
-  // Wallet top-up state
-  const [topupAmount, setTopupAmount] = useState('');
-  const [topupNote, setTopupNote] = useState('');
-
-  useEffect(() => {
-    const alreadyOnboarded = localStorage.getItem(`${STORAGE_KEY}-${user?.id}`);
-    if (alreadyOnboarded) {
-      setPhase('done');
-    } else {
-      setPhase('setup');
-    }
-  }, [user?.id]);
-
-  const handleProfileSave = async () => {
-    if (!profile.phone || !profile.sector) {
-      toast.error('Phone and sector are required.');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      await apiClient.put('/auth/company/profile', profile);
-      toast.success('Business profile saved!');
-      setSetupStep(2);
-    } catch {
-      toast.error('Failed to save profile. You can update it in Settings later.');
-      setSetupStep(2); // allow skip
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleWalletTopup = async () => {
-    if (!topupAmount || Number(topupAmount) < 1000) {
-      toast.error('Minimum top-up is 1,000 XAF.');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      await apiClient.post('/wallet/topup', { amount: Number(topupAmount), note: topupNote || 'Initial top-up' });
-      toast.success('Wallet topped up successfully!');
-      setPhase('tour');
-    } catch {
-      // Wallet may not be built yet — allow skip
-      toast('Wallet service not available yet — you can top up later.', { icon: 'ℹ️' });
-      setPhase('tour');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const skipWallet = () => setPhase('tour');
-
-  const finishTour = () => {
-    localStorage.setItem(`${STORAGE_KEY}-${user?.id}`, '1');
-    setPhase('done');
-  };
-
-  if (phase === 'loading') {
-    return (
-      <div className="min-h-screen bg-brand-navy flex items-center justify-center">
-        <Loader2 className="animate-spin text-brand-yellow" size={40} />
+const CardHeader = ({
+  step, totalSteps, icon: Icon, title, sub,
+}: {
+  step: number; totalSteps: number; icon: React.ElementType;
+  title: string; sub: string;
+}) => (
+  <div className="bg-[#040d1a] px-10 pt-10 pb-8">
+    <div className="flex items-center gap-3 mb-6">
+      <div className="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center font-black text-brand-navy text-sm italic shrink-0">BH</div>
+      <div className="flex gap-1.5">
+        {Array.from({ length: totalSteps }).map((_, i) => (
+          <div key={i} className={`h-1 rounded-full transition-all ${i < step ? 'w-6 bg-brand-yellow' : i === step - 1 ? 'w-8 bg-brand-yellow' : 'w-4 bg-white/15'}`} />
+        ))}
       </div>
-    );
-  }
+      <span className="ml-auto text-[10px] font-black text-white/40 uppercase tracking-widest">Step {step} / {totalSteps}</span>
+    </div>
+    <div className="flex items-center gap-4">
+      <div className="w-14 h-14 bg-brand-yellow/15 rounded-2xl flex items-center justify-center">
+        <Icon size={26} className="text-brand-yellow" />
+      </div>
+      <div>
+        <h1 className="text-2xl font-black text-white tracking-tight">{title}</h1>
+        <p className="text-sm text-white/45 font-medium mt-0.5">{sub}</p>
+      </div>
+    </div>
+  </div>
+);
 
-  if (phase === 'done') return <>{children}</>;
+// ─── Input helper ───────────────────────────────────────────────────
+const Field = ({
+  label, icon: Icon, placeholder, value, onChange, type = 'text',
+}: {
+  label: string; icon: React.ElementType; placeholder: string;
+  value: string; onChange: (v: string) => void; type?: string;
+}) => (
+  <div>
+    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1 block">{label}</label>
+    <div className="relative">
+      <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+      <input
+        type={type}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium text-white placeholder-white/25 border border-white/5"
+      />
+    </div>
+  </div>
+);
+
+// ─── STEP 1: Wallet Top-Up ──────────────────────────────────────────
+const WalletStep = ({ onDone }: { onDone: () => void }) => {
+  const navigate = useNavigate();
+  const [checking, setChecking] = useState(false);
+
+  const handleGoTopUp = () => {
+    // This will now successfully show the wallet page because the gate will hide itself
+    navigate('/dashboard/wallet');
+  };
+
+  const checkBalance = async () => {
+    setChecking(true);
+    try {
+      // Sync with your backend summary to see if balance updated
+      const { data } = await apiClient.get('/auth/company/summary');
+      if (data.balance > 0) {
+        toast.success('Wallet funded! Continuing setup…');
+        onDone();
+      } else {
+        toast.error('Your wallet balance is still 0. Please complete a top-up first.');
+      }
+    } catch {
+      toast.error('Could not check balance. Try again.');
+    } finally {
+      setChecking(false);
+    }
+  };
 
   return (
-    <AnimatePresence mode="wait">
-      {/* ── PHASE: SETUP ── */}
-      {(phase === 'setup') && (
-        <motion.div
-          key="setup"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          className="fixed inset-0 z-50 bg-brand-navy flex items-center justify-center p-4"
-        >
-          {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-brand-yellow/5 blur-[120px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-yellow/5 blur-[100px] rounded-full pointer-events-none" />
-
-          <div className="bg-brand-navy-card rounded-[3rem] w-full max-w-2xl shadow-2xl overflow-hidden relative">
-            {/* Header bar */}
-            <div className="bg-brand-navy px-10 pt-10 pb-8 text-white">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center font-black text-brand-navy text-sm italic">BH</div>
-                <span className="text-sm font-bold text-white/60 uppercase tracking-widest">BuildHub Setup</span>
-              </div>
-              <h1 className="text-3xl font-black tracking-tight mb-2">
-                {setupStep === 1 ? 'Complete Your Business Profile' : 'Fund Your Workspace Wallet'}
-              </h1>
-              <p className="text-white/50 text-sm font-medium">
-                {setupStep === 1
-                  ? 'Help clients find you. This takes 60 seconds.'
-                  : 'Your wallet powers services, listings, and premium features.'}
-              </p>
-              {/* Step dots */}
-              <div className="flex gap-2 mt-6">
-                {[1, 2].map(s => (
-                  <div key={s} className={`h-1.5 rounded-full transition-all ${s === setupStep ? 'w-8 bg-brand-yellow' : s < setupStep ? 'w-4 bg-brand-yellow/60' : 'w-4 bg-brand-navy-card/20'}`} />
-                ))}
-              </div>
+    <Card>
+      <CardHeader
+        step={1} totalSteps={4}
+        icon={Wallet}
+        title="Fund Your Workspace"
+        sub="Top up your wallet to unlock all platform features."
+      />
+      <div className="p-10 space-y-6">
+        <div className="bg-white/5 rounded-3xl p-6 border border-white/5 space-y-3">
+          {[
+            'Pay in USD — automatically converted to your local currency',
+            'Secured by Swychr payment gateway',
+            'Minimum deposit: $1 USD',
+            'Wallet balance visible on sidebar at all times',
+          ].map((point) => (
+            <div key={point} className="flex items-start gap-3">
+              <CheckCircle2 size={15} className="text-brand-yellow shrink-0 mt-0.5" />
+              <p className="text-sm text-white/60 font-medium">{point}</p>
             </div>
+          ))}
+        </div>
 
-            {/* Body */}
-            <div className="p-10">
-              <AnimatePresence mode="wait">
-                {setupStep === 1 && (
-                  <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {[
-                        { field: 'phone', label: 'Phone / WhatsApp *', icon: Phone, placeholder: '+237 6XX XXX XXX' },
-                        { field: 'sector', label: 'Business Sector *', icon: Briefcase, placeholder: 'e.g. General Contractor' },
-                        { field: 'city', label: 'City', icon: MapPin, placeholder: 'e.g. Douala' },
-                        { field: 'country', label: 'Country', icon: Globe, placeholder: 'e.g. Cameroon' },
-                        { field: 'website', label: 'Website (optional)', icon: Globe, placeholder: 'https://...' },
-                        { field: 'address', label: 'Physical Address', icon: Building2, placeholder: 'Street, Quarter...' },
-                      ].map(({ field, label, icon: Icon, placeholder }) => (
-                        <div key={field}>
-                          <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">{label}</label>
-                          <div className="relative">
-                            <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-white/35" size={16} />
-                            <input
-                              type="text"
-                              placeholder={placeholder}
-                              value={(profile as any)[field]}
-                              onChange={e => setProfile({ ...profile, [field]: e.target.value })}
-                              className="w-full p-3.5 pl-10 bg-brand-navy-light rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <button
-                      onClick={handleProfileSave}
-                      disabled={isSubmitting}
-                      className="mt-8 w-full py-4 bg-brand-navy text-white rounded-2xl font-black flex items-center justify-center gap-2 hover:bg-brand-navy-light transition-all shadow-xl"
-                    >
-                      {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <><ArrowRight size={18} /> Save & Continue</>}
-                    </button>
-                  </motion.div>
-                )}
+        <button
+          type="button"
+          onClick={handleGoTopUp}
+          className="w-full py-4 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow"
+        >
+          <ExternalLink size={18} /> Open Wallet & Top Up
+        </button>
 
-                {setupStep === 2 && (
-                  <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                    <div className="bg-brand-yellow/10 rounded-3xl p-6 mb-6 border border-brand-yellow/20">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 bg-brand-yellow rounded-2xl flex items-center justify-center">
-                          <Wallet size={20} className="text-brand-navy" />
-                        </div>
-                        <div>
-                          <p className="font-black text-brand-navy text-sm">BuildHub Wallet</p>
-                          <p className="text-xs text-brand-muted">Used for BOQ exports, listings & more</p>
-                        </div>
-                      </div>
-                    </div>
+        <button
+          type="button"
+          onClick={checkBalance}
+          disabled={checking}
+          className="w-full py-3.5 bg-white/5 text-white/70 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-white/5 hover:bg-white/10 transition-all"
+        >
+          {checking ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+          I already topped up — verify & continue
+        </button>
+      </div>
+    </Card>
+  );
+};
 
-                    <div className="grid grid-cols-3 gap-3 mb-5">
-                      {[5000, 10000, 25000, 50000, 100000, 200000].map(amt => (
-                        <button
-                          key={amt}
-                          onClick={() => setTopupAmount(String(amt))}
-                          className={`p-3 rounded-2xl font-black text-sm transition-all ${topupAmount === String(amt) ? 'bg-brand-yellow text-brand-navy shadow-yellow' : 'bg-brand-navy-card text-brand-navy/70 hover:bg-brand-navy-card'}`}
-                        >
-                          {amt.toLocaleString()}
-                        </button>
-                      ))}
-                    </div>
-                    <input
-                      type="number"
-                      placeholder="Or enter custom amount (XAF)"
-                      value={topupAmount}
-                      onChange={e => setTopupAmount(e.target.value)}
-                      className="w-full p-4 bg-brand-navy-light rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium mb-3"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Payment reference / note (optional)"
-                      value={topupNote}
-                      onChange={e => setTopupNote(e.target.value)}
-                      className="w-full p-4 bg-brand-navy-light rounded-2xl border-none outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium"
-                    />
-                    <div className="flex gap-3 mt-6">
-                      <button onClick={skipWallet} className="flex-1 py-4 bg-brand-navy-light text-brand-muted rounded-2xl font-bold text-sm hover:bg-brand-navy-light transition-all">
-                        Skip for Now
-                      </button>
-                      <button
-                        onClick={handleWalletTopup}
-                        disabled={isSubmitting}
-                        className="flex-1 py-4 bg-brand-yellow text-brand-navy rounded-2xl font-black flex items-center justify-center gap-2 shadow-yellow hover:scale-[1.02] transition-all"
-                      >
-                        {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : <><Wallet size={18} /> Top Up Wallet</>}
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+// ─── STEP 3: First Service ──────────────────────────────────────────
+const CATEGORIES = [
+  'General Construction', 'Civil Engineering', 'Electrical Works',
+  'Plumbing & Sanitation', 'Roofing', 'Interior Finishing',
+  'Landscaping', 'Project Management', 'Architectural Design', 'Other',
+];
+
+const ProfileStep = ({ onDone }: { onDone: () => void }) => {
+  const [form, setForm] = useState({ phone: '', sector: '', city: '', country: '', website: '', address: '' });
+  const [loading, setLoading] = useState(false);
+  const f = (k: keyof typeof form) => (v: string) => setForm((s) => ({ ...s, [k]: v }));
+  const { user } = useAuthStore();
+
+  const handleSave = async () => {
+    if (!form.phone || !form.sector) return toast.error('Phone and sector are required.');
+    setLoading(true);
+    try {
+      await apiClient.put(`/auth/company/${user?.slug}`, form);
+      toast.success('Business profile saved!');
+      onDone();
+    } catch {
+      toast.error('Save failed — you can update this in Settings later.');
+      onDone();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader step={2} totalSteps={4} icon={Building2} title="Business Profile" sub="Help clients find you — takes about 60 seconds." />
+      <div className="p-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <Field label="Phone / WhatsApp *" icon={Phone}    placeholder="+237 6XX XXX XXX"      value={form.phone}   onChange={f('phone')} />
+          <Field label="Business Sector *"  icon={Briefcase} placeholder="e.g. General Contractor" value={form.sector} onChange={f('sector')} />
+          <Field label="City"               icon={MapPin}   placeholder="e.g. Douala"            value={form.city}    onChange={f('city')} />
+          <Field label="Country"            icon={Globe}    placeholder="e.g. Cameroon"          value={form.country} onChange={f('country')} />
+          <Field label="Website (optional)" icon={Globe}    placeholder="https://..."            value={form.website} onChange={f('website')} />
+          <Field label="Physical Address"   icon={MapPin}   placeholder="Street, Quarter..."     value={form.address} onChange={f('address')} />
+        </div>
+        <div className="flex gap-3">
+          <button type="button" onClick={onDone} className="px-6 py-3.5 bg-white/5 text-white/50 rounded-2xl font-bold text-sm hover:text-white transition-all border border-white/5">
+            Skip for now
+          </button>
+          <button type="button" onClick={handleSave} disabled={loading} className="flex-1 py-3.5 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-60">
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <><ArrowRight size={18} /> Save & Continue</>}
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const ServiceStep = ({ onDone }: { onDone: () => void }) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [form, setForm] = useState({ name: '', category: '', description: '', priceFrom: '', priceTo: '', unit: 'project', isPublic: true });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const f = (k: keyof typeof form) => (v: string) => setForm((s) => ({ ...s, [k]: v }));
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    if (preview) URL.revokeObjectURL(preview);
+    setPreview(URL.createObjectURL(file));
+    e.target.value = '';
+  };
+
+  const handleSave = async () => {
+    if (!form.name || !form.category) return toast.error('Name and category are required.');
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('name', form.name);
+      fd.append('category', form.category);
+      fd.append('description', form.description);
+      fd.append('unit', form.unit);
+      fd.append('isPublic', String(form.isPublic));
+      if (form.priceFrom) fd.append('priceFrom', form.priceFrom);
+      if (form.priceTo) fd.append('priceTo', form.priceTo);
+      if (imageFile) fd.append('file', imageFile, imageFile.name);
+      await apiClient.post('/services', fd);
+      toast.success('First service created! Your profile is live.');
+      onDone();
+    } catch {
+      toast.error('Failed to save service — you can add services from the sidebar later.');
+      onDone();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader step={3} totalSteps={4} icon={Wrench} title="Add Your First Service" sub="This makes you visible in the public directory." />
+      <div className="p-10 space-y-5">
+        <div>
+          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 block">Service Photo</label>
+          <div
+            onClick={() => fileRef.current?.click()}
+            className="relative aspect-video max-w-sm rounded-3xl overflow-hidden border-2 border-dashed border-white/10 bg-white/5 cursor-pointer group hover:border-brand-yellow/30 transition-all"
+          >
+            {preview
+              ? <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+              : <div className="absolute inset-0 flex flex-col items-center justify-center text-white/30 gap-2">
+                  <ImagePlus size={28} className="text-brand-yellow" />
+                  <span className="text-xs font-bold uppercase tracking-widest">Upload photo</span>
+                </div>
+            }
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              <Camera size={24} className="text-brand-yellow" />
             </div>
           </div>
-        </motion.div>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Field label="Service Name *" icon={Wrench}    placeholder="e.g. Foundation Works" value={form.name}     onChange={f('name')} />
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1 block">Category *</label>
+            <select value={form.category} onChange={(e: any) => f('category')(e.target.value)}
+              className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium text-white border border-white/5 appearance-none">
+              <option value="" className="bg-[#0a1628]">Select category…</option>
+              {CATEGORIES.map((c) => <option key={c} value={c} className="bg-[#0a1628]">{c}</option>)}
+            </select>
+          </div>
+          <div className="sm:col-span-2">
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1 block">Description</label>
+            <textarea value={form.description} onChange={(e: any) => f('description')(e.target.value)} placeholder="Describe what this service includes…"
+              className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium text-white placeholder-white/25 border border-white/5 h-20 resize-none" />
+          </div>
+          <Field label="Price From" icon={DollarSign} placeholder="e.g. 50000" value={form.priceFrom} onChange={f('priceFrom')} type="number" />
+          <Field label="Price To"   icon={DollarSign} placeholder="e.g. 500000" value={form.priceTo}  onChange={f('priceTo')}  type="number" />
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <button type="button" onClick={onDone} className="px-6 py-3.5 bg-white/5 text-white/50 rounded-2xl font-bold text-sm hover:text-white transition-all border border-white/5">
+            Skip for now
+          </button>
+          <button type="button" onClick={handleSave} disabled={loading} className="flex-1 py-3.5 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-60">
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <><ArrowRight size={18} /> Save Service & Continue</>}
+          </button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const TourStep = ({ onDone }: { onDone: () => void }) => {
+  const [step, setStep] = useState(0);
+  const item = TOUR[step];
+  const Icon = item.icon;
+
+  return (
+    <div className="bg-[#0a1628] rounded-[3rem] w-full max-w-md shadow-2xl p-10 relative border border-white/5 mx-auto">
+      <button type="button" onClick={onDone} className="absolute top-6 right-6 text-white/25 hover:text-white/70 transition-colors">
+        <X size={20} />
+      </button>
+
+      <div className={`w-16 h-16 ${item.color} rounded-[1.5rem] flex items-center justify-center mb-6 shadow-xl`}>
+        <Icon size={28} className="text-[#001529]" />
+      </div>
+
+      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-yellow mb-2">Feature {step + 1} of {TOUR.length}</p>
+      <h2 className="text-2xl font-black text-white mb-3 tracking-tight">{item.title}</h2>
+      <p className="text-white/55 font-medium leading-relaxed text-sm mb-8">{item.desc}</p>
+
+      <div className="flex gap-2 mb-8">
+        {TOUR.map((_, i) => (
+          <button key={i} onClick={() => setStep(i)}
+            className={`h-1.5 rounded-full transition-all ${i === step ? 'w-8 bg-brand-yellow' : i < step ? 'w-4 bg-brand-yellow/50' : 'w-4 bg-white/15'}`} />
+        ))}
+      </div>
+
+      <div className="flex gap-3">
+        {step > 0 && (
+          <button type="button" onClick={() => setStep(step - 1)}
+            className="px-5 py-3 bg-white/5 text-white/60 rounded-2xl font-bold text-sm hover:text-white transition-all border border-white/5">
+            Back
+          </button>
+        )}
+        <button type="button"
+          onClick={() => step < TOUR.length - 1 ? setStep(step + 1) : onDone()}
+          className="flex-1 py-3 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+          {step === TOUR.length - 1
+            ? <><CheckCircle2 size={16} /> Enter Dashboard</>
+            : <>Next <ArrowRight size={16} /></>}
+        </button>
+      </div>
+
+      {step === 0 && (
+        <button type="button" onClick={onDone}
+          className="w-full text-center text-xs text-white/25 mt-4 hover:text-white/50 transition-colors">
+          Skip tour
+        </button>
       )}
+    </div>
+  );
+};
 
-      {/* ── PHASE: WALLET (from setup step 2, kept in same flow above) ── */}
+// ─── Main gate ─────────────────────────────────────────────────────
+export const OnboardingGate = ({ children }: { children: React.ReactNode }) => {
+  const { user, isAuthenticated } = useAuthStore();
+  const { getStep, advance, markDone, isDone } = useOnboardingStore();
+  const location = useLocation();
 
-      {/* ── PHASE: TOUR ── */}
-      {phase === 'tour' && (
-        <motion.div
-          key="tour"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-        >
-          <motion.div
-            key={tourStep}
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-            className="bg-brand-navy-card rounded-[3rem] w-full max-w-md shadow-2xl p-10 relative"
-          >
-            <button
-              onClick={finishTour}
-              className="absolute top-6 right-6 text-white/35 hover:text-brand-muted transition-colors"
-            >
-              <X size={20} />
-            </button>
+  if (!isAuthenticated || !user?.id) return <>{children}</>;
 
-            {/* Step icon */}
-            <div className={`w-16 h-16 ${TOUR_STEPS[tourStep].color} rounded-[1.5rem] flex items-center justify-center mb-6 text-white shadow-xl`}>
-              {(() => {
-                const Icon = TOUR_STEPS[tourStep].icon;
-                return <Icon size={28} />;
-              })()}
-            </div>
+  const step = getStep(user.id);
+  const done = isDone(user.id);
 
-            {/* Step count */}
-            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/50 mb-3">
-              Feature {tourStep + 1} of {TOUR_STEPS.length}
-            </p>
-            <h2 className="text-2xl font-black text-brand-navy mb-3 tracking-tight">{TOUR_STEPS[tourStep].title}</h2>
-            <p className="text-brand-muted font-medium leading-relaxed text-sm mb-8">{TOUR_STEPS[tourStep].desc}</p>
+  // Identify if we are currently on the wallet page
+  const isCurrentlyOnWallet = location.pathname.includes('/wallet');
 
-            {/* Progress dots */}
-            <div className="flex gap-2 mb-8">
-              {TOUR_STEPS.map((_, i) => (
-                <button key={i} onClick={() => setTourStep(i)} className={`h-1.5 rounded-full transition-all ${i === tourStep ? 'w-8 bg-brand-yellow' : i < tourStep ? 'w-4 bg-brand-yellow/50' : 'w-4 bg-brand-navy-light'}`} />
-              ))}
-            </div>
+  // IF onboarding is complete OR user is literally ON the wallet page,
+  // we do NOT show the lock overlay.
+  if (done || (step === 'wallet' && isCurrentlyOnWallet)) {
+    return <>{children}</>;
+  }
 
-            <div className="flex gap-3">
-              {tourStep > 0 && (
-                <button onClick={() => setTourStep(tourStep - 1)} className="px-6 py-3 bg-brand-navy-light text-brand-muted rounded-2xl font-bold text-sm hover:bg-brand-navy-light transition-all">
-                  Back
-                </button>
-              )}
-              <button
-                onClick={() => tourStep < TOUR_STEPS.length - 1 ? setTourStep(tourStep + 1) : finishTour()}
-                className="flex-1 py-3 bg-brand-navy text-white rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:bg-brand-navy-light transition-all"
-              >
-                {tourStep === TOUR_STEPS.length - 1 ? (
-                  <><CheckCircle2 size={16} /> Enter Dashboard</>
-                ) : (
-                  <>Next <ArrowRight size={16} /></>
-                )}
-              </button>
-            </div>
+  return (
+    <div className="relative min-h-screen">
+      {/* blurred backdrop showing the real dashboard */}
+      <div className="blur-xl pointer-events-none select-none opacity-40 fixed inset-0 z-0">
+        {children}
+      </div>
 
-            {tourStep === 0 && (
-              <button onClick={finishTour} className="w-full text-center text-xs text-white/35 mt-4 hover:text-brand-muted transition-colors font-medium">
-                Skip tour — go straight to dashboard
-              </button>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/70 backdrop-blur-md">
+        {/* lock badge top-right */}
+        <div className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs font-black text-white/50 uppercase tracking-widest">
+            <Lock size={12} className="text-brand-yellow" />
+            Setup required — step {['wallet', 'profile', 'service', 'tour'].indexOf(step) + 1}/4
+        </div>
+
+        <AnimatePresence mode="wait">
+            {step === 'wallet' && (
+            <motion.div key="wallet" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <WalletStep onDone={() => advance(user.id)} />
+            </motion.div>
             )}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+
+            {step === 'profile' && (
+            <motion.div key="profile" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <ProfileStep onDone={() => advance(user.id)} />
+            </motion.div>
+            )}
+
+            {step === 'service' && (
+            <motion.div key="service" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <ServiceStep onDone={() => advance(user.id)} />
+            </motion.div>
+            )}
+
+            {step === 'tour' && (
+            <motion.div key="tour" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
+                <TourStep onDone={() => markDone(user.id)} />
+            </motion.div>
+            )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 };

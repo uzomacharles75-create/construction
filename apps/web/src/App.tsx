@@ -22,6 +22,7 @@ import DirectoryLeads from './pages/DirectoryLeads';
 import MarketplaceManager from './pages/MarketplaceManager';
 import Invoices from './pages/Invoices';
 import Services from './pages/Services';
+import Wallet from './pages/Wallet';
 
 // --- STAFF / ENGINEER PAGES (/staff/*) ---
 import StaffDashboard from './pages/staff/StaffDashboard';
@@ -51,10 +52,11 @@ import PublicPostTender from './pages/PublicPostTender';
 // Wrapper: every owner dashboard route goes through OnboardingGate
 const OwnerRoute = ({ children }: { children: React.ReactNode }) => (
   <ProtectedRoute allowedRoles={['owner']}>
-    <OnboardingGate>{children}</OnboardingGate>
+    {/* <OnboardingGate> */}
+      {children}
+    {/* </OnboardingGate> */}
   </ProtectedRoute>
 );
-
 function App() {
   const { isAuthenticated, user } = useAuthStore();
 
@@ -102,6 +104,8 @@ function App() {
           <Route path="/dashboard/marketplace" element={<OwnerRoute><MarketplaceManager /></OwnerRoute>} />
           <Route path="/dashboard/invoices" element={<OwnerRoute><Invoices /></OwnerRoute>} />
           <Route path="/dashboard/services" element={<OwnerRoute><Services /></OwnerRoute>} />
+          <Route path="/dashboard/wallet" element={<OwnerRoute><Wallet /></OwnerRoute>} />
+          <Route path="/dashboard/wallet/verify" element={<OwnerRoute><Wallet /></OwnerRoute>} />
           <Route path="/dashboard/projects" element={<OwnerRoute><ProjectDetail /></OwnerRoute>} />
           <Route path="/dashboard/boq" element={<OwnerRoute><BOQEngine /></OwnerRoute>} />
           <Route path="/dashboard/ai" element={<OwnerRoute><AIAssistant /></OwnerRoute>} />

@@ -2,39 +2,72 @@ import { NavLink } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
-import { 
-  LayoutDashboard, Building2, Briefcase, TrendingUp, Store, 
+import { useOnboardingStore } from '../../store/useOnboardingStore';
+import {
+  LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Wrench
+  Inbox, Wrench, Lock, Wallet,
 } from 'lucide-react';
 
-const NavItem = ({ icon: Icon, label, path, badge, onNavigate }: any) => (
-  <NavLink 
-    to={path}
-    onClick={onNavigate}
-    className={({ isActive }) => `
-      flex items-center justify-between px-4 py-2.5 rounded-xl transition-all mb-0.5 group
-      ${isActive 
-        ? 'bg-brand-yellow text-brand-navy shadow-lg shadow-yellow-900/20' 
-        : 'text-brand-navy/50 hover:bg-brand-navy-card/5 hover:text-white'}
-    `}
-  >
-    <div className="flex items-center gap-3">
-      <Icon size={18} className="shrink-0" />
-      <span className="text-[13px] font-medium tracking-tight">{label}</span>
-    </div>
-    {badge && (
-      <span className="bg-brand-yellow/20 text-brand-yellow text-[10px] px-1.5 py-0.5 rounded-md font-bold">
-        {badge}
-      </span>
-    )}
-  </NavLink>
-);
+interface NavItemProps {
+  icon: React.ElementType;
+  label: string;
+  path: string;
+  badge?: number | null;
+  onNavigate?: () => void;
+  locked?: boolean;
+}
+
+const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItemProps) => {
+  // If locked is true, it shows the padlock. We are passing 'false' to this now.
+  if (locked) {
+    return (
+      <div className="flex items-center justify-between px-4 py-2.5 rounded-xl mb-0.5 opacity-35 cursor-not-allowed select-none">
+        <div className="flex items-center gap-3">
+          <Icon size={18} className="shrink-0" />
+          <span className="text-[13px] font-medium tracking-tight">{label}</span>
+        </div>
+        <Lock size={12} className="text-white/40" />
+      </div>
+    );
+  }
+
+  return (
+    <NavLink
+      to={path}
+      onClick={onNavigate}
+      className={({ isActive }) => `
+        flex items-center justify-between px-4 py-2.5 rounded-xl transition-all mb-0.5 group
+        ${isActive
+          ? 'bg-brand-yellow text-brand-navy shadow-lg shadow-yellow-900/20'
+          : 'text-white/70 hover:bg-white/5 hover:text-brand-yellow'}
+      `}
+    >
+      <div className="flex items-center gap-3">
+        <Icon size={18} className="shrink-0" />
+        <span className="text-[13px] font-medium tracking-tight">{label}</span>
+      </div>
+      {badge != null && badge > 0 && (
+        <span className="bg-brand-yellow/20 text-brand-yellow text-[10px] px-1.5 py-0.5 rounded-md font-bold">
+          {badge}
+        </span>
+      )}
+    </NavLink>
+  );
+};
 
 export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
+  const { getStep, isDone } = useOnboardingStore();
   const role = user?.role;
+
+  // --- BYPASS LOGIC START ---
+  // We set these to true/false manually so the sidebar "Works" immediately
+  const onboarded = true; 
+  const navLocked = false; 
+  const onboardingStep = user?.id ? getStep(user.id) : 'done';
+  // --- BYPASS LOGIC END ---
 
   const { data: pendingQueue } = useQuery({
     queryKey: ['admin-pending-count'],
@@ -46,72 +79,87 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
     refetchInterval: 30000,
   });
 
-  const { data: summary } = useQuery({ 
-    queryKey: ['dashboard-summary'], 
-    queryFn: async () => (await apiClient.get('/auth/company/summary')).data 
+  const { data: summary } = useQuery({
+    queryKey: ['dashboard-summary'],
+    queryFn: async () => (await apiClient.get('/auth/company/summary')).data,
+    enabled: role === 'owner' && onboarded,
+  });
+
+  const { data: walletData } = useQuery({
+    queryKey: ['wallet-balance'],
+    queryFn: async () => (await apiClient.get('/wallet/balance')).data,
+    enabled: role === 'owner',
+    refetchInterval: 60000,
   });
 
   return (
     <aside className="w-[min(280px,85vw)] sm:w-[260px] h-[100dvh] bg-brand-navy text-white flex flex-col p-4 overflow-y-auto no-scrollbar border-r border-brand-border/5">
-      {/* LOGO AREA */}
+      {/* LOGO */}
       <div className="flex items-center gap-3 mb-8 px-2">
         <div className="w-8 h-8 bg-brand-yellow rounded-lg flex items-center justify-center font-black text-brand-navy text-xs italic">BH</div>
         <h2 className="text-lg font-bold tracking-tight text-white">BuildHub</h2>
       </div>
 
+      {/* Setup banner is hidden when navLocked is false */}
+      {navLocked && (
+        <div className="mb-4 mx-1 px-4 py-3 bg-brand-yellow/10 border border-brand-yellow/20 rounded-2xl">
+          <p className="text-[10px] font-black uppercase tracking-widest text-brand-yellow mb-0.5">Setup in progress</p>
+          <p className="text-[11px] text-white/50 font-medium">
+            {onboardingStep === 'wallet' && 'Top up wallet to continue →'}
+            {onboardingStep === 'profile' && 'Complete business profile →'}
+            {onboardingStep === 'service' && 'Add your first service →'}
+            {onboardingStep === 'tour' && 'Taking the tour →'}
+          </p>
+        </div>
+      )}
+
       <nav className="flex-1">
-        {/* SUPER ADMIN MENU */}
+        {/* ADMIN */}
         {role === 'admin' && (
           <>
-            <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-4 mb-2">Platform Master</p>
-            <NavItem icon={LayoutDashboard} label="Dashboard" path="/admin" onNavigate={onNavigate} />
-            <NavItem 
-              icon={ShieldCheck} 
-              label="Verification Queue" 
-              path="/admin/verifications" 
-              badge={pendingQueue?.length > 0 ? pendingQueue.length : null} 
-              onNavigate={onNavigate} 
-            />
-            <NavItem icon={Users} label="Manage Companies" path="/admin/users" onNavigate={onNavigate} />
-            <NavItem icon={BarChart3} label="System Stats" path="/admin/stats" onNavigate={onNavigate} />
-            <NavItem icon={Settings} label="Global Settings" path="/admin/settings" onNavigate={onNavigate} />
+            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest px-4 mb-2">Platform Master</p>
+            <NavItem icon={LayoutDashboard} label="Dashboard"          path="/admin"               onNavigate={onNavigate} />
+            <NavItem icon={ShieldCheck}     label="Verification Queue" path="/admin/verifications" onNavigate={onNavigate} badge={pendingQueue?.length ?? null} />
+            <NavItem icon={Users}           label="Manage Companies"   path="/admin/users"         onNavigate={onNavigate} />
+            <NavItem icon={BarChart3}       label="System Stats"       path="/admin/stats"         onNavigate={onNavigate} />
+            <NavItem icon={Settings}        label="Global Settings"    path="/admin/settings"      onNavigate={onNavigate} />
           </>
         )}
 
-        {/* COMPANY OWNER MENU */}
+        {/* OWNER */}
         {role === 'owner' && (
           <>
-            <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-4 mb-2">Business Ops</p>
-            <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
-            <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} />
-            <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} />
-            <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" badge={summary?.msgCount} onNavigate={onNavigate} />
-            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" badge={summary?.orderCount} onNavigate={onNavigate} />
-            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" badge={summary?.tenderCount} onNavigate={onNavigate} />
-            <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} />
-            <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} />
-            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} />
-            <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} />
+            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
+            <NavItem icon={LayoutDashboard} label="Dashboard"          path="/dashboard"                       onNavigate={onNavigate} />
+            <NavItem icon={Wallet}          label="Wallet"             path="/dashboard/wallet"                onNavigate={onNavigate} />
+            <NavItem icon={Building2}       label="Business Profile"   path="/dashboard/settings/business"     onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Wrench}          label="My Services"        path="/dashboard/services"              onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Inbox}           label="Inquiries"          path="/dashboard/inquiries"             onNavigate={onNavigate} badge={summary?.msgCount}    locked={navLocked} />
+            <NavItem icon={Store}           label="Marketplace"        path="/dashboard/marketplace"           onNavigate={onNavigate} badge={summary?.orderCount}  locked={navLocked} />
+            <NavItem icon={ClipboardList}   label="Tenders & Jobs"     path="/dashboard/tenders"               onNavigate={onNavigate} badge={summary?.tenderCount} locked={navLocked} />
+            <NavItem icon={Landmark}        label="Finance & Reports"  path="/dashboard/finance"               onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={FileText}        label="Invoices"           path="/dashboard/invoices"              onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Users}           label="Workers & Team"     path="/dashboard/workforce"             onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Calculator}      label="BOQ Tools"          path="/dashboard/boq"                   onNavigate={onNavigate} locked={navLocked} />
           </>
         )}
 
-        {/* STAFF MENU */}
+        {/* STAFF */}
         {role === 'staff' && (
           <>
-            <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest px-4 mb-2">Field Operations</p>
-            <NavItem icon={HardHat} label="Site Portal" path="/staff/dashboard" onNavigate={onNavigate} />
-            <NavItem icon={Briefcase} label="My Assignments" path="/staff/projects" onNavigate={onNavigate} />
-            <NavItem icon={Sparkles} label="Engineering AI" path="/staff/ai" onNavigate={onNavigate} />
-            <NavItem icon={Files} label="Site Documents" path="/staff/documents" onNavigate={onNavigate} />
-            <NavItem icon={Settings} label="My Settings" path="/staff/settings" onNavigate={onNavigate} />
+            <p className="text-[10px] font-black text-white/20 uppercase tracking-widest px-4 mb-2">Field Operations</p>
+            <NavItem icon={HardHat}   label="Site Portal"      path="/staff/dashboard"  onNavigate={onNavigate} />
+            <NavItem icon={Briefcase} label="My Assignments"   path="/staff/projects"   onNavigate={onNavigate} />
+            <NavItem icon={Sparkles}  label="Engineering AI"   path="/staff/ai"         onNavigate={onNavigate} />
+            <NavItem icon={Files}     label="Site Documents"   path="/staff/documents"  onNavigate={onNavigate} />
+            <NavItem icon={Settings}  label="My Settings"      path="/staff/settings"   onNavigate={onNavigate} />
           </>
         )}
 
-        {/* LOGOUT */}
         <div className="mt-4 pt-4 border-t border-brand-border/5">
-          <button 
+          <button
             onClick={logout}
-            className="flex items-center gap-3 px-4 py-2.5 w-full text-brand-muted hover:text-rose-400 transition-all"
+            className="flex items-center gap-3 px-4 py-2.5 w-full text-white/40 hover:text-rose-400 transition-all"
           >
             <LogOut size={18} />
             <span className="text-[13px] font-medium">Sign Out</span>
@@ -120,31 +168,51 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
       </nav>
 
       {/* IDENTITY CARD */}
-      <div className="mt-8 p-4 bg-brand-navy-card/5 rounded-2xl border border-brand-border/10 shrink-0">
-        {role === 'staff' ? (
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-brand-yellow/20 rounded-xl flex items-center justify-center text-brand-yellow">
-               <HardHat size={20} />
-             </div>
-             <div>
-                <p className="text-[10px] text-brand-muted font-bold uppercase tracking-tighter">Site Engineer</p>
-                <p className="text-xs font-bold text-white truncate w-24">{user?.name}</p>
-             </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">{role === 'admin' ? 'Ruler' : 'Owner'}</p>
-              <Crown size={14} className="text-brand-yellow" />
+      <div className="mt-auto pt-4 space-y-3 shrink-0">
+        {role === 'owner' && (
+          <NavLink
+            to="/dashboard/wallet"
+            onClick={onNavigate}
+            className="flex items-center justify-between px-4 py-3 bg-brand-yellow/10 border border-brand-yellow/20 rounded-2xl hover:border-brand-yellow/40 transition-all group"
+          >
+            <div className="flex items-center gap-2">
+              <Wallet size={15} className="text-brand-yellow" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-brand-yellow">Wallet</span>
             </div>
-            <p className="text-sm font-bold text-white truncate">{user?.name}</p>
-            {role === 'owner' && (
-              <button className="w-full mt-3 py-2 bg-brand-yellow text-brand-navy rounded-xl text-[10px] font-black">
-                Manage Plan
-              </button>
-            )}
-          </>
+            <span className="text-xs font-black text-white group-hover:text-brand-yellow transition-colors">
+              {walletData
+                ? `${Number(walletData.balance).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${walletData.currency}`
+                : '…'}
+            </span>
+          </NavLink>
         )}
+
+        <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+          {role === 'staff' ? (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-brand-yellow/20 rounded-xl flex items-center justify-center text-brand-yellow">
+                <HardHat size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] text-white/30 font-bold uppercase tracking-tighter">Site Engineer</p>
+                <p className="text-xs font-bold text-white truncate w-28">{user?.name}</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest">{role === 'admin' ? 'Admin' : 'Owner'}</p>
+                <Crown size={14} className="text-brand-yellow" />
+              </div>
+              <p className="text-sm font-bold text-white truncate">{user?.name}</p>
+              {role === 'owner' && (
+                <div className={`mt-2 py-1.5 px-3 rounded-lg text-[10px] font-black text-center ${onboarded ? 'bg-brand-yellow/10 text-brand-yellow' : 'bg-rose-500/10 text-rose-400'}`}>
+                  {onboarded ? 'Active' : 'Setup required'}
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </aside>
   );

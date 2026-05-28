@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import apiClient from '../api/client';
-import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2, Loader2, ArrowLeft, MessageSquare, Award, Image as ImageIcon } from 'lucide-react';
+import { ShieldCheck, MapPin, Star, Phone, Mail, Globe, CheckCircle2, Loader2, ArrowLeft, MessageSquare, Award, Image as ImageIcon, Wrench, DollarSign } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { t } from '../theme';
 
@@ -99,6 +99,66 @@ const PublicCompanyProfile = () => {
               {company.description || "The company hasn't provided an official description yet."}
             </p>
           </motion.section>
+
+          <section>
+            <div className="flex items-center gap-4 mb-12">
+              <div className={t.iconBoxNavy}>
+                <Wrench size={20} />
+              </div>
+              <h2 className="text-3xl font-black text-white tracking-tight">Services Offered</h2>
+            </div>
+            {company.offeredServices?.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {company.offeredServices.map((svc: {
+                  _id: string;
+                  name: string;
+                  category: string;
+                  description?: string;
+                  image?: string;
+                  priceFrom?: number;
+                  priceTo?: number;
+                  unit?: string;
+                }) => (
+                  <motion.article
+                    key={svc._id}
+                    whileHover={{ y: -4 }}
+                    className="bg-brand-navy-card border border-brand-border rounded-[2.5rem] overflow-hidden hover:border-brand-yellow/30 transition-all"
+                  >
+                    <div className="aspect-video bg-brand-navy-light relative">
+                      {svc.image ? (
+                        <img src={svc.image} alt={svc.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-white/20">
+                          <Wrench size={40} />
+                        </div>
+                      )}
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-brand-navy/80 backdrop-blur rounded-full text-[10px] font-black uppercase tracking-widest text-brand-yellow">
+                        {svc.category}
+                      </span>
+                    </div>
+                    <div className="p-8">
+                      <h3 className="text-xl font-black text-white mb-2">{svc.name}</h3>
+                      {svc.description && (
+                        <p className="text-sm text-white/60 leading-relaxed mb-4 line-clamp-3">{svc.description}</p>
+                      )}
+                      {(svc.priceFrom || svc.priceTo) && (
+                        <p className="flex items-center gap-1 text-brand-yellow font-black text-sm">
+                          <DollarSign size={14} />
+                          {svc.priceFrom != null && Number(svc.priceFrom).toLocaleString()}
+                          {svc.priceTo != null && ` – ${Number(svc.priceTo).toLocaleString()}`} XAF
+                          {svc.unit && <span className="text-white/40 font-medium text-xs ml-1">/ {svc.unit}</span>}
+                        </p>
+                      )}
+                    </div>
+                  </motion.article>
+                ))}
+              </div>
+            ) : (
+              <div className="py-16 text-center border-4 border-dashed border-brand-border rounded-[4rem]">
+                <p className={t.label + ' italic'}>No public services listed yet</p>
+              </div>
+            )}
+          </section>
 
           <section>
             <div className="flex items-center gap-4 mb-12">

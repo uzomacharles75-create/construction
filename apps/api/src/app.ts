@@ -49,7 +49,11 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(morgan('dev')); 
+app.use(morgan('dev'));
+
+// Webhook route needs raw body for HMAC verification — mount BEFORE express.json()
+app.use('/api/v1/wallet/webhook', express.raw({ type: 'application/json' }));
+
 app.use(express.json()); 
 
 // 3. API ENDPOINTS (Version 1)

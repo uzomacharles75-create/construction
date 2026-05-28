@@ -13,7 +13,7 @@ router.get('/companies', getCompanies);
 
 // Matches: /api/v1/explore/company/vertex-builders-douala
 router.get('/company/:slug', getPublicProfile);
-router.get('/company/:slug', getCompanyBySlug); 
+router.get('/company/:slug/preview', getCompanyBySlug);
 
 
 export default router;
