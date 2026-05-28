@@ -18,26 +18,26 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
-      className="relative z-10 h-full p-8 flex flex-col justify-between"
+      className="relative z-10 h-full p-5 sm:p-8 flex flex-col justify-between"
     >
-      <div className="flex justify-between items-start mb-6">
-        <div className={`w-14 h-14 rounded-[1rem] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
+      <div className="flex justify-between items-start mb-4 sm:mb-6">
+        <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-[1rem] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
           isPrimary ? 'bg-background/10 text-primary' : 'bg-muted text-foreground'
         }`}>
-          <Icon size={24} />
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
         </div>
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 ${
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 ${
           isPrimary ? 'bg-primary text-foreground' : 'bg-foreground text-background'
         }`}>
-           <ArrowRight size={18} />
+           <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </div>
       </div>
 
       <div className="relative z-20">
-        <h3 className={`text-xl font-black tracking-tight mb-2 ${isPrimary ? 'text-background' : 'text-foreground'}`}>
+        <h3 className={`text-base sm:text-xl font-black tracking-tight mb-1 sm:mb-2 ${isPrimary ? 'text-background' : 'text-foreground'}`}>
           {title}
         </h3>
-        <p className={`text-xs font-semibold leading-relaxed max-w-[90%] ${isPrimary ? 'text-background/70' : 'text-muted-foreground'}`}>
+        <p className={`text-[10px] sm:text-xs font-semibold leading-relaxed max-w-[90%] ${isPrimary ? 'text-background/70' : 'text-muted-foreground'}`}>
           {desc}
         </p>
       </div>
@@ -85,7 +85,7 @@ const Dashboard = () => {
         </div>
 
         {/* GRID LAYOUT */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
 
           <DashboardCard
             icon={Briefcase}
