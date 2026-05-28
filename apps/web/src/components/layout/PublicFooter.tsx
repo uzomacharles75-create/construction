@@ -13,7 +13,7 @@ export const PublicFooter = () => (
       {[
         { title: 'Platform', links: [['Directory','/directory'],['Marketplace','/marketplace'],['Post Tender','/post-project']] },
         { title: 'Account',  links: [['Register','/register'],['Login','/login']] },
-        { title: 'Company',  links: [['About','#'],['Privacy','#'],['Terms','#']] },
+        { title: 'Company',  links: [['About Us','/about'],['Contact','/contact'],['Privacy','#'],['Terms','#']] },
       ].map(col => (
         <div key={col.title}>
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-4">{col.title}</p>

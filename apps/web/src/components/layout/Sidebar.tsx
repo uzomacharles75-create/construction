@@ -64,8 +64,8 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
 
   // --- BYPASS LOGIC START ---
   // We set these to true/false manually so the sidebar "Works" immediately
-  const onboarded = true; 
-  const navLocked = false; 
+  const onboarded = true;
+  const navLocked = false;
   const onboardingStep = user?.id ? getStep(user.id) : 'done';
   // --- BYPASS LOGIC END ---
 
@@ -118,11 +118,11 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         {role === 'admin' && (
           <>
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Platform Master</p>
-            <NavItem icon={LayoutDashboard} label="Dashboard"          path="/admin"               onNavigate={onNavigate} />
-            <NavItem icon={ShieldCheck}     label="Verification Queue" path="/admin/verifications" onNavigate={onNavigate} badge={pendingQueue?.length ?? null} />
-            <NavItem icon={Users}           label="Manage Companies"   path="/admin/users"         onNavigate={onNavigate} />
-            <NavItem icon={BarChart3}       label="System Stats"       path="/admin/stats"         onNavigate={onNavigate} />
-            <NavItem icon={Settings}        label="Global Settings"    path="/admin/settings"      onNavigate={onNavigate} />
+            <NavItem icon={LayoutDashboard} label="Dashboard" path="/admin" onNavigate={onNavigate} />
+            <NavItem icon={ShieldCheck} label="Verification Queue" path="/admin/verifications" onNavigate={onNavigate} badge={pendingQueue?.length ?? null} />
+            <NavItem icon={Users} label="Manage Companies" path="/admin/users" onNavigate={onNavigate} />
+            <NavItem icon={BarChart3} label="System Stats" path="/admin/stats" onNavigate={onNavigate} />
+            <NavItem icon={Settings} label="Global Settings" path="/admin/settings" onNavigate={onNavigate} />
           </>
         )}
 
@@ -130,17 +130,18 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         {role === 'owner' && (
           <>
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
-            <NavItem icon={LayoutDashboard} label="Dashboard"          path="/dashboard"                       onNavigate={onNavigate} />
-            <NavItem icon={Wallet}          label="Wallet"             path="/dashboard/wallet"                onNavigate={onNavigate} />
-            <NavItem icon={Building2}       label="Business Profile"   path="/dashboard/settings/business"     onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Wrench}          label="My Services"        path="/dashboard/services"              onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Inbox}           label="Inquiries"          path="/dashboard/inquiries"             onNavigate={onNavigate} badge={summary?.msgCount}    locked={navLocked} />
-            <NavItem icon={Store}           label="Marketplace"        path="/dashboard/marketplace"           onNavigate={onNavigate} badge={summary?.orderCount}  locked={navLocked} />
-            <NavItem icon={ClipboardList}   label="Tenders & Jobs"     path="/dashboard/tenders"               onNavigate={onNavigate} badge={summary?.tenderCount} locked={navLocked} />
-            <NavItem icon={Landmark}        label="Finance & Reports"  path="/dashboard/finance"               onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={FileText}        label="Invoices"           path="/dashboard/invoices"              onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Users}           label="Workers & Team"     path="/dashboard/workforce"             onNavigate={onNavigate} locked={navLocked} />
-            <NavItem icon={Calculator}      label="BOQ Tools"          path="/dashboard/boq"                   onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
+            <NavItem icon={Users} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
+            <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} />
+            <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} locked={navLocked} />
+            <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} locked={navLocked} />
+            <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} locked={navLocked} />
+            <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} locked={navLocked} />
           </>
         )}
 
@@ -148,11 +149,11 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
         {role === 'staff' && (
           <>
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Field Operations</p>
-            <NavItem icon={HardHat}   label="Site Portal"      path="/staff/dashboard"  onNavigate={onNavigate} />
-            <NavItem icon={Briefcase} label="My Assignments"   path="/staff/projects"   onNavigate={onNavigate} />
-            <NavItem icon={Sparkles}  label="Engineering AI"   path="/staff/ai"         onNavigate={onNavigate} />
-            <NavItem icon={Files}     label="Site Documents"   path="/staff/documents"  onNavigate={onNavigate} />
-            <NavItem icon={Settings}  label="My Settings"      path="/staff/settings"   onNavigate={onNavigate} />
+            <NavItem icon={HardHat} label="Site Portal" path="/staff/dashboard" onNavigate={onNavigate} />
+            <NavItem icon={Briefcase} label="My Assignments" path="/staff/projects" onNavigate={onNavigate} />
+            <NavItem icon={Sparkles} label="Engineering AI" path="/staff/ai" onNavigate={onNavigate} />
+            <NavItem icon={Files} label="Site Documents" path="/staff/documents" onNavigate={onNavigate} />
+            <NavItem icon={Settings} label="My Settings" path="/staff/settings" onNavigate={onNavigate} />
           </>
         )}
 

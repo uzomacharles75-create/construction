@@ -188,7 +188,9 @@ export const DashboardShell = ({
                 />
 
                 {(summary?.msgCount ?? 0) > 0 && (
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-border animate-pulse" />
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 bg-red-500 text-[9px] font-bold text-white rounded-full border border-background animate-pulse">
+                    {summary?.msgCount}
+                  </span>
                 )}
               </button>
 
@@ -200,11 +202,10 @@ export const DashboardShell = ({
                   onClick={() =>
                     setShowNotifications((prev) => !prev)
                   }
-                  className={`p-2 sm:p-2.5 rounded-xl transition-all relative ${
-                    showNotifications
+                  className={`p-2 sm:p-2.5 rounded-xl transition-all relative ${showNotifications
                       ? 'bg-primary text-brand-navy shadow-lg shadow-yellow-200'
                       : 'text-muted-foreground hover:bg-muted'
-                  }`}
+                    }`}
                   aria-label="Notifications"
                 >
                   <Bell
@@ -213,7 +214,9 @@ export const DashboardShell = ({
                   />
 
                   {(summary?.tenderCount ?? 0) > 0 && (
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-border" />
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-4 px-1 bg-red-500 text-[9px] font-bold text-white rounded-full border border-background">
+                      {summary?.tenderCount}
+                    </span>
                   )}
                 </button>
 
@@ -246,15 +249,15 @@ export const DashboardShell = ({
                       ) : (
                         <div className="space-y-4">
 
-                          <div className="text-[11px] font-bold text-brand-muted flex gap-3">
-                            <div className="w-2 h-2 bg-primary rounded-full mt-1 shrink-0" />
+                          <div className="text-[11px] font-bold text-black flex gap-3">
+                            <div className="w-2 h-2 bg-primary text-black rounded-full mt-1 shrink-0" />
 
                             {(summary?.tenderCount ?? 0) > 0
                               ? `${summary?.tenderCount} New Tenders available for bidding.`
                               : 'No new tenders available.'}
                           </div>
 
-                          <div className="text-[11px] font-bold text-brand-muted flex gap-3">
+                          <div className="text-[11px] font-bold text-black flex gap-3">
                             <div className="w-2 h-2 bg-emerald-600 rounded-full mt-1 shrink-0" />
 
                             {(summary?.msgCount ?? 0) > 0
