@@ -24,10 +24,11 @@ jobs:
           cd apps/api
           yarn install --ignore-engines
       
-      - name: Create deployment package
+      - name: Create deployment package (EXCLUDE node_modules)
         run: |
           cd apps/api
-          zip -r deploy.zip . -x "*.git*"
+          zip -r deploy.zip . -x "node_modules/*" -x ".git/*" -x "*.log"
+          ls -lh deploy.zip
       
       - name: Deploy to Elastic Beanstalk
         env:
@@ -47,24 +48,13 @@ jobs:
             --version-label $VERSION \
             --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="api/$VERSION.zip"
           
-          # Wait for version to be ready (check every 10 seconds)
+          # Wait for version to be processed
           echo "Waiting for version to be processed..."
-          while true; do
-            STATUS=$(aws elasticbeanstalk describe-application-versions \
-              --application-name api \
-              --version-label $VERSION \
-              --query "ApplicationVersions[0].Status" \
-              --output text)
-            echo "Status: $STATUS"
-            if [ "$STATUS" = "PROCESSED" ]; then
-              break
-            fi
-            sleep 10
-          done
+          sleep 30
           
           # Deploy to environment
           aws elasticbeanstalk update-environment \
             --environment-name Construction-prod-env \
             --version-label $VERSION
           
-          echo "Deployment initiated! Check AWS Console for status."
+          echo "Deployment initiated!"
