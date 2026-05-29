@@ -21,4 +21,4 @@ BuildHub is a premium, multi-tenant ERP platform designed for the African constr
 ## 🛠️ Getting Started
 1. Install dependencies in both `apps/api` and `apps/web`.
 2. Configure `.env` in the API folder with MongoDB and OpenAI keys.
-3. Run `npm run dev` in both folders.
+3. Run `npm run dev` in both folders.# trigger fresh deployment
