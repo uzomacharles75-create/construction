@@ -41,31 +41,30 @@ jobs:
           # Upload to S3
           aws s3 cp apps/api/deploy.zip s3://elasticbeanstalk-eu-north-1-990521646564/api/$VERSION.zip
           
-          # Create application version with --process flag
+          # Create application version
           aws elasticbeanstalk create-application-version \
             --application-name api \
             --version-label $VERSION \
-            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="api/$VERSION.zip" \
-            --process \
-            --region eu-north-1
+            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="api/$VERSION.zip"
           
-          # Wait for version to be ready
+          # Wait for version to be ready (check every 10 seconds)
           echo "Waiting for version to be processed..."
-          sleep 10
+          while true; do
+            STATUS=$(aws elasticbeanstalk describe-application-versions \
+              --application-name api \
+              --version-label $VERSION \
+              --query "ApplicationVersions[0].Status" \
+              --output text)
+            echo "Status: $STATUS"
+            if [ "$STATUS" = "PROCESSED" ]; then
+              break
+            fi
+            sleep 10
+          done
           
           # Deploy to environment
           aws elasticbeanstalk update-environment \
             --environment-name Construction-prod-env \
-            --version-label $VERSION \
-            --region eu-north-1
+            --version-label $VERSION
           
-          # Wait for deployment
-          echo "Waiting for deployment to complete..."
-          sleep 30
-          
-          # Check health
-          HEALTH=$(aws elasticbeanstalk describe-environments \
-            --environment-names Construction-prod-env \
-            --query "Environments[0].Health" \
-            --output text)
-          echo "Environment health: $HEALTH"
+          echo "Deployment initiated! Check AWS Console for status."
