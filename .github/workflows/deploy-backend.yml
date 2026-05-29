@@ -37,5 +37,5 @@ jobs:
           application_name: api
           environment_name: Construction-prod-env
           region: eu-north-1
-          version_label: deploy-${{ github.run_number }}
+          version_label: deploy-${{ github.run_number }}-${{ github.run_id }}
           deployment_package: apps/api/deploy.zip
