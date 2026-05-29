@@ -24,6 +24,11 @@ jobs:
           cd apps/api
           yarn install --ignore-engines
       
+      - name: Build TypeScript
+        run: |
+          cd apps/api
+          yarn build
+      
       - name: Create deployment package
         run: |
           cd apps/api
