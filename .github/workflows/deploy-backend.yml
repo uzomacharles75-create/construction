@@ -41,16 +41,23 @@ jobs:
           # Upload to S3
           aws s3 cp apps/api/deploy.zip s3://elasticbeanstalk-eu-north-1-990521646564/api/$VERSION.zip
           
-          # Create application version
+          # Create application version with --process flag
           aws elasticbeanstalk create-application-version \
             --application-name api \
             --version-label $VERSION \
-            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="api/$VERSION.zip"
+            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="api/$VERSION.zip" \
+            --process \
+            --region eu-north-1
+          
+          # Wait for version to be ready
+          echo "Waiting for version to be processed..."
+          sleep 10
           
           # Deploy to environment
           aws elasticbeanstalk update-environment \
             --environment-name Construction-prod-env \
-            --version-label $VERSION
+            --version-label $VERSION \
+            --region eu-north-1
           
           # Wait for deployment
           echo "Waiting for deployment to complete..."
