@@ -21,11 +21,11 @@ const BOQRow = ({ item, onVerify, isVerifying }: any) => {
   };
 
   return (
-    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="group hover:bg-brand-navy-light/50 transition-colors border-b border-brand-border">
-      <td className="px-6 py-4 text-sm font-medium text-white/50">#</td>
+    <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="group hover:bg-muted/50 transition-colors border-b border-border">
+      <td className="px-6 py-4 text-sm font-medium text-muted-foreground">#</td>
       <td className="px-6 py-4">
         <div>
-          <p className="text-sm font-bold text-white">{item.description}</p>
+          <p className="text-sm font-bold text-foreground">{item.description}</p>
           {item.source === 'ai' && (
             <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-purple-500 mt-1">
               <Sparkles size={10} /> AI Suggested
@@ -33,10 +33,10 @@ const BOQRow = ({ item, onVerify, isVerifying }: any) => {
           )}
         </div>
       </td>
-      <td className="px-6 py-4 text-sm text-white/70 font-medium">{item.unit}</td>
-      <td className="px-6 py-4 text-sm text-white font-bold">{item.qty}</td>
-      <td className="px-6 py-4 text-sm text-white font-bold">${item.rate}</td>
-      <td className="px-6 py-4 text-sm text-white font-black">${(item.qty * item.rate).toLocaleString()}</td>
+      <td className="px-6 py-4 text-sm text-foreground/70 font-medium">{item.unit}</td>
+      <td className="px-6 py-4 text-sm text-foreground font-bold">{item.qty}</td>
+      <td className="px-6 py-4 text-sm text-foreground font-bold">${item.rate}</td>
+      <td className="px-6 py-4 text-sm text-foreground font-black">${(item.qty * item.rate).toLocaleString()}</td>
       <td className="px-6 py-4">
         <button 
           onClick={() => onVerify(item._id)}
@@ -48,7 +48,7 @@ const BOQRow = ({ item, onVerify, isVerifying }: any) => {
         </button>
       </td>
       <td className="px-6 py-4 text-right">
-        <button className="text-white/35 hover:text-white"><MoreVertical size={18} /></button>
+        <button className="text-foreground/35 hover:text-foreground"><MoreVertical size={18} /></button>
       </td>
     </motion.tr>
   );
@@ -76,25 +76,25 @@ const BOQEngine = () => {
   const allVerified = items.length > 0 && items.every((item: any) => item.status === 'verified');
   const subtotal = items.reduce((acc: number, item: any) => acc + (item.qty * item.rate), 0);
 
-  if (isLoading) return <div className="p-20 text-center font-bold text-white/50 animate-pulse">Loading BOQ Engine...</div>;
+  if (isLoading) return <div className="p-20 text-center font-bold text-muted-foreground animate-pulse">Loading BOQ Engine...</div>;
 
   return (
     <DashboardShell>
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tight italic">BOQ Estimation Engine</h1>
+            <h1 className="text-3xl font-black text-foreground tracking-tight italic">BOQ Estimation Engine</h1>
             <p className="text-brand-muted text-sm font-medium">Verify AI suggestions and market rates before exporting.</p>
           </div>
           
           <div className="flex items-center gap-3">
-            <button className="bg-brand-navy-card border border-brand-border text-white px-6 py-3 rounded-2xl font-bold text-xs hover:bg-brand-navy-light transition-all">
+            <button className="bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all">
               <Plus size={18} className="inline mr-2" /> Add Item
             </button>
             <button 
               disabled={!allVerified}
               className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-xs transition-all shadow-xl ${
-                allVerified ? "bg-brand-yellow text-brand-navy hover:bg-brand-yellow-dim" : "bg-brand-navy-light text-white/50 cursor-not-allowed"
+                allVerified ? "bg-primary text-brand-navy hover:bg-primary-dim" : "bg-muted text-muted-foreground cursor-not-allowed"
               }`}
             >
               {allVerified ? <Download size={18} /> : <Lock size={18} />} Export PDF
@@ -113,10 +113,10 @@ const BOQEngine = () => {
           )}
         </AnimatePresence>
 
-        <div className="bg-brand-navy-card rounded-[2.5rem] border border-brand-border overflow-hidden shadow-sm">
+        <div className="bg-card rounded-[2.5rem] border border-border overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-brand-navy-light text-[10px] text-white/50 font-black uppercase tracking-widest">
+              <thead className="bg-muted text-[10px] text-muted-foreground font-black uppercase tracking-widest">
                 <tr>
                   <th className="px-6 py-5">#</th>
                   <th className="px-6 py-5">Description</th>
@@ -138,10 +138,10 @@ const BOQEngine = () => {
                   />
                 ))}
               </tbody>
-              <tfoot className="bg-brand-navy-light/50">
+              <tfoot className="bg-muted/50">
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-right font-bold text-white/50 uppercase text-xs">Estimated Subtotal</td>
-                  <td className="px-6 py-8 font-black text-3xl text-white">${subtotal.toLocaleString()}</td>
+                  <td colSpan={5} className="px-6 py-8 text-right font-bold text-muted-foreground uppercase text-xs">Estimated Subtotal</td>
+                  <td className="px-6 py-8 font-black text-3xl text-foreground">${subtotal.toLocaleString()}</td>
                   <td colSpan={2}></td>
                 </tr>
               </tfoot>
@@ -151,21 +151,21 @@ const BOQEngine = () => {
 
         {/* AI PANEL */}
         <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
-           <div className="lg:col-span-2 bg-brand-navy p-10 rounded-[3.5rem] text-white relative overflow-hidden shadow-2xl">
-              <Sparkles className="absolute right-[-20px] top-[-20px] text-white/5 w-64 h-64" />
+           <div className="lg:col-span-2 bg-background p-10 rounded-[3.5rem] text-foreground relative overflow-hidden shadow-2xl">
+              <Sparkles className="absolute right-[-20px] top-[-20px] text-foreground/5 w-64 h-64" />
               <div className="relative z-10">
                  <h3 className="text-2xl font-bold mb-2">BuildHub AI Estimator</h3>
-                 <p className="text-white/50 text-sm mb-8 max-w-md">Our AI cross-references marketplace data and previous projects to suggest the most accurate market rates.</p>
-                 <button className="bg-brand-yellow text-brand-navy px-8 py-3 rounded-xl font-bold text-xs hover:bg-brand-yellow-dim transition-all">Request AI Analysis</button>
+                 <p className="text-muted-foreground text-sm mb-8 max-w-md">Our AI cross-references marketplace data and previous projects to suggest the most accurate market rates.</p>
+                 <button className="bg-primary text-brand-navy px-8 py-3 rounded-xl font-bold text-xs hover:bg-primary-dim transition-all">Request AI Analysis</button>
               </div>
            </div>
            
-           <div className="bg-brand-navy-card border border-brand-border p-10 rounded-[3.5rem] border border-brand-border flex flex-col items-center text-center justify-center">
+           <div className="bg-card border border-border p-10 rounded-[3.5rem] border border-border flex flex-col items-center text-center justify-center">
               <div className="w-16 h-16 bg-emerald-50 rounded-[1.5rem] flex items-center justify-center text-emerald-500 mb-6">
                  <FileCheck size={32} />
               </div>
-              <h4 className="font-bold text-white">Accuracy Guaranteed</h4>
-              <p className="text-xs text-white/50 mt-2">Verified items ensure 100% financial compliance and accurate profit forecasting.</p>
+              <h4 className="font-bold text-foreground">Accuracy Guaranteed</h4>
+              <p className="text-xs text-muted-foreground mt-2">Verified items ensure 100% financial compliance and accurate profit forecasting.</p>
            </div>
         </div>
       </div>

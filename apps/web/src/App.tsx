@@ -11,12 +11,17 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PublicDirectory from './pages/PublicDirectory';
 import PublicCompanyProfile from './pages/PublicCompanyProfile';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // --- OWNER / COMPANY ADMIN PAGES (/dashboard/*) ---
 import Dashboard from './pages/Dashboard';
 import Finance from './pages/Finance';
 import Workforce from './pages/WorkForce';
 import BusinessSettings from './pages/BusinessSettings';
+import UserProfile from './pages/UserProfile';
 import InvoiceEditor from './pages/InvoiceEditor';
 import DirectoryLeads from './pages/DirectoryLeads';
 import MarketplaceManager from './pages/MarketplaceManager';
@@ -90,6 +95,10 @@ function App() {
           <Route path="/marketplace" element={<PublicMarketplace />} />
           <Route path="/company/:id" element={<PublicCompanyProfile />} />
           <Route path="/post-project" element={<PublicPostTender />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
 
           {/* ── OWNER ROUTES — wrapped in OnboardingGate ── */}
           <Route path="/dashboard" element={<OwnerRoute><Dashboard /></OwnerRoute>} />
@@ -97,6 +106,7 @@ function App() {
           <Route path="/dashboard/workforce" element={<OwnerRoute><Workforce /></OwnerRoute>} />
           <Route path="/dashboard/invoices/new" element={<OwnerRoute><InvoiceEditor /></OwnerRoute>} />
           <Route path="/dashboard/settings/business" element={<OwnerRoute><BusinessSettings /></OwnerRoute>} />
+          <Route path="/dashboard/settings/profile" element={<OwnerRoute><UserProfile /></OwnerRoute>} />
           {/* Renamed: /dashboard/directory → /dashboard/inquiries */}
           <Route path="/dashboard/inquiries" element={<OwnerRoute><DirectoryLeads /></OwnerRoute>} />
           {/* Keep old URL alive so nothing 404s */}

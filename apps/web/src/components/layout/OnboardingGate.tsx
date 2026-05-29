@@ -13,8 +13,8 @@ import {
 
 // ─── Tour steps ────────────────────────────────────────────────────
 const TOUR = [
-  { icon: LayoutDashboard, color: 'bg-brand-yellow', title: 'Command Centre', desc: 'Real-time snapshot of your projects, invoices, tenders and business health.' },
-  { icon: Wrench,          color: 'bg-brand-yellow', title: 'My Services',     desc: 'List your specialties. They show on your public directory profile for clients to find you.' },
+  { icon: LayoutDashboard, color: 'bg-primary', title: 'Command Centre', desc: 'Real-time snapshot of your projects, invoices, tenders and business health.' },
+  { icon: Wrench,          color: 'bg-primary', title: 'My Services',     desc: 'List your specialties. They show on your public directory profile for clients to find you.' },
   { icon: Calculator,      color: 'bg-rose-500',     title: 'BOQ Engine',      desc: 'Generate precise Bills of Quantities verified before export — no pricing errors.' },
   { icon: Store,           color: 'bg-emerald-500',  title: 'Marketplace',     desc: 'Source materials from verified suppliers. Live pricing syncs straight into your BOQs.' },
   { icon: FileText,        color: 'bg-purple-600',   title: 'Invoices',        desc: 'Professional invoices, payment tracking, and full P&L reports in one place.' },
@@ -36,21 +36,21 @@ const CardHeader = ({
 }) => (
   <div className="bg-[#040d1a] px-10 pt-10 pb-8">
     <div className="flex items-center gap-3 mb-6">
-      <div className="w-10 h-10 bg-brand-yellow rounded-xl flex items-center justify-center font-black text-brand-navy text-sm italic shrink-0">BH</div>
+      <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center font-black text-brand-navy text-sm italic shrink-0">BH</div>
       <div className="flex gap-1.5">
         {Array.from({ length: totalSteps }).map((_, i) => (
-          <div key={i} className={`h-1 rounded-full transition-all ${i < step ? 'w-6 bg-brand-yellow' : i === step - 1 ? 'w-8 bg-brand-yellow' : 'w-4 bg-white/15'}`} />
+          <div key={i} className={`h-1 rounded-full transition-all ${i < step ? 'w-6 bg-primary' : i === step - 1 ? 'w-8 bg-primary' : 'w-4 bg-white/15'}`} />
         ))}
       </div>
-      <span className="ml-auto text-[10px] font-black text-white/40 uppercase tracking-widest">Step {step} / {totalSteps}</span>
+      <span className="ml-auto text-[10px] font-black text-foreground/40 uppercase tracking-widest">Step {step} / {totalSteps}</span>
     </div>
     <div className="flex items-center gap-4">
-      <div className="w-14 h-14 bg-brand-yellow/15 rounded-2xl flex items-center justify-center">
-        <Icon size={26} className="text-brand-yellow" />
+      <div className="w-14 h-14 bg-primary/15 rounded-2xl flex items-center justify-center">
+        <Icon size={26} className="text-primary" />
       </div>
       <div>
-        <h1 className="text-2xl font-black text-white tracking-tight">{title}</h1>
-        <p className="text-sm text-white/45 font-medium mt-0.5">{sub}</p>
+        <h1 className="text-2xl font-black text-foreground tracking-tight">{title}</h1>
+        <p className="text-sm text-foreground/45 font-medium mt-0.5">{sub}</p>
       </div>
     </div>
   </div>
@@ -64,15 +64,15 @@ const Field = ({
   value: string; onChange: (v: string) => void; type?: string;
 }) => (
   <div>
-    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1 block">{label}</label>
+    <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1 block">{label}</label>
     <div className="relative">
-      <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+      <Icon size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground/30" />
       <input
         type={type}
         placeholder={placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium text-white placeholder-white/25 border border-white/5"
+        className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium text-foreground placeholder-white/25 border border-white/5"
       />
     </div>
   </div>
@@ -123,8 +123,8 @@ const WalletStep = ({ onDone }: { onDone: () => void }) => {
             'Wallet balance visible on sidebar at all times',
           ].map((point) => (
             <div key={point} className="flex items-start gap-3">
-              <CheckCircle2 size={15} className="text-brand-yellow shrink-0 mt-0.5" />
-              <p className="text-sm text-white/60 font-medium">{point}</p>
+              <CheckCircle2 size={15} className="text-primary shrink-0 mt-0.5" />
+              <p className="text-sm text-foreground/60 font-medium">{point}</p>
             </div>
           ))}
         </div>
@@ -132,7 +132,7 @@ const WalletStep = ({ onDone }: { onDone: () => void }) => {
         <button
           type="button"
           onClick={handleGoTopUp}
-          className="w-full py-4 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow"
+          className="w-full py-4 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow"
         >
           <ExternalLink size={18} /> Open Wallet & Top Up
         </button>
@@ -141,7 +141,7 @@ const WalletStep = ({ onDone }: { onDone: () => void }) => {
           type="button"
           onClick={checkBalance}
           disabled={checking}
-          className="w-full py-3.5 bg-white/5 text-white/70 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-white/5 hover:bg-white/10 transition-all"
+          className="w-full py-3.5 bg-white/5 text-foreground/70 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 border border-white/5 hover:bg-white/10 transition-all"
         >
           {checking ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
           I already topped up — verify & continue
@@ -192,10 +192,10 @@ const ProfileStep = ({ onDone }: { onDone: () => void }) => {
           <Field label="Physical Address"   icon={MapPin}   placeholder="Street, Quarter..."     value={form.address} onChange={f('address')} />
         </div>
         <div className="flex gap-3">
-          <button type="button" onClick={onDone} className="px-6 py-3.5 bg-white/5 text-white/50 rounded-2xl font-bold text-sm hover:text-white transition-all border border-white/5">
+          <button type="button" onClick={onDone} className="px-6 py-3.5 bg-white/5 text-muted-foreground rounded-2xl font-bold text-sm hover:text-foreground transition-all border border-white/5">
             Skip for now
           </button>
-          <button type="button" onClick={handleSave} disabled={loading} className="flex-1 py-3.5 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-60">
+          <button type="button" onClick={handleSave} disabled={loading} className="flex-1 py-3.5 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-60">
             {loading ? <Loader2 size={18} className="animate-spin" /> : <><ArrowRight size={18} /> Save & Continue</>}
           </button>
         </div>
@@ -250,20 +250,20 @@ const ServiceStep = ({ onDone }: { onDone: () => void }) => {
       <CardHeader step={3} totalSteps={4} icon={Wrench} title="Add Your First Service" sub="This makes you visible in the public directory." />
       <div className="p-10 space-y-5">
         <div>
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-2 block">Service Photo</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-2 block">Service Photo</label>
           <div
             onClick={() => fileRef.current?.click()}
-            className="relative aspect-video max-w-sm rounded-3xl overflow-hidden border-2 border-dashed border-white/10 bg-white/5 cursor-pointer group hover:border-brand-yellow/30 transition-all"
+            className="relative aspect-video max-w-sm rounded-3xl overflow-hidden border-2 border-dashed border-white/10 bg-white/5 cursor-pointer group hover:border-primary/30 transition-all"
           >
             {preview
               ? <img src={preview} alt="Preview" className="w-full h-full object-cover" />
-              : <div className="absolute inset-0 flex flex-col items-center justify-center text-white/30 gap-2">
-                  <ImagePlus size={28} className="text-brand-yellow" />
+              : <div className="absolute inset-0 flex flex-col items-center justify-center text-foreground/30 gap-2">
+                  <ImagePlus size={28} className="text-primary" />
                   <span className="text-xs font-bold uppercase tracking-widest">Upload photo</span>
                 </div>
             }
             <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              <Camera size={24} className="text-brand-yellow" />
+              <Camera size={24} className="text-primary" />
             </div>
           </div>
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImage} />
@@ -272,27 +272,27 @@ const ServiceStep = ({ onDone }: { onDone: () => void }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Service Name *" icon={Wrench}    placeholder="e.g. Foundation Works" value={form.name}     onChange={f('name')} />
           <div>
-            <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1 block">Category *</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1 block">Category *</label>
             <select value={form.category} onChange={(e: any) => f('category')(e.target.value)}
-              className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium text-white border border-white/5 appearance-none">
+              className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium text-foreground border border-white/5 appearance-none">
               <option value="" className="bg-[#0a1628]">Select category…</option>
               {CATEGORIES.map((c) => <option key={c} value={c} className="bg-[#0a1628]">{c}</option>)}
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1 block">Description</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1 block">Description</label>
             <textarea value={form.description} onChange={(e: any) => f('description')(e.target.value)} placeholder="Describe what this service includes…"
-              className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/30 text-sm font-medium text-white placeholder-white/25 border border-white/5 h-20 resize-none" />
+              className="w-full px-4 py-3.5 bg-white/5 rounded-2xl outline-none focus:ring-2 focus:ring-primary/30 text-sm font-medium text-foreground placeholder-white/25 border border-white/5 h-20 resize-none" />
           </div>
           <Field label="Price From" icon={DollarSign} placeholder="e.g. 50000" value={form.priceFrom} onChange={f('priceFrom')} type="number" />
           <Field label="Price To"   icon={DollarSign} placeholder="e.g. 500000" value={form.priceTo}  onChange={f('priceTo')}  type="number" />
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button type="button" onClick={onDone} className="px-6 py-3.5 bg-white/5 text-white/50 rounded-2xl font-bold text-sm hover:text-white transition-all border border-white/5">
+          <button type="button" onClick={onDone} className="px-6 py-3.5 bg-white/5 text-muted-foreground rounded-2xl font-bold text-sm hover:text-foreground transition-all border border-white/5">
             Skip for now
           </button>
-          <button type="button" onClick={handleSave} disabled={loading} className="flex-1 py-3.5 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-60">
+          <button type="button" onClick={handleSave} disabled={loading} className="flex-1 py-3.5 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-60">
             {loading ? <Loader2 size={18} className="animate-spin" /> : <><ArrowRight size={18} /> Save Service & Continue</>}
           </button>
         </div>
@@ -308,7 +308,7 @@ const TourStep = ({ onDone }: { onDone: () => void }) => {
 
   return (
     <div className="bg-[#0a1628] rounded-[3rem] w-full max-w-md shadow-2xl p-10 relative border border-white/5 mx-auto">
-      <button type="button" onClick={onDone} className="absolute top-6 right-6 text-white/25 hover:text-white/70 transition-colors">
+      <button type="button" onClick={onDone} className="absolute top-6 right-6 text-muted-foreground/50 hover:text-foreground/70 transition-colors">
         <X size={20} />
       </button>
 
@@ -316,27 +316,27 @@ const TourStep = ({ onDone }: { onDone: () => void }) => {
         <Icon size={28} className="text-[#001529]" />
       </div>
 
-      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-brand-yellow mb-2">Feature {step + 1} of {TOUR.length}</p>
-      <h2 className="text-2xl font-black text-white mb-3 tracking-tight">{item.title}</h2>
-      <p className="text-white/55 font-medium leading-relaxed text-sm mb-8">{item.desc}</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary mb-2">Feature {step + 1} of {TOUR.length}</p>
+      <h2 className="text-2xl font-black text-foreground mb-3 tracking-tight">{item.title}</h2>
+      <p className="text-foreground/55 font-medium leading-relaxed text-sm mb-8">{item.desc}</p>
 
       <div className="flex gap-2 mb-8">
         {TOUR.map((_, i) => (
           <button key={i} onClick={() => setStep(i)}
-            className={`h-1.5 rounded-full transition-all ${i === step ? 'w-8 bg-brand-yellow' : i < step ? 'w-4 bg-brand-yellow/50' : 'w-4 bg-white/15'}`} />
+            className={`h-1.5 rounded-full transition-all ${i === step ? 'w-8 bg-primary' : i < step ? 'w-4 bg-primary/50' : 'w-4 bg-white/15'}`} />
         ))}
       </div>
 
       <div className="flex gap-3">
         {step > 0 && (
           <button type="button" onClick={() => setStep(step - 1)}
-            className="px-5 py-3 bg-white/5 text-white/60 rounded-2xl font-bold text-sm hover:text-white transition-all border border-white/5">
+            className="px-5 py-3 bg-white/5 text-foreground/60 rounded-2xl font-bold text-sm hover:text-foreground transition-all border border-white/5">
             Back
           </button>
         )}
         <button type="button"
           onClick={() => step < TOUR.length - 1 ? setStep(step + 1) : onDone()}
-          className="flex-1 py-3 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
+          className="flex-1 py-3 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all">
           {step === TOUR.length - 1
             ? <><CheckCircle2 size={16} /> Enter Dashboard</>
             : <>Next <ArrowRight size={16} /></>}
@@ -345,7 +345,7 @@ const TourStep = ({ onDone }: { onDone: () => void }) => {
 
       {step === 0 && (
         <button type="button" onClick={onDone}
-          className="w-full text-center text-xs text-white/25 mt-4 hover:text-white/50 transition-colors">
+          className="w-full text-center text-xs text-muted-foreground/50 mt-4 hover:text-muted-foreground transition-colors">
           Skip tour
         </button>
       )}
@@ -380,10 +380,10 @@ export const OnboardingGate = ({ children }: { children: React.ReactNode }) => {
         {children}
       </div>
 
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/70 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/70 backdrop-blur-md">
         {/* lock badge top-right */}
-        <div className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs font-black text-white/50 uppercase tracking-widest">
-            <Lock size={12} className="text-brand-yellow" />
+        <div className="absolute top-6 right-6 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-xs font-black text-muted-foreground uppercase tracking-widest">
+            <Lock size={12} className="text-primary" />
             Setup required — step {['wallet', 'profile', 'service', 'tour'].indexOf(step) + 1}/4
         </div>
 

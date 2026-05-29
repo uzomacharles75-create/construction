@@ -15,18 +15,18 @@ import { motion } from 'framer-motion';
 const SettingItem = ({ icon: Icon, title, desc }: any) => (
   <motion.div 
     whileHover={{ x: 5 }}
-    className="bg-brand-navy-card border border-brand-border p-6 rounded-[2.5rem] border border-brand-border flex items-center justify-between hover:bg-brand-navy-light cursor-pointer transition-all group shadow-sm"
+    className="bg-card border border-border p-6 rounded-[2.5rem] border border-border flex items-center justify-between hover:bg-muted cursor-pointer transition-all group shadow-sm"
   >
     <div className="flex items-center gap-5">
-      <div className="w-12 h-12 bg-brand-navy-light rounded-2xl flex items-center justify-center text-white/50 group-hover:text-brand-yellow group-hover:bg-brand-yellow-pale transition-all">
+      <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center text-muted-foreground group-hover:text-primary group-hover:bg-primary-pale transition-all">
         <Icon size={22} />
       </div>
       <div>
-        <h4 className="text-sm font-black text-white tracking-tight">{title}</h4>
-        <p className="text-[11px] text-white/50 font-medium">{desc}</p>
+        <h4 className="text-sm font-black text-foreground tracking-tight">{title}</h4>
+        <p className="text-[11px] text-muted-foreground font-medium">{desc}</p>
       </div>
     </div>
-    <ChevronRight size={18} className="text-white/15 group-hover:text-brand-yellow transition-colors" />
+    <ChevronRight size={18} className="text-foreground/15 group-hover:text-primary transition-colors" />
   </motion.div>
 );
 
@@ -43,31 +43,31 @@ const StaffSettings = () => {
             <motion.div 
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-32 h-32 rounded-[3rem] bg-brand-navy-light border-4 border-brand-border shadow-2xl overflow-hidden flex items-center justify-center"
+              className="w-32 h-32 rounded-[3rem] bg-muted border-4 border-border shadow-2xl overflow-hidden flex items-center justify-center"
             >
                {user?.avatar ? (
                  <img src={user.avatar} className="w-full h-full object-cover" alt={user.name} />
                ) : (
-                 <span className="text-4xl font-black text-white italic opacity-20">{user?.name?.charAt(0)}</span>
+                 <span className="text-4xl font-black text-foreground italic opacity-20">{user?.name?.charAt(0)}</span>
                )}
             </motion.div>
-            <button className="absolute bottom-0 right-0 bg-brand-yellow text-brand-navy p-3 rounded-2xl shadow-xl border-4 border-brand-border hover:bg-brand-yellow-dim hover:scale-110 transition-all">
+            <button className="absolute bottom-0 right-0 bg-primary text-brand-navy p-3 rounded-2xl shadow-xl border-4 border-border hover:bg-primary-dim hover:scale-110 transition-all">
                <Camera size={18} />
             </button>
           </div>
-          <h1 className="text-3xl font-black text-white tracking-tight">{user?.name}</h1>
+          <h1 className="text-3xl font-black text-foreground tracking-tight">{user?.name}</h1>
           <div className="flex items-center justify-center gap-2 mt-2">
-             <span className="text-[10px] font-black text-white/50 uppercase tracking-widest bg-brand-navy-light px-3 py-1 rounded-full">
+             <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest bg-muted px-3 py-1 rounded-full">
                 {user?.role === 'staff' ? 'Field Engineer' : 'Team Member'}
              </span>
-             <span className="text-[10px] font-black text-brand-yellow uppercase tracking-widest bg-brand-yellow-pale px-3 py-1 rounded-full border border-brand-yellow">
+             <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary-pale px-3 py-1 rounded-full border border-primary">
                 ID: #BH-{user?.id?.slice(-4) || '9920'}
              </span>
           </div>
         </header>
 
         <div className="space-y-4">
-          <h3 className="text-[10px] font-black text-white/35 uppercase tracking-[0.3em] px-4 mb-2">Account Configuration</h3>
+          <h3 className="text-[10px] font-black text-foreground/35 uppercase tracking-[0.3em] px-4 mb-2">Account Configuration</h3>
           
           <SettingItem 
             icon={User} 
@@ -115,8 +115,8 @@ const StaffSettings = () => {
         </div>
 
         {/* COMPLIANCE FOOTER */}
-        <div className="mt-20 pt-8 border-t border-brand-border text-center opacity-40">
-            <p className="text-[9px] font-black text-white/50 uppercase tracking-[0.3em]">BuildHub Staff Security Protocol • v4.2.1</p>
+        <div className="mt-20 pt-8 border-t border-border text-center opacity-40">
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em]">BuildHub Staff Security Protocol • v4.2.1</p>
         </div>
       </div>
     </DashboardShell>
