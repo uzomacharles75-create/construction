@@ -24,15 +24,10 @@ jobs:
           cd apps/api
           yarn install --ignore-engines
       
-      - name: Build TypeScript
+      - name: Create deployment package (with node_modules)
         run: |
           cd apps/api
-          yarn build
-      
-      - name: Create deployment package
-        run: |
-          cd apps/api
-          zip -r deploy.zip . -x "node_modules/*" -x "*.git*"
+          zip -r deploy.zip . -x "*.git*"
       
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
@@ -40,7 +35,7 @@ jobs:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: api
-          environment_name: construction-api-env
+          environment_name: construction-api-env-v4
           region: eu-north-1
           version_label: deploy-${{ github.run_number }}-${{ github.run_id }}
           deployment_package: apps/api/deploy.zip
