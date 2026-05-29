@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
     paths:
-      - "apps/api/**"
+      - 'apps/api/**'
 
 jobs:
   deploy:
@@ -12,22 +12,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
-
+          node-version: '20.x'
+          check-latest: true
+      
       - name: Install dependencies
         run: |
           cd apps/api
-          yarn install
-
+          yarn install --ignore-engines
+      
       - name: Create deployment package
         run: |
           cd apps/api
           zip -r deploy.zip . -x "node_modules/*" -x "*.git*"
-
+      
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:

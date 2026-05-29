@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'apps/web/**'
+      - "apps/web/**"
 
 jobs:
   deploy:
@@ -12,18 +12,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      
+          node-version: "20"
+
       - name: Install and build
         run: |
           cd apps/web
           yarn install
           yarn build
-      
+
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
