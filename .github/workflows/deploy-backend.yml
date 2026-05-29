@@ -37,6 +37,6 @@ jobs:
           application_name: api
           environment_name: construction-api-env
           region: eu-north-1
-          version_label: github-${{ github.sha }}
+          version_label: deploy-${{ github.run_number }}-${{ github.run_id }}
           deployment_package: apps/api/deploy.zip
           existing_bucket_name: elasticbeanstalk-eu-north-1-990521646564
