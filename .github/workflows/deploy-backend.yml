@@ -44,12 +44,25 @@ jobs:
             --version-label $VERSION \
             --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="$VERSION.zip"
           
-          # Wait 10 seconds for version to be ready
-          sleep 10
+          # Wait for version to be PROCESSED (up to 2 minutes)
+          echo "Waiting for version to be processed..."
+          for i in {1..30}; do
+            sleep 10
+            STATUS=$(aws elasticbeanstalk describe-application-versions \
+              --application-name api \
+              --version-label $VERSION \
+              --query "ApplicationVersions[0].Status" \
+              --output text)
+            echo "Attempt $i: Status = $STATUS"
+            if [ "$STATUS" = "PROCESSED" ]; then
+              echo "Version is ready!"
+              break
+            fi
+          done
           
           # Deploy
           aws elasticbeanstalk update-environment \
             --environment-name Construction-prod-env \
             --version-label $VERSION
           
-          echo "Deployment initiated successfully!"
+          echo "Deployment initiated!"
