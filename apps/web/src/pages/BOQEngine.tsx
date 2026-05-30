@@ -22,6 +22,8 @@ import {
   PackagePlus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { t } from '../theme';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
 import { getCurrencyByCountry, getVatByCurrency } from '../lib/locations';
@@ -497,10 +499,156 @@ const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged
   );
 };
 
+/* ------------------------------------------------------------------ */
+/* MANUAL ADD ITEM MODAL: pick project -> describe -> qty/rate -> save  */
+/* ------------------------------------------------------------------ */
+const AddItemModal = ({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) => {
+  const [projectId, setProjectId] = useState('');
+  const [description, setDescription] = useState('');
+  const [unit, setUnit] = useState('');
+  const [qty, setQty] = useState('1');
+  const [rate, setRate] = useState('');
+
+  // Projects for the "insert into" target
+  const { data: projects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => (await apiClient.get('/projects')).data,
+  });
+
+  // Localised money display (amounts are stored in USD)
+  const { fromUSD, format, setCurrency } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
+
+  // When a project is chosen, switch the display currency to its country's currency
+  const selectProject = (id: string) => {
+    setProjectId(id);
+    const proj = (projects || []).find((p: any) => p._id === id);
+    const cur = SUPPORTED_CURRENCIES.find((c) => c.code === getCurrencyByCountry(proj?.country));
+    if (cur) setCurrency(cur);
+  };
+
+  const addMutation = useMutation({
+    mutationFn: async () =>
+      apiClient.post(`/boq/project/${projectId}/item`, {
+        description,
+        unit,
+        qty: Number(qty),
+        rate: Number(rate),
+        source: 'user',
+      }),
+    onSuccess: () => {
+      onAdded();
+      onClose();
+    },
+  });
+
+  const canAdd =
+    !!projectId &&
+    description.trim().length > 0 &&
+    Number(qty) > 0 &&
+    rate !== '' &&
+    Number(rate) >= 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className={t.overlay}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }}
+        className="bg-card border border-border rounded-[3rem] w-full max-w-lg shadow-2xl p-8"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className={`${t.h3} flex items-center gap-2`}>
+            <PackagePlus size={20} className="text-primary" /> Add BOQ Item
+          </h3>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
+        </div>
+
+        {/* Target project */}
+        <label className={`block mb-1.5 ${t.label}`}>Add to project <span className="text-primary normal-case tracking-normal">(sets currency region)</span></label>
+        <select
+          value={projectId}
+          onChange={(e) => selectProject(e.target.value)}
+          className={`${t.select} mb-4`}
+        >
+          <option value="">Select a project…</option>
+          {(projects || []).map((p: any) => (
+            <option key={p._id} value={p._id}>{p.name}</option>
+          ))}
+        </select>
+
+        {/* Item description */}
+        <label className={`block mb-1.5 ${t.label}`}>Item description</label>
+        <input
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="e.g. 32.5N Portland cement, 50kg bag"
+          className={`${t.input} mb-4`}
+        />
+
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <label className={`block mb-1.5 ${t.label}`}>Unit</label>
+            <input
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              placeholder="bag / m³"
+              className={t.input}
+            />
+          </div>
+          <div>
+            <label className={`block mb-1.5 ${t.label}`}>Qty</label>
+            <input
+              type="number" min={1}
+              value={qty}
+              onChange={(e) => setQty(e.target.value)}
+              className={t.input}
+            />
+          </div>
+          <div>
+            <label className={`block mb-1.5 ${t.label}`}>Rate (USD)</label>
+            <input
+              type="number" min={0}
+              value={rate}
+              onChange={(e) => setRate(e.target.value)}
+              placeholder="0.00"
+              className={`${t.input} font-bold`}
+            />
+          </div>
+        </div>
+
+        {/* Live line-total preview */}
+        <div className="flex items-center justify-between border border-border rounded-2xl p-5 bg-muted/40 mb-6">
+          <span className={t.label}>Line total</span>
+          <span className="text-lg font-black text-foreground">
+            {money(Number(qty || 0) * Number(rate || 0))}
+          </span>
+        </div>
+
+        <button
+          onClick={() => addMutation.mutate()}
+          disabled={!canAdd || addMutation.isPending}
+          className={`w-full flex items-center justify-center gap-2 ${t.btnPrimary} disabled:opacity-50 disabled:cursor-not-allowed`}
+        >
+          {addMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
+          Add Item
+        </button>
+        {!projectId && (
+          <p className={`${t.micro} text-amber-500 mt-3 text-center`}>Select a project above to add this item.</p>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const BOQEngine = () => {
   const queryClient = useQueryClient();
   const [showEstimator, setShowEstimator] = useState(false);
   const [showAnalyze, setShowAnalyze] = useState(false);
+  const [showAddItem, setShowAddItem] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 
   // Open the estimator when navigated here with ?estimate=1 (e.g. from the AI hub)
@@ -543,6 +691,70 @@ const BOQEngine = () => {
   const vatRate = getVatByCurrency(currency.code);
   const vatAmount = subtotal * vatRate;
 
+  // Money formatted for the PDF. Use the currency code (Latin) rather than the
+  // symbol, since jsPDF's default font cannot render glyphs like ₦ / GH₵ / E£.
+  const moneyPdf = (usd: number) =>
+    `${Number(fromUSD(usd || 0)).toLocaleString(undefined, { maximumFractionDigits: 2 })} ${currency.code}`;
+
+  const exportPDF = () => {
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+    const marginX = 40;
+
+    // Header
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bill of Quantities', marginX, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120);
+    doc.text(`Generated ${new Date().toLocaleDateString()}  ·  Currency: ${currency.code}`, marginX, 68);
+    doc.setTextColor(0);
+
+    // Items table
+    autoTable(doc, {
+      startY: 88,
+      head: [['Description', 'Unit', 'Qty', 'Rate', 'Line Total']],
+      body: items.map((item: any) => [
+        item.description,
+        item.unit || '',
+        String(item.qty),
+        moneyPdf(item.rate),
+        moneyPdf(item.qty * item.rate),
+      ]),
+      styles: { fontSize: 9, cellPadding: 6 },
+      headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold' },
+      columnStyles: {
+        2: { halign: 'right' },
+        3: { halign: 'right' },
+        4: { halign: 'right' },
+      },
+      margin: { left: marginX, right: marginX },
+    });
+
+    // Footer totals
+    const finalY = (doc as any).lastAutoTable?.finalY ?? 88;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const rightX = pageWidth - marginX;
+    let y = finalY + 28;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Subtotal', rightX - 160, y);
+    doc.text(moneyPdf(subtotal), rightX, y, { align: 'right' });
+
+    y += 18;
+    doc.text(`VAT (${(vatRate * 100).toFixed(1)}%)`, rightX - 160, y);
+    doc.text(moneyPdf(vatAmount), rightX, y, { align: 'right' });
+
+    y += 24;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('Total (incl. VAT)', rightX - 160, y);
+    doc.text(moneyPdf(subtotal + vatAmount), rightX, y, { align: 'right' });
+
+    doc.save(`boq-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
   if (isLoading) return <div className="p-20 text-center font-bold text-muted-foreground animate-pulse">Loading BOQ Engine...</div>;
 
   return (
@@ -580,10 +792,14 @@ const BOQEngine = () => {
             >
               <Wand2 size={16} className="text-purple-500" /> AI Estimate
             </button>
-            <button className="bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all">
+            <button
+              onClick={() => setShowAddItem(true)}
+              className="bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all"
+            >
               <Plus size={18} className="inline mr-2" /> Add Item
             </button>
             <button
+              onClick={exportPDF}
               disabled={!allVerified}
               className={`flex items-center gap-2 px-8 py-3 rounded-2xl font-black text-xs transition-all shadow-xl ${
                 allVerified ? "bg-primary text-brand-navy hover:bg-primary-dim" : "bg-muted text-muted-foreground cursor-not-allowed"
@@ -702,6 +918,9 @@ const BOQEngine = () => {
         )}
         {showAnalyze && (
           <AIAnalyzePanel onClose={() => setShowAnalyze(false)} onChanged={refetchBOQ} />
+        )}
+        {showAddItem && (
+          <AddItemModal onClose={() => setShowAddItem(false)} onAdded={refetchBOQ} />
         )}
       </AnimatePresence>
     </DashboardShell>
