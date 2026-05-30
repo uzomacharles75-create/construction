@@ -130,8 +130,8 @@ const BOQRow = ({ item, onVerify, isVerifying, money }: any) => {
 /* ------------------------------------------------------------------ */
 /* AI ESTIMATOR MODAL: suggest -> confidence -> accept / edit / reject */
 /* ------------------------------------------------------------------ */
-const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAccepted: () => void }) => {
-  const [projectId, setProjectId] = useState('');
+const AIEstimatorModal = ({ onClose, onAccepted, defaultProjectId }: { onClose: () => void; onAccepted: () => void; defaultProjectId?: string }) => {
+  const [projectId, setProjectId] = useState(defaultProjectId || '');
   const [description, setDescription] = useState('');
   const [unit, setUnit] = useState('');
   const [qty, setQty] = useState('1');
@@ -156,6 +156,15 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
     const cur = SUPPORTED_CURRENCIES.find((c) => c.code === code);
     if (cur) setCurrency(cur);
   };
+
+  // If scoped to a project, sync the currency once projects load
+  useEffect(() => {
+    if (defaultProjectId && projects) {
+      const proj = (projects || []).find((p: any) => p._id === defaultProjectId);
+      const cur = SUPPORTED_CURRENCIES.find((c) => c.code === getCurrencyByCountry(proj?.country));
+      if (cur) setCurrency(cur);
+    }
+  }, [defaultProjectId, projects]);
 
   // 1. Ask the AI for a price
   const suggestMutation = useMutation({
@@ -366,8 +375,8 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
 /* ------------------------------------------------------------------ */
 /* AI BOQ ANALYSIS: review a project -> missing/duplicate/alt/outlier  */
 /* ------------------------------------------------------------------ */
-const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged: () => void }) => {
-  const [projectId, setProjectId] = useState('');
+const AIAnalyzePanel = ({ onClose, onChanged, defaultProjectId }: { onClose: () => void; onChanged: () => void; defaultProjectId?: string }) => {
+  const [projectId, setProjectId] = useState(defaultProjectId || '');
   const [suggestions, setSuggestions] = useState<BOQSuggestion[] | null>(null);
   const [added, setAdded] = useState<Set<number>>(new Set());
 
@@ -503,8 +512,8 @@ const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged
 /* ------------------------------------------------------------------ */
 /* MANUAL ADD ITEM MODAL: pick project -> describe -> qty/rate -> save  */
 /* ------------------------------------------------------------------ */
-const AddItemModal = ({ onClose, onAdded }: { onClose: () => void; onAdded: () => void }) => {
-  const [projectId, setProjectId] = useState('');
+const AddItemModal = ({ onClose, onAdded, defaultProjectId }: { onClose: () => void; onAdded: () => void; defaultProjectId?: string }) => {
+  const [projectId, setProjectId] = useState(defaultProjectId || '');
   const [description, setDescription] = useState('');
   const [unit, setUnit] = useState('');
   const [qty, setQty] = useState('1');
@@ -527,6 +536,15 @@ const AddItemModal = ({ onClose, onAdded }: { onClose: () => void; onAdded: () =
     const cur = SUPPORTED_CURRENCIES.find((c) => c.code === getCurrencyByCountry(proj?.country));
     if (cur) setCurrency(cur);
   };
+
+  // If scoped to a project, sync the currency once projects load
+  useEffect(() => {
+    if (defaultProjectId && projects) {
+      const proj = (projects || []).find((p: any) => p._id === defaultProjectId);
+      const cur = SUPPORTED_CURRENCIES.find((c) => c.code === getCurrencyByCountry(proj?.country));
+      if (cur) setCurrency(cur);
+    }
+  }, [defaultProjectId, projects]);
 
   const addMutation = useMutation({
     mutationFn: async () =>
@@ -678,10 +696,36 @@ const BOQEngine = () => {
 
   const refetchBOQ = () => queryClient.invalidateQueries({ queryKey: ['boq-items'] });
 
-  // Flatten all company BOQs into a single item list (GET /boq returns an array)
-  const items = Array.isArray(boqData)
-    ? boqData.flatMap((boq: any) => (boq.items || []))
-    : (boqData?.items || []);
+  // Project list for the scoping switcher
+  const { data: projects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => (await apiClient.get('/projects')).data,
+  });
+
+  // Active project scope — driven by the ?project= query param ('' = All projects)
+  const scopedProjectId = searchParams.get('project') || '';
+  const setScopedProject = (id: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (id) next.set('project', id);
+    else next.delete('project');
+    setSearchParams(next, { replace: true });
+  };
+
+  const boqList: any[] = Array.isArray(boqData) ? boqData : (boqData ? [boqData] : []);
+
+  // The BOQ doc for the scoped project (when scoped)
+  const scopedBoq = scopedProjectId
+    ? boqList.find((boq: any) => boq.project?._id === scopedProjectId)
+    : undefined;
+
+  // Items: scoped to one project, or flattened across all company BOQs
+  const items = scopedProjectId
+    ? (scopedBoq?.items || [])
+    : boqList.flatMap((boq: any) => (boq.items || []));
+
+  const scopedProject = (projects || []).find((p: any) => p._id === scopedProjectId);
+  const scopedProjectName = scopedProject?.name || scopedBoq?.project?.name || '';
+  const scopedLocked = !!scopedBoq?.isLocked;
 
   const allVerified = items.length > 0 && items.every((item: any) => item.status === 'verified');
   const subtotal = items.reduce((acc: number, item: any) => acc + (item.qty * item.rate), 0);
@@ -811,10 +855,32 @@ const BOQEngine = () => {
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-black text-foreground tracking-tight italic">BOQ Estimation Engine</h1>
-            <p className="text-brand-muted text-sm font-medium">Verify AI suggestions and market rates before exporting.</p>
+            {scopedProjectId ? (
+              <div className="flex items-center gap-2 mt-1">
+                <p className="text-brand-muted text-sm font-medium">{scopedProjectName || 'Project'}</p>
+                {scopedLocked ? (
+                  <span className={`${t.badgeGreen} flex items-center gap-1`}><Lock size={10} /> Locked</span>
+                ) : (
+                  <span className={t.badgeAmber}>Active</span>
+                )}
+              </div>
+            ) : (
+              <p className="text-brand-muted text-sm font-medium">Verify AI suggestions and market rates before exporting.</p>
+            )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <select
+              value={scopedProjectId}
+              onChange={(e) => setScopedProject(e.target.value)}
+              className="bg-card border border-border text-foreground px-4 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all max-w-[200px]"
+              title="Scope to a project"
+            >
+              <option value="">All projects</option>
+              {(projects || []).map((p: any) => (
+                <option key={p._id} value={p._id}>{p.name}</option>
+              ))}
+            </select>
             <select
               value={currency.code}
               onChange={(e) => {
@@ -962,13 +1028,13 @@ const BOQEngine = () => {
 
       <AnimatePresence>
         {showEstimator && (
-          <AIEstimatorModal onClose={() => setShowEstimator(false)} onAccepted={refetchBOQ} />
+          <AIEstimatorModal onClose={() => setShowEstimator(false)} onAccepted={refetchBOQ} defaultProjectId={scopedProjectId || undefined} />
         )}
         {showAnalyze && (
-          <AIAnalyzePanel onClose={() => setShowAnalyze(false)} onChanged={refetchBOQ} />
+          <AIAnalyzePanel onClose={() => setShowAnalyze(false)} onChanged={refetchBOQ} defaultProjectId={scopedProjectId || undefined} />
         )}
         {showAddItem && (
-          <AddItemModal onClose={() => setShowAddItem(false)} onAdded={refetchBOQ} />
+          <AddItemModal onClose={() => setShowAddItem(false)} onAdded={refetchBOQ} defaultProjectId={scopedProjectId || undefined} />
         )}
       </AnimatePresence>
     </DashboardShell>

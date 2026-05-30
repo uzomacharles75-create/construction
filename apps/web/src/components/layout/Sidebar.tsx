@@ -132,6 +132,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           <>
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
+            <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} />
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} locked={navLocked} />

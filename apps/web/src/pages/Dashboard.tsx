@@ -9,7 +9,7 @@ import { t } from '../theme';
 import {
   Briefcase, Wrench, ClipboardList, FileText,
   BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
-  Wallet, FolderKanban, CheckCircle2, TrendingUp
+  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus
 } from 'lucide-react';
 
 interface Overview {
@@ -117,9 +117,9 @@ const Dashboard = () => {
               <MapPin size={16} className="text-primary" />
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </div>
-            {/* <Link to="/dashboard/projects/new" className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto">
+            <Link to="/dashboard/projects/new" className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto">
               <Plus size={18} /> New Project
-            </Link> */}
+            </Link>
           </div>
         </div>
 
