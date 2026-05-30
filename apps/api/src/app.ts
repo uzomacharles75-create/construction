@@ -19,6 +19,7 @@ import documentRoutes from './routes/documentRoutes';
 import aiRoutes from './routes/aiRoutes'; 
 import serviceRoutes from './routes/serviceRoutes';
 import walletRoutes from './routes/walletRoutes';
+import fxRoutes from './routes/fxRoutes';
 
 import { errorHandler } from './middleware/errorMiddleware';
 
@@ -71,6 +72,7 @@ app.use('/api/v1/documents', documentRoutes);
 app.use('/api/v1/ai', aiRoutes); 
 app.use('/api/v1/services', serviceRoutes);
 app.use('/api/v1/wallet', walletRoutes);
+app.use('/api/v1/fx', fxRoutes);
 
 // 4. HEALTH CHECK ROUTE
 app.get('/health', (req, res) => {
