@@ -60,7 +60,7 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
 
 export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
-  const { getStep, isDone } = useOnboardingStore();
+  const { getStep } = useOnboardingStore();
   const role = user?.role;
 
   // --- BYPASS LOGIC START ---
