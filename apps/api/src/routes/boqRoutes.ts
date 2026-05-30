@@ -6,7 +6,8 @@ import {
   verifyItem,
   suggestPricing,
   analyzeProjectBOQ,
-  rejectSuggestion
+  rejectSuggestion,
+  generateBOQDraft
 } from '../controllers/boqController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
@@ -58,6 +59,14 @@ router.post(
   '/feedback/reject',
   authorize(['owner', 'staff']),
   rejectSuggestion
+);
+
+// 8. CONVERSATIONAL BOQ GENERATION (free-text brief → full draft BOQ)
+router.post(
+  '/generate',
+  authorize(['owner', 'staff']),
+  aiRateLimiter,
+  generateBOQDraft
 );
 
 export default router;

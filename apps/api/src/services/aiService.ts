@@ -213,3 +213,100 @@ export const analyzeBOQ = async (
           : undefined,
     }));
 };
+
+/* ------------------------------------------------------------------ */
+/* CONVERSATIONAL BOQ GENERATION: turn a free-text brief into a full  */
+/* draft Bill of Quantities anchored to marketplace reference prices  */
+/* ------------------------------------------------------------------ */
+
+export interface GeneratedItem {
+  description: string;
+  unit: string;
+  qty: number;
+  rate: number;
+  category: string;
+  confidence: "high" | "medium" | "low";
+}
+
+/**
+ * Generate a complete draft BOQ from a free-text construction brief.
+ * Returns a short summary plus 8–20 realistic line items with USD rates,
+ * anchored to the supplied marketplace reference prices where they match.
+ */
+export const generateBOQ = async (
+  brief: string,
+  location?: string,
+  referencePrices: ReferencePrice[] = []
+): Promise<{ items: GeneratedItem[]; summary: string }> => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("Missing GEMINI_API_KEY in .env");
+  }
+
+  const locationLine = location
+    ? `The project is located in: "${location}". Use realistic market rates for that
+       region, accounting for local labour, transport, and import costs.`
+    : `Assume a general African market for rates.`;
+
+  const referenceLine = referencePrices.length
+    ? `Use these real marketplace prices (in USD) as your primary anchor for any matching
+       items; only deviate when an item clearly differs:\n` +
+      referencePrices
+        .map((p) => `- ${p.name}: ${p.price} per ${p.unit}${p.supplier ? ` (${p.supplier})` : ""}`)
+        .join("\n")
+    : "";
+
+  const prompt = `
+    Act as an experienced quantity surveyor.
+    ${locationLine}
+    ${referenceLine}
+
+    A client has given you this construction brief:
+    "${brief}"
+
+    Produce a realistic draft Bill of Quantities — the major material and work line
+    items needed to deliver this brief. For each line item give a sensible quantity,
+    a unit of measure, and a market RATE IN USD (number only, no currency symbol) for
+    the given location. Group items with a short category (e.g. "Substructure",
+    "Concrete", "Blockwork", "Roofing", "Finishes", "Plumbing", "Electrical").
+    Keep it to roughly 8 to 20 line items covering the whole job.
+
+    Set "confidence" per item to:
+      - "high" if anchored to a marketplace reference price or a common standardised item
+      - "medium" if pricing varies by supplier or region
+      - "low" if the item is vague or hard to price without specs
+
+    Return ONLY JSON in this exact shape:
+    {
+      "summary": string,
+      "items": [
+        { "description": string, "unit": string, "qty": number, "rate": number, "category": string, "confidence": "high" | "medium" | "low" }
+      ]
+    }
+  `;
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const result = await model.generateContent(prompt);
+  const parsed = JSON.parse(result.response.text() || "{}");
+  const raw = Array.isArray(parsed.items) ? parsed.items : [];
+
+  const items: GeneratedItem[] = raw
+    .filter((it: any) => it && it.description && String(it.description).trim())
+    .slice(0, 25)
+    .map((it: any) => ({
+      description: String(it.description).trim(),
+      unit: String(it.unit || "unit"),
+      qty: Number(it.qty) || 1,
+      rate: Number(it.rate) || 0,
+      category: String(it.category || "General"),
+      confidence: ["high", "medium", "low"].includes(it.confidence) ? it.confidence : "medium",
+    }));
+
+  return {
+    summary: String(parsed.summary || "Draft BOQ generated from your brief."),
+    items,
+  };
+};

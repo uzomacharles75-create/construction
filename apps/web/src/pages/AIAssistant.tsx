@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
-import { Sparkles, Zap, FileSearch, Plus, Send, Loader2, ScanSearch, FolderKanban, Clock } from 'lucide-react';
+import { Sparkles, Zap, FileSearch, Plus, Send, Loader2, ScanSearch, FolderKanban, Clock, Hammer, Trash2, Save, ListChecks } from 'lucide-react';
 import apiClient from '../api/client';
 import { motion } from 'framer-motion';
 import { t } from '../theme';
@@ -12,11 +12,42 @@ const typeIcon: Record<string, string> = {
   missing: '🟦', duplicate: '🟡', alternative: '🟣', outlier: '🔴',
 };
 
+// Heuristic: does this message read like a "build me a BOQ" request?
+const isBuildRequest = (text: string) => {
+  const s = text.toLowerCase();
+  return /\b(boq|bill of quantit|estimate the cost|cost to build|build (?:me|a|an)|construct|bedroom|bungalow|duplex|storey|story|warehouse|generate.*boq|draft.*boq)\b/.test(s);
+};
+
+interface DraftItem {
+  description: string;
+  unit: string;
+  qty: number;
+  rate: number;            // current (possibly edited) rate
+  suggestedRate: number;   // original AI rate
+  category: string;
+  confidence: 'high' | 'medium' | 'low';
+  rejected: boolean;
+}
+
+interface Draft {
+  brief: string;
+  summary: string;
+  location: string | null;
+  items: DraftItem[];
+  projectId: string;
+}
+
+const confidenceBadge: Record<string, string> = {
+  high: t.badgeGreen, medium: t.badgeAmber, low: t.badgeRed,
+};
+
 const AIAssistant = () => {
   const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { fromUSD, format } = useCurrencyStore();
   const money = (usd: number) => format(fromUSD(usd || 0));
@@ -51,6 +82,11 @@ const AIAssistant = () => {
 
   const handleSendMessage = async (text: string = input) => {
     if (!text.trim()) return;
+    // Conversational BOQ: route build-style requests to the generator
+    if (isBuildRequest(text)) {
+      setInput('');
+      return generateDraftBOQ(text);
+    }
     push('user', text);
     setInput('');
     setIsLoading(true);
@@ -64,6 +100,85 @@ const AIAssistant = () => {
       push('assistant', "I'm sorry, I'm having trouble connecting to the site data right now.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Conversational BOQ generation — turns a free-text brief into a draft BOQ
+  const generateDraftBOQ = async (brief: string, projectId?: string) => {
+    push('user', brief);
+    setIsLoading(true);
+    try {
+      const { data } = await apiClient.post('/boq/generate', { brief, projectId });
+      const items: DraftItem[] = (data.items || []).map((it: any) => ({
+        description: it.description,
+        unit: it.unit || 'unit',
+        qty: Number(it.qty) || 1,
+        rate: Number(it.rate) || 0,
+        suggestedRate: Number(it.rate) || 0,
+        category: it.category || 'General',
+        confidence: ['high', 'medium', 'low'].includes(it.confidence) ? it.confidence : 'medium',
+        rejected: false,
+      }));
+      if (!items.length) {
+        push('assistant', "I couldn't draft a BOQ from that brief. Try adding a bit more detail about what you want to build.");
+        return;
+      }
+      setDraft({
+        brief,
+        summary: data.summary || 'Draft BOQ generated from your brief.',
+        location: data.location || null,
+        items,
+        projectId: projectId || (projectList[0]?._id ?? ''),
+      });
+      push('assistant', `📐 ${data.summary || 'Here is a draft BOQ based on your brief.'}\n\nReview the line items below — edit rates, reject anything you don't need, pick a project, then Save to BOQ.`);
+    } catch (e: any) {
+      const status = e?.response?.status;
+      const msg = e?.response?.data?.message;
+      if (status === 429) {
+        push('assistant', msg || 'AI quota reached for now — please try again in a minute.');
+      } else {
+        push('assistant', msg || "BOQ generation is currently unavailable. Please try again in a moment.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Draft editing helpers
+  const setItemRate = (idx: number, rate: number) =>
+    setDraft((d) => d && { ...d, items: d.items.map((it, i) => (i === idx ? { ...it, rate } : it)) });
+  const toggleReject = (idx: number) =>
+    setDraft((d) => d && { ...d, items: d.items.map((it, i) => (i === idx ? { ...it, rejected: !it.rejected } : it)) });
+  const setDraftProject = (projectId: string) =>
+    setDraft((d) => d && { ...d, projectId });
+
+  const acceptedItems = draft ? draft.items.filter((it) => !it.rejected) : [];
+  const draftTotal = acceptedItems.reduce((a, it) => a + it.qty * (it.rate || 0), 0);
+
+  // Save accepted items into the chosen project's BOQ
+  const saveDraftToProject = async () => {
+    if (!draft || !draft.projectId || !acceptedItems.length) return;
+    const project = projectList.find((p) => p._id === draft.projectId);
+    setIsSaving(true);
+    try {
+      for (const it of acceptedItems) {
+        await apiClient.post(`/boq/project/${draft.projectId}/item`, {
+          description: it.description,
+          unit: it.unit,
+          qty: it.qty,
+          rate: it.rate,
+          source: 'ai',
+          confidence: it.confidence,
+          suggestedRate: it.suggestedRate,
+          aiJustification: `Auto-generated from brief: "${draft.brief}"`,
+        });
+      }
+      push('assistant', `✅ Saved ${acceptedItems.length} item${acceptedItems.length === 1 ? '' : 's'} (${money(draftTotal)}) to "${project?.name || 'the project'}" BOQ. Open the BOQ Engine to verify them.`);
+      setDraft(null);
+    } catch (e: any) {
+      push('assistant', e?.response?.data?.message || "I couldn't save the BOQ to that project. Please try again.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -108,6 +223,12 @@ const AIAssistant = () => {
     if (task === 'Analyze BOQ') return runBOQAnalysis();
     // Material Estimate opens the AI price estimator on the BOQ Engine
     if (task === 'Material Estimate') return navigate('/dashboard/boq?estimate=1');
+    // Build a BOQ: prompt the user to describe what they want to build
+    if (task === 'Build a BOQ') {
+      setInput('I want to build a 3-bedroom bungalow in Lagos, give me a BOQ');
+      push('assistant', "Describe what you want to build — e.g. \"a 3-bedroom bungalow in Lagos\" — and I'll draft a full BOQ you can edit and save.");
+      return;
+    }
     return handleSendMessage(task);
   };
 
@@ -143,12 +264,13 @@ const AIAssistant = () => {
                     </div>
                     <h2 className="text-2xl font-bold text-foreground mb-4">How can I assist your site today?</h2>
                     <div className="grid grid-cols-2 gap-3">
-                      {['Analyze BOQ', 'Draft Proposal', 'Material Estimate', 'Safety Check'].map((task) => (
+                      {['Build a BOQ', 'Analyze BOQ', 'Material Estimate', 'Draft Proposal', 'Safety Check'].map((task) => (
                         <button
                           key={task}
                           onClick={() => onPreset(task)}
                           className="p-4 bg-muted rounded-2xl text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-primary hover:text-brand-navy transition-all flex items-center justify-center gap-1.5"
                         >
+                          {task === 'Build a BOQ' && <Hammer size={12} />}
                           {task === 'Analyze BOQ' && <ScanSearch size={12} />}
                           {task}
                         </button>
@@ -174,6 +296,116 @@ const AIAssistant = () => {
                   </motion.div>
                 ))
               )}
+              {/* Interactive draft BOQ panel */}
+              {draft && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`${t.cardLg} p-6 space-y-4`}
+                >
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2.5">
+                      <div className={t.iconBoxYellow}><ListChecks size={20} /></div>
+                      <div>
+                        <h4 className={t.h4}>Draft Bill of Quantities</h4>
+                        <p className="text-[11px] text-muted-foreground font-medium">
+                          {acceptedItems.length} of {draft.items.length} item{draft.items.length === 1 ? '' : 's'} accepted
+                          {draft.location ? ` · ${draft.location}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setDraft(null)}
+                      className="text-[10px] font-black text-muted-foreground uppercase tracking-widest hover:text-rose-500 transition-colors"
+                    >
+                      Discard
+                    </button>
+                  </div>
+
+                  <div className="space-y-2">
+                    {draft.items.map((it, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all ${
+                          it.rejected
+                            ? 'bg-muted/30 border-border opacity-50'
+                            : 'bg-muted border-border'
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-sm font-bold text-foreground truncate ${it.rejected ? 'line-through' : ''}`}>
+                              {it.description}
+                            </span>
+                            <span className={confidenceBadge[it.confidence] || t.badgeNavy}>{it.confidence}</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
+                            {it.qty} {it.unit} · {it.category}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-col items-end shrink-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-black text-muted-foreground uppercase">Rate</span>
+                            <input
+                              type="number"
+                              value={it.rate}
+                              disabled={it.rejected}
+                              onChange={(e) => setItemRate(idx, Number(e.target.value))}
+                              className="w-24 p-2 bg-background border border-border rounded-xl text-foreground text-xs font-bold outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-40"
+                            />
+                          </div>
+                          <span className="text-[11px] font-black text-foreground/70 mt-1">
+                            = {money(it.qty * (it.rate || 0))}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => toggleReject(idx)}
+                          title={it.rejected ? 'Restore item' : 'Reject item'}
+                          className={`shrink-0 p-2 rounded-xl transition-all ${
+                            it.rejected
+                              ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                              : 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20'
+                          }`}
+                        >
+                          {it.rejected ? <Plus size={14} /> : <Trash2 size={14} />}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border">
+                    <span className={t.label}>Accepted Total</span>
+                    <span className="text-xl font-black text-foreground">{money(draftTotal)}</span>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-1">
+                    <div className="flex-1">
+                      <label className={`${t.label} block mb-1.5`}>Save to project</label>
+                      <select
+                        value={draft.projectId}
+                        onChange={(e) => setDraftProject(e.target.value)}
+                        className={t.select}
+                      >
+                        {!projectList.length && <option value="">No projects available</option>}
+                        {projectList.map((p) => (
+                          <option key={p._id} value={p._id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <button
+                      onClick={saveDraftToProject}
+                      disabled={isSaving || !draft.projectId || !acceptedItems.length}
+                      className={`${t.btnPrimary} flex items-center justify-center gap-2 self-end disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {isSaving ? <Loader2 className="animate-spin" size={14} /> : <Save size={14} />}
+                      Save to BOQ
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
               {isLoading && (
                 <div className="flex gap-2 items-center text-primary font-bold text-xs animate-pulse">
                   <Loader2 className="animate-spin" size={14} /> AI is analyzing...

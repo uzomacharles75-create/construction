@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import BOQ from '../models/BOQ';
 import Project from '../models/Project'; // CRITICAL: Added missing import
-import { suggestBOQRate, analyzeBOQ } from '../services/aiService';
+import { suggestBOQRate, analyzeBOQ, generateBOQ } from '../services/aiService';
 import { getVatRate } from '../utils/taxRates';
 import { sanitizePrompt } from '../utils/promptGuard';
 import Product from '../models/Product';
@@ -333,6 +333,55 @@ export const analyzeProjectBOQ = async (req: any, res: Response) => {
       message: quota
         ? "AI quota reached for now — please try again in a minute."
         : "AI analysis is currently unavailable.",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * @desc    Generate a full draft BOQ from a free-text construction brief
+ * @route   POST /api/v1/boq/generate
+ */
+export const generateBOQDraft = async (req: any, res: Response) => {
+  try {
+    const brief = sanitizePrompt(req.body.brief, 1000);
+    const { projectId } = req.body;
+
+    if (!brief || !brief.trim()) {
+      return res.status(400).json({ message: "A construction brief is required." });
+    }
+
+    // Resolve regional context from the target project (if one is supplied)
+    let location: string | undefined;
+    if (projectId) {
+      const project = await Project.findOne({ _id: projectId, company: req.user.companyId })
+        .select('location country region city');
+      if (project) {
+        location =
+          [project.city, project.region, project.country].filter(Boolean).join(', ') ||
+          project.location ||
+          undefined;
+      }
+    }
+
+    // Provide a broad marketplace catalogue as price anchors for the whole BOQ
+    const catalogue = await Product.find({}).limit(40).lean();
+    const referencePrices = catalogue.map((p: any) => ({
+      name: p.name,
+      price: p.price,
+      unit: p.unit,
+      supplier: p.supplier,
+    }));
+
+    const result = await generateBOQ(brief, location, referencePrices);
+    res.status(200).json({ ...result, location: location || null });
+  } catch (error: any) {
+    console.error("❌ AI BOQ GENERATION ERROR:", error.message);
+    const quota = /429|quota|Too Many Requests/i.test(error.message || '');
+    res.status(quota ? 429 : 503).json({
+      message: quota
+        ? "AI quota reached for now — please try again in a minute."
+        : "BOQ generation is currently unavailable.",
       error: error.message
     });
   }
