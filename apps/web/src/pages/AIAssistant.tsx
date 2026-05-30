@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { Sparkles, Zap, FileSearch, Plus, Send, Loader2, ScanSearch, FolderKanban, Clock } from 'lucide-react';
@@ -11,6 +12,7 @@ const typeIcon: Record<string, string> = {
 };
 
 const AIAssistant = () => {
+  const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -99,8 +101,12 @@ const AIAssistant = () => {
     }
   };
 
-  const onPreset = (task: string) =>
-    task === 'Analyze BOQ' ? runBOQAnalysis() : handleSendMessage(task);
+  const onPreset = (task: string) => {
+    if (task === 'Analyze BOQ') return runBOQAnalysis();
+    // Material Estimate opens the AI price estimator on the BOQ Engine
+    if (task === 'Material Estimate') return navigate('/dashboard/boq?estimate=1');
+    return handleSendMessage(task);
+  };
 
   return (
     <DashboardShell>

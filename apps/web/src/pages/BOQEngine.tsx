@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/client';
 import { DashboardShell } from '../components/layout/DashboardShell';
@@ -461,6 +462,16 @@ const BOQEngine = () => {
   const queryClient = useQueryClient();
   const [showEstimator, setShowEstimator] = useState(false);
   const [showAnalyze, setShowAnalyze] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Open the estimator when navigated here with ?estimate=1 (e.g. from the AI hub)
+  useEffect(() => {
+    if (searchParams.get('estimate')) {
+      setShowEstimator(true);
+      searchParams.delete('estimate');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // 1. FETCH REAL BOQ DATA (GET /boq returns an array of BOQ docs for the company)
   const { data: boqData, isLoading } = useQuery({
