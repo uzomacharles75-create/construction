@@ -13,7 +13,12 @@ import {
   Lock,
   Loader2,
   X,
-  Wand2
+  Wand2,
+  ScanSearch,
+  AlertTriangle,
+  Copy,
+  ArrowLeftRight,
+  PackagePlus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
@@ -43,6 +48,24 @@ const confidenceStyles: Record<Confidence, string> = {
   high: t.badgeGreen,
   medium: t.badgeAmber,
   low: t.badgeRed,
+};
+
+type SuggestionType = 'missing' | 'duplicate' | 'alternative' | 'outlier';
+
+interface BOQSuggestion {
+  type: SuggestionType;
+  severity: Confidence;
+  title: string;
+  detail: string;
+  relatedItems?: string[];
+  item?: { description: string; unit: string; qty: number; rate: number };
+}
+
+const typeMeta: Record<SuggestionType, { label: string; icon: any; badge: string }> = {
+  missing: { label: 'Missing item', icon: PackagePlus, badge: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' },
+  duplicate: { label: 'Duplicate', icon: Copy, badge: t.badgeAmber },
+  alternative: { label: 'Alternative', icon: ArrowLeftRight, badge: 'bg-purple-500/10 text-purple-400 border border-purple-500/20' },
+  outlier: { label: 'Price outlier', icon: AlertTriangle, badge: t.badgeRed },
 };
 
 const ConfidenceBadge = ({ level }: { level?: Confidence }) => {
@@ -308,9 +331,136 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
   );
 };
 
+/* ------------------------------------------------------------------ */
+/* AI BOQ ANALYSIS: review a project -> missing/duplicate/alt/outlier  */
+/* ------------------------------------------------------------------ */
+const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged: () => void }) => {
+  const [projectId, setProjectId] = useState('');
+  const [suggestions, setSuggestions] = useState<BOQSuggestion[] | null>(null);
+  const [added, setAdded] = useState<Set<number>>(new Set());
+
+  const { data: projects } = useQuery({
+    queryKey: ['projects'],
+    queryFn: async () => (await apiClient.get('/projects')).data,
+  });
+
+  const analyzeMutation = useMutation({
+    mutationFn: async () =>
+      (await apiClient.post(`/boq/project/${projectId}/analyze`)).data.suggestions as BOQSuggestion[],
+    onSuccess: (data) => { setSuggestions(data); setAdded(new Set()); },
+  });
+
+  const addMutation = useMutation({
+    mutationFn: async (item: BOQSuggestion['item']) =>
+      apiClient.post(`/boq/project/${projectId}/item`, {
+        description: item!.description,
+        unit: item!.unit,
+        qty: item!.qty,
+        rate: item!.rate,
+        source: 'ai',
+      }),
+    onSuccess: () => onChanged(),
+  });
+
+  const dismiss = (idx: number) =>
+    setSuggestions((prev) => (prev ? prev.filter((_, i) => i !== idx) : prev));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className={t.overlay}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }}
+        className="bg-card border border-border rounded-[3rem] w-full max-w-xl shadow-2xl p-8 max-h-[85vh] overflow-y-auto custom-scrollbar"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className={`${t.h3} flex items-center gap-2`}>
+            <ScanSearch size={20} className="text-primary" /> BOQ Analysis
+          </h3>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
+        </div>
+
+        <label className={`block mb-1.5 ${t.label}`}>Project to review</label>
+        <div className="flex gap-3 mb-2">
+          <select value={projectId} onChange={(e) => { setProjectId(e.target.value); setSuggestions(null); }} className={t.select}>
+            <option value="">Select a project…</option>
+            {(projects || []).map((p: any) => <option key={p._id} value={p._id}>{p.name}</option>)}
+          </select>
+          <button
+            onClick={() => analyzeMutation.mutate()}
+            disabled={!projectId || analyzeMutation.isPending}
+            className={`shrink-0 flex items-center justify-center gap-2 ${t.btnPrimary} disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {analyzeMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <ScanSearch size={16} />}
+            Analyze
+          </button>
+        </div>
+
+        {suggestions && suggestions.length === 0 && (
+          <div className="mt-6 text-center py-10">
+            <CheckCircle className="mx-auto text-emerald-500 mb-3" size={32} />
+            <p className="text-sm font-bold text-foreground">No issues found — this BOQ looks complete.</p>
+          </div>
+        )}
+
+        <div className="mt-4 space-y-3">
+          <AnimatePresence>
+            {suggestions?.map((s, idx) => {
+              const meta = typeMeta[s.type];
+              const Icon = meta.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, height: 0 }}
+                  className="border border-border rounded-2xl p-4 bg-muted/40"
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${meta.badge}`}>
+                      <Icon size={11} /> {meta.label}
+                    </span>
+                    <ConfidenceBadge level={s.severity} />
+                  </div>
+                  <p className="text-sm font-black text-foreground">{s.title}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{s.detail}</p>
+
+                  {s.relatedItems && s.relatedItems.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {s.relatedItems.map((r, i) => (
+                        <span key={i} className="px-2 py-0.5 rounded-md bg-muted text-[10px] font-bold text-foreground/60">{r}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 mt-3">
+                    {s.item && (
+                      <button
+                        onClick={() => { addMutation.mutate(s.item); setAdded((p) => new Set(p).add(idx)); }}
+                        disabled={added.has(idx) || addMutation.isPending}
+                        className="flex items-center gap-1.5 bg-emerald-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50"
+                      >
+                        {added.has(idx) ? <CheckCircle size={12} /> : <Plus size={12} />}
+                        {added.has(idx) ? 'Added' : `Add ${s.item.qty} ${s.item.unit} @ $${s.item.rate}`}
+                      </button>
+                    )}
+                    <button onClick={() => dismiss(idx)} className={t.btnGhost}>Dismiss</button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
 const BOQEngine = () => {
   const queryClient = useQueryClient();
   const [showEstimator, setShowEstimator] = useState(false);
+  const [showAnalyze, setShowAnalyze] = useState(false);
 
   // 1. FETCH REAL BOQ DATA (GET /boq returns an array of BOQ docs for the company)
   const { data: boqData, isLoading } = useQuery({
@@ -349,6 +499,12 @@ const BOQEngine = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowAnalyze(true)}
+              className="flex items-center gap-2 bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all"
+            >
+              <ScanSearch size={16} className="text-primary" /> Analyze BOQ
+            </button>
             <button
               onClick={() => setShowEstimator(true)}
               className="flex items-center gap-2 bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all"
@@ -430,13 +586,21 @@ const BOQEngine = () => {
               <Sparkles className="absolute right-[-20px] top-[-20px] text-foreground/5 w-64 h-64" />
               <div className="relative z-10">
                  <h3 className="text-2xl font-bold mb-2">BuildHub AI Estimator</h3>
-                 <p className="text-muted-foreground text-sm mb-8 max-w-md">Our AI cross-references marketplace data and previous projects to suggest the most accurate market rates.</p>
-                 <button
-                   onClick={() => setShowEstimator(true)}
-                   className="flex items-center gap-2 bg-primary text-brand-navy px-8 py-3 rounded-xl font-bold text-xs hover:bg-primary-dim transition-all"
-                 >
-                   <Wand2 size={16} /> Request AI Analysis
-                 </button>
+                 <p className="text-muted-foreground text-sm mb-8 max-w-md">Our AI cross-references marketplace data and previous projects to suggest accurate rates and review your BOQ for gaps.</p>
+                 <div className="flex flex-wrap items-center gap-3">
+                   <button
+                     onClick={() => setShowAnalyze(true)}
+                     className="flex items-center gap-2 bg-primary text-brand-navy px-8 py-3 rounded-xl font-bold text-xs hover:bg-primary-dim transition-all"
+                   >
+                     <ScanSearch size={16} /> Analyze BOQ
+                   </button>
+                   <button
+                     onClick={() => setShowEstimator(true)}
+                     className="flex items-center gap-2 bg-card/10 border border-border/40 text-foreground px-8 py-3 rounded-xl font-bold text-xs hover:bg-card/20 transition-all"
+                   >
+                     <Wand2 size={16} /> Estimate a Price
+                   </button>
+                 </div>
               </div>
            </div>
 
@@ -453,6 +617,9 @@ const BOQEngine = () => {
       <AnimatePresence>
         {showEstimator && (
           <AIEstimatorModal onClose={() => setShowEstimator(false)} onAccepted={refetchBOQ} />
+        )}
+        {showAnalyze && (
+          <AIAnalyzePanel onClose={() => setShowAnalyze(false)} onChanged={refetchBOQ} />
         )}
       </AnimatePresence>
     </DashboardShell>
