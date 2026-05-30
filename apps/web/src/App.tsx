@@ -45,6 +45,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 
 // --- SHARED DETAIL PAGES ---
 import ProjectDetail from './pages/ProjectDetail';
+import NewProject from './pages/NewProject';
 import TenderBoard from './pages/TenderBoard';
 import SubmitBid from './pages/SubmitBid';
 import TenderDetail from './pages/TenderDetail';
@@ -116,6 +117,7 @@ function App() {
           <Route path="/dashboard/services" element={<OwnerRoute><Services /></OwnerRoute>} />
           <Route path="/dashboard/wallet" element={<OwnerRoute><Wallet /></OwnerRoute>} />
           <Route path="/dashboard/wallet/verify" element={<OwnerRoute><Wallet /></OwnerRoute>} />
+          <Route path="/dashboard/projects/new" element={<OwnerRoute><NewProject /></OwnerRoute>} />
           <Route path="/dashboard/projects" element={<OwnerRoute><ProjectDetail /></OwnerRoute>} />
           <Route path="/dashboard/boq" element={<OwnerRoute><BOQEngine /></OwnerRoute>} />
           <Route path="/dashboard/ai" element={<OwnerRoute><AIAssistant /></OwnerRoute>} />
