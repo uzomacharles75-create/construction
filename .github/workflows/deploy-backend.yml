@@ -1,68 +1,32 @@
-name: Deploy Backend to AWS
+name: Deploy Construction Backend
 
 on:
   push:
     branches: [main, master]
+    paths:
+      - 'apps/api/**'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
-      
+          node-version: '20'
       - name: Install dependencies
-        run: |
-          cd apps/api
-          npm install --legacy-peer-deps
-      
+        run: cd apps/api && yarn install --ignore-engines
+      - name: Build TypeScript
+        run: cd apps/api && yarn build
       - name: Zip code
-        run: |
-          cd apps/api
-          zip -r deploy.zip . -x "node_modules/*"
-      
+        run: cd apps/api && zip -r deploy.zip . -x "node_modules/*"
       - name: Deploy to Elastic Beanstalk
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: eu-north-1
-        run: |
-          VERSION="v${{ github.run_number }}-${{ github.sha }}"
-          echo "Deploying version: $VERSION"
-          
-          # Upload to S3
-          aws s3 cp apps/api/deploy.zip s3://elasticbeanstalk-eu-north-1-990521646564/$VERSION.zip
-          
-          # Create application version
-          aws elasticbeanstalk create-application-version \
-            --application-name api \
-            --version-label $VERSION \
-            --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="$VERSION.zip"
-          
-          # Wait for version to be PROCESSED (up to 2 minutes)
-          echo "Waiting for version to be processed..."
-          for i in {1..30}; do
-            sleep 10
-            STATUS=$(aws elasticbeanstalk describe-application-versions \
-              --application-name api \
-              --version-label $VERSION \
-              --query "ApplicationVersions[0].Status" \
-              --output text)
-            echo "Attempt $i: Status = $STATUS"
-            if [ "$STATUS" = "PROCESSED" ]; then
-              echo "Version is ready!"
-              break
-            fi
-          done
-          
-          # Deploy
-          aws elasticbeanstalk update-environment \
-            --environment-name Construction-prod-env \
-            --version-label $VERSION
-          
-          echo "Deployment initiated!"
+        uses: einaregilsson/beanstalk-deploy@v22
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: construction-api
+          environment_name: Construction-prod-env
+          region: eu-north-1
+          version_label: deploy-${{ github.run_number }}-${{ github.sha }}
+          deployment_package: apps/api/deploy.zip
