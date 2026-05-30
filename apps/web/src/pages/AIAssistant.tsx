@@ -6,6 +6,7 @@ import { Sparkles, Zap, FileSearch, Plus, Send, Loader2, ScanSearch, FolderKanba
 import apiClient from '../api/client';
 import { motion } from 'framer-motion';
 import { t } from '../theme';
+import { useCurrencyStore } from '../store/useCurrencyStore';
 
 const typeIcon: Record<string, string> = {
   missing: '🟦', duplicate: '🟡', alternative: '🟣', outlier: '🔴',
@@ -17,6 +18,8 @@ const AIAssistant = () => {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { fromUSD, format } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
 
   // Real portfolio data for the sidebar + BOQ analysis target
   const { data: projects } = useQuery({
@@ -90,7 +93,7 @@ const AIAssistant = () => {
       const body = sug
         .map((s) =>
           `${typeIcon[s.type] || '•'} [${String(s.type).toUpperCase()} · ${s.severity}] ${s.title}\n   ${s.detail}` +
-          (s.item ? `\n   → Add: ${s.item.qty} ${s.item.unit} @ $${s.item.rate}` : '')
+          (s.item ? `\n   → Add: ${s.item.qty} ${s.item.unit} @ ${money(s.item.rate)}` : '')
         )
         .join('\n\n');
       push('assistant', `📋 BOQ Analysis — ${pname}\n\n${body}\n\nOpen the BOQ Engine to add or dismiss these suggestions.`);
@@ -217,7 +220,7 @@ const AIAssistant = () => {
                 </div>
                 <div className="flex items-end justify-between">
                   <span className="text-[11px] text-muted-foreground uppercase tracking-widest font-black">BOQ Value</span>
-                  <span className="text-2xl font-black">${totalBOQ.toLocaleString()}</span>
+                  <span className="text-2xl font-black">{money(totalBOQ)}</span>
                 </div>
                 <div className="flex items-end justify-between">
                   <span className="text-[11px] text-muted-foreground uppercase tracking-widest font-black flex items-center gap-1"><Clock size={12} /> Pending</span>
@@ -237,7 +240,7 @@ const AIAssistant = () => {
                     <span className={`font-bold ${riskProject.util > 0.9 ? 'text-rose-500' : riskProject.util > 0.7 ? 'text-amber-500' : 'text-emerald-500'}`}>
                       {Math.round(riskProject.util * 100)}% of budget
                     </span>{' '}
-                    (${(riskProject.spent || 0).toLocaleString()} / ${riskProject.budget.toLocaleString()}).
+                    ({money(riskProject.spent || 0)} / {money(riskProject.budget)}).
                   </p>
                   <button
                     onClick={() => runBOQAnalysis(riskProject._id, riskProject.name)}

@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
+import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
+import { getCurrencyByCountry, getVatByCurrency } from '../lib/locations';
 
 type Confidence = 'high' | 'medium' | 'low';
 
@@ -78,7 +80,7 @@ const ConfidenceBadge = ({ level }: { level?: Confidence }) => {
   );
 };
 
-const BOQRow = ({ item, onVerify, isVerifying }: any) => {
+const BOQRow = ({ item, onVerify, isVerifying, money }: any) => {
   const statusColors: any = {
     pending: "bg-amber-50 text-amber-600 border-amber-100",
     verified: "bg-emerald-50 text-emerald-600 border-emerald-100",
@@ -103,8 +105,8 @@ const BOQRow = ({ item, onVerify, isVerifying }: any) => {
       </td>
       <td className="px-6 py-4 text-sm text-foreground/70 font-medium">{item.unit}</td>
       <td className="px-6 py-4 text-sm text-foreground font-bold">{item.qty}</td>
-      <td className="px-6 py-4 text-sm text-foreground font-bold">${item.rate}</td>
-      <td className="px-6 py-4 text-sm text-foreground font-black">${(item.qty * item.rate).toLocaleString()}</td>
+      <td className="px-6 py-4 text-sm text-foreground font-bold">{money(item.rate)}</td>
+      <td className="px-6 py-4 text-sm text-foreground font-black">{money(item.qty * item.rate)}</td>
       <td className="px-6 py-4">
         <button
           onClick={() => onVerify(item._id)}
@@ -138,6 +140,19 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
     queryKey: ['projects'],
     queryFn: async () => (await apiClient.get('/projects')).data,
   });
+
+  // Localised money display (amounts are stored in USD)
+  const { fromUSD, format, setCurrency } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
+
+  // When a project is chosen, switch the display currency to its country's currency
+  const selectProject = (id: string) => {
+    setProjectId(id);
+    const proj = (projects || []).find((p: any) => p._id === id);
+    const code = getCurrencyByCountry(proj?.country);
+    const cur = SUPPORTED_CURRENCIES.find((c) => c.code === code);
+    if (cur) setCurrency(cur);
+  };
 
   // 1. Ask the AI for a price
   const suggestMutation = useMutation({
@@ -195,7 +210,7 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
         <label className={`block mb-1.5 ${t.label}`}>Add to project <span className="text-purple-500 normal-case tracking-normal">(sets pricing region)</span></label>
         <select
           value={projectId}
-          onChange={(e) => setProjectId(e.target.value)}
+          onChange={(e) => selectProject(e.target.value)}
           className={`${t.select} mb-4`}
         >
           <option value="">Select a project…</option>
@@ -264,7 +279,7 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
               {suggestion.marketplaceMatches && suggestion.marketplaceMatches.length > 0 && (
                 <div className="mb-4 border border-border rounded-xl overflow-hidden">
                   <div className={`bg-muted px-3 py-2 ${t.micro} text-muted-foreground`}>
-                    Marketplace reference prices
+                    Marketplace reference prices (USD)
                   </div>
                   {suggestion.marketplaceMatches.map((m, i) => (
                     <div key={i} className="flex items-center justify-between px-3 py-2 text-xs border-t border-border first:border-t-0">
@@ -278,14 +293,14 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
               {suggestion.vatRate !== undefined && (
                 <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground mb-4 px-1">
                   <span>VAT ({(suggestion.vatRate * 100).toFixed(1)}%)</span>
-                  <span>+${(Number(qty) * Number(rate || 0) * suggestion.vatRate).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                  <span>+ {money(Number(qty) * Number(rate || 0) * suggestion.vatRate)}</span>
                 </div>
               )}
 
               <div className="flex items-end gap-3 mb-5">
                 <div className="flex-1">
                   <label className={`block mb-1.5 ${t.label}`}>
-                    Rate {edited && <span className="text-purple-500 normal-case tracking-normal">(edited)</span>}
+                    Rate (USD) {edited && <span className="text-purple-500 normal-case tracking-normal">(edited)</span>}
                   </label>
                   <div className="flex items-center gap-2">
                     <span className="text-foreground/50 font-bold">$</span>
@@ -300,7 +315,7 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
                 <div className="text-right">
                   <span className={`block mb-1.5 ${t.label}`}>Line total</span>
                   <span className="text-lg font-black text-foreground">
-                    ${(Number(qty) * Number(rate || 0)).toLocaleString()}
+                    {money(Number(qty) * Number(rate || 0))}
                   </span>
                 </div>
               </div>
@@ -345,6 +360,17 @@ const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged
     queryFn: async () => (await apiClient.get('/projects')).data,
   });
 
+  const { fromUSD, format, setCurrency } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
+
+  const selectProject = (id: string) => {
+    setProjectId(id);
+    setSuggestions(null);
+    const proj = (projects || []).find((p: any) => p._id === id);
+    const cur = SUPPORTED_CURRENCIES.find((c) => c.code === getCurrencyByCountry(proj?.country));
+    if (cur) setCurrency(cur);
+  };
+
   const analyzeMutation = useMutation({
     mutationFn: async () =>
       (await apiClient.post(`/boq/project/${projectId}/analyze`)).data.suggestions as BOQSuggestion[],
@@ -386,7 +412,7 @@ const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged
 
         <label className={`block mb-1.5 ${t.label}`}>Project to review</label>
         <div className="flex gap-3 mb-2">
-          <select value={projectId} onChange={(e) => { setProjectId(e.target.value); setSuggestions(null); }} className={t.select}>
+          <select value={projectId} onChange={(e) => selectProject(e.target.value)} className={t.select}>
             <option value="">Select a project…</option>
             {(projects || []).map((p: any) => <option key={p._id} value={p._id}>{p.name}</option>)}
           </select>
@@ -443,7 +469,7 @@ const AIAnalyzePanel = ({ onClose, onChanged }: { onClose: () => void; onChanged
                         className="flex items-center gap-1.5 bg-emerald-500 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50"
                       >
                         {added.has(idx) ? <CheckCircle size={12} /> : <Plus size={12} />}
-                        {added.has(idx) ? 'Added' : `Add ${s.item.qty} ${s.item.unit} @ $${s.item.rate}`}
+                        {added.has(idx) ? 'Added' : `Add ${s.item.qty} ${s.item.unit} @ ${money(s.item.rate)}`}
                       </button>
                     )}
                     <button onClick={() => dismiss(idx)} className={t.btnGhost}>Dismiss</button>
@@ -498,6 +524,12 @@ const BOQEngine = () => {
   const allVerified = items.length > 0 && items.every((item: any) => item.status === 'verified');
   const subtotal = items.reduce((acc: number, item: any) => acc + (item.qty * item.rate), 0);
 
+  // Display money in the chosen currency (amounts are stored in USD)
+  const { currency, setCurrency, fromUSD, format } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
+  const vatRate = getVatByCurrency(currency.code);
+  const vatAmount = subtotal * vatRate;
+
   if (isLoading) return <div className="p-20 text-center font-bold text-muted-foreground animate-pulse">Loading BOQ Engine...</div>;
 
   return (
@@ -510,6 +542,19 @@ const BOQEngine = () => {
           </div>
 
           <div className="flex items-center gap-3">
+            <select
+              value={currency.code}
+              onChange={(e) => {
+                const c = SUPPORTED_CURRENCIES.find((x) => x.code === e.target.value);
+                if (c) setCurrency(c);
+              }}
+              className="bg-card border border-border text-foreground px-4 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all"
+              title="Display currency"
+            >
+              {SUPPORTED_CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.symbol} {c.code}</option>
+              ))}
+            </select>
             <button
               onClick={() => setShowAnalyze(true)}
               className="flex items-center gap-2 bg-card border border-border text-foreground px-6 py-3 rounded-2xl font-bold text-xs hover:bg-muted transition-all"
@@ -576,14 +621,27 @@ const BOQEngine = () => {
                       item={item}
                       onVerify={verifyMutation.mutate}
                       isVerifying={verifyMutation.isPending}
+                      money={money}
                     />
                   ))
                 )}
               </tbody>
               <tfoot className="bg-muted/50">
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-right font-bold text-muted-foreground uppercase text-xs">Estimated Subtotal</td>
-                  <td className="px-6 py-8 font-black text-3xl text-foreground">${subtotal.toLocaleString()}</td>
+                  <td colSpan={5} className="px-6 pt-6 pb-1 text-right font-bold text-muted-foreground uppercase text-[11px]">Subtotal</td>
+                  <td className="px-6 pt-6 pb-1 font-bold text-base text-foreground/70">{money(subtotal)}</td>
+                  <td colSpan={2}></td>
+                </tr>
+                <tr>
+                  <td colSpan={5} className="px-6 py-1 text-right font-bold text-muted-foreground uppercase text-[11px]">
+                    VAT ({(vatRate * 100).toFixed(1)}%)
+                  </td>
+                  <td className="px-6 py-1 font-bold text-base text-foreground/70">{money(vatAmount)}</td>
+                  <td colSpan={2}></td>
+                </tr>
+                <tr>
+                  <td colSpan={5} className="px-6 pt-2 pb-8 text-right font-black text-foreground uppercase text-xs">Total (incl. VAT)</td>
+                  <td className="px-6 pt-2 pb-8 font-black text-3xl text-foreground">{money(subtotal + vatAmount)}</td>
                   <td colSpan={2}></td>
                 </tr>
               </tfoot>

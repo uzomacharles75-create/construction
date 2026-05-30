@@ -97,3 +97,11 @@ export const getCountry = (name: string) => COUNTRIES.find((c) => c.name === nam
 export const getRegions = (country: string) => getCountry(country)?.regions ?? [];
 export const getCities = (country: string, region: string) =>
   getRegions(country).find((r) => r.name === region)?.cities ?? [];
+
+/** Currency code for a country name (defaults to USD when unknown). */
+export const getCurrencyByCountry = (country?: string) =>
+  (country && getCountry(country)?.currency) || 'USD';
+
+/** Standard VAT rate (decimal) for a currency code, via its primary country. */
+export const getVatByCurrency = (code: string) =>
+  COUNTRIES.find((c) => c.currency === code)?.vat ?? 0;
