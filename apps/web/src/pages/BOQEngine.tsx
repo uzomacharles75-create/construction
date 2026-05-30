@@ -330,7 +330,20 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
                   Accept &amp; Add
                 </button>
                 <button
-                  onClick={() => { setSuggestion(null); setRate(''); }}
+                  onClick={() => {
+                    // Learning loop: record the rejection (fire-and-forget)
+                    if (suggestion) {
+                      apiClient.post('/boq/feedback/reject', {
+                        description,
+                        aiSuggestedRate: suggestion.rate,
+                        location: suggestion.location,
+                        confidence: suggestion.confidence,
+                        projectId: projectId || undefined,
+                      }).catch(() => {});
+                    }
+                    setSuggestion(null);
+                    setRate('');
+                  }}
                   className={`flex-1 flex items-center justify-center gap-2 ${t.btnSecondary}`}
                 >
                   <X size={14} /> Reject

@@ -5,7 +5,7 @@ import { t } from '../theme';
 import { useCurrencyStore } from '../store/useCurrencyStore';
 import { motion } from 'framer-motion';
 import {
-  TrendingUp, CheckCircle2, Sparkles, Wallet, FolderKanban, Loader2,
+  TrendingUp, CheckCircle2, Sparkles, Wallet, FolderKanban, Loader2, Brain,
 } from 'lucide-react';
 
 interface Overview {
@@ -19,6 +19,7 @@ interface Overview {
   sources: Record<string, number>;
   aiAdoptionRate: number;
   topProjects: { name: string; budget: number; spent: number; utilization: number; boqValue: number }[];
+  learning: { total: number; accepted: number; edited: number; rejected: number; acceptRate: number; accuracy: number | null };
 }
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
@@ -77,7 +78,7 @@ const Analytics = () => {
     );
   }
 
-  const { projects, budget, boq, sources, aiAdoptionRate, topProjects } = data;
+  const { projects, budget, boq, sources, aiAdoptionRate, topProjects, learning } = data;
   const maxBoq = Math.max(1, ...topProjects.map((p) => p.boqValue));
   const totalSourceItems = Math.max(1, Object.values(sources).reduce((a, b) => a + b, 0));
 
@@ -180,6 +181,33 @@ const Analytics = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* AI LEARNING (feedback loop) */}
+          <div className={`${t.cardLg} p-8`}>
+            <h3 className={`${t.label} mb-5 flex items-center gap-2`}><Brain size={14} className="text-purple-400" /> AI Learning</h3>
+            {learning.total === 0 ? (
+              <p className="text-sm text-muted-foreground font-medium">
+                No AI feedback yet. As you accept, edit, or reject AI prices, BuildHub learns your corrections and feeds them into future estimates.
+              </p>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-2 mb-1">
+                  <span className="text-3xl font-black text-foreground">
+                    {learning.accuracy !== null ? pct(learning.accuracy) : '—'}
+                  </span>
+                  <span className={t.label}>AI accuracy</span>
+                </div>
+                <p className="text-[11px] text-muted-foreground font-medium mb-5">
+                  Based on {learning.total} correction{learning.total === 1 ? '' : 's'} you've made.
+                </p>
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div><p className="text-lg font-black text-emerald-500">{learning.accepted}</p><p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Accepted</p></div>
+                  <div><p className="text-lg font-black text-amber-500">{learning.edited}</p><p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Edited</p></div>
+                  <div><p className="text-lg font-black text-rose-500">{learning.rejected}</p><p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Rejected</p></div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
