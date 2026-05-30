@@ -4,10 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '../api/client';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { COUNTRIES, getRegions, getCities } from '../lib/locations';
+import { t } from '../theme';
 import { ArrowLeft, Loader2, MapPin, Save } from 'lucide-react';
-
-const labelCls = 'block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1';
-const inputCls = 'w-full px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-foreground';
 
 const NewProject = () => {
   const navigate = useNavigate();
@@ -53,64 +51,64 @@ const NewProject = () => {
           <ArrowLeft size={16} /> Back
         </button>
 
-        <h1 className="text-3xl font-black text-foreground tracking-tight italic mb-1">New Project</h1>
-        <p className="text-brand-muted text-sm font-medium mb-8">
+        <h1 className={`${t.h2} italic mb-1`}>New Project</h1>
+        <p className={`${t.muted} mb-8`}>
           Set the project location — it powers regional AI pricing and tax estimates.
         </p>
 
-        <div className="bg-card rounded-[2.5rem] border border-border p-8 space-y-5">
+        <div className={`${t.cardLg} p-8 space-y-5`}>
           <div>
-            <label className={labelCls}>Project name</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Bonapriso Mixed-Use Tower" className={inputCls} />
+            <label className={`block mb-1.5 ${t.label}`}>Project name</label>
+            <input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Bonapriso Mixed-Use Tower" className={t.input} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={labelCls}>Client</label>
-              <input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Client name" className={inputCls} />
+              <label className={`block mb-1.5 ${t.label}`}>Client</label>
+              <input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Client name" className={t.input} />
             </div>
             <div>
-              <label className={labelCls}>Budget</label>
-              <input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="0" className={inputCls} />
+              <label className={`block mb-1.5 ${t.label}`}>Budget</label>
+              <input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="0" className={t.input} />
             </div>
           </div>
 
           {/* LOCATION CASCADE */}
           <div className="pt-2">
-            <p className="flex items-center gap-2 text-[11px] font-black uppercase tracking-widest text-foreground/70 mb-3">
+            <p className={`flex items-center gap-2 mb-3 ${t.label} text-foreground/70`}>
               <MapPin size={14} className="text-primary" /> Location
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className={labelCls}>Country</label>
+                <label className={`block mb-1.5 ${t.label}`}>Country</label>
                 <select
                   value={country}
                   onChange={(e) => { setCountry(e.target.value); setRegion(''); setCity(''); }}
-                  className={inputCls}
+                  className={t.select}
                 >
                   <option value="">Select…</option>
                   {COUNTRIES.map((c) => <option key={c.name} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className={labelCls}>Region / State</label>
+                <label className={`block mb-1.5 ${t.label}`}>Region / State</label>
                 <select
                   value={region}
                   onChange={(e) => { setRegion(e.target.value); setCity(''); }}
                   disabled={!country}
-                  className={`${inputCls} disabled:opacity-50`}
+                  className={`${t.select} disabled:opacity-50`}
                 >
                   <option value="">{country ? 'Select…' : '—'}</option>
                   {regions.map((r) => <option key={r.name} value={r.name}>{r.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className={labelCls}>City</label>
+                <label className={`block mb-1.5 ${t.label}`}>City</label>
                 <select
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   disabled={!region}
-                  className={`${inputCls} disabled:opacity-50`}
+                  className={`${t.select} disabled:opacity-50`}
                 >
                   <option value="">{region ? 'Select…' : '—'}</option>
                   {cities.map((ct) => <option key={ct} value={ct}>{ct}</option>)}
@@ -130,7 +128,7 @@ const NewProject = () => {
           <button
             onClick={() => createMutation.mutate()}
             disabled={!canSave || createMutation.isPending}
-            className="w-full flex items-center justify-center gap-2 bg-primary text-brand-navy px-6 py-3.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-primary-dim transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`w-full flex items-center justify-center gap-2 ${t.btnPrimary} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {createMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             Create Project

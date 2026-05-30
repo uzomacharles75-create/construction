@@ -16,6 +16,7 @@ import {
   Wand2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { t } from '../theme';
 
 type Confidence = 'high' | 'medium' | 'low';
 
@@ -39,15 +40,15 @@ interface Suggestion {
 }
 
 const confidenceStyles: Record<Confidence, string> = {
-  high: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-  medium: 'bg-amber-50 text-amber-600 border-amber-200',
-  low: 'bg-rose-50 text-rose-600 border-rose-200',
+  high: t.badgeGreen,
+  medium: t.badgeAmber,
+  low: t.badgeRed,
 };
 
 const ConfidenceBadge = ({ level }: { level?: Confidence }) => {
   if (!level) return null;
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-widest ${confidenceStyles[level]}`}>
+    <span className={confidenceStyles[level]}>
       {level} confidence
     </span>
   );
@@ -151,27 +152,27 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4"
+      className={t.overlay}
       onClick={onClose}
     >
       <motion.div
         initial={{ scale: 0.95, y: 10 }} animate={{ scale: 1, y: 0 }}
-        className="bg-card w-full max-w-lg rounded-[2.5rem] border border-border shadow-2xl p-8"
+        className="bg-card border border-border rounded-[3rem] w-full max-w-lg shadow-2xl p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-black text-foreground flex items-center gap-2">
+          <h3 className={`${t.h3} flex items-center gap-2`}>
             <Wand2 size={20} className="text-purple-500" /> AI Price Estimator
           </h3>
           <button onClick={onClose} className="text-foreground/40 hover:text-foreground"><X size={20} /></button>
         </div>
 
         {/* Target project */}
-        <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Add to project <span className="text-purple-500 normal-case">(sets pricing region)</span></label>
+        <label className={`block mb-1.5 ${t.label}`}>Add to project <span className="text-purple-500 normal-case tracking-normal">(sets pricing region)</span></label>
         <select
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
-          className="w-full mb-4 px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-foreground"
+          className={`${t.select} mb-4`}
         >
           <option value="">Select a project…</option>
           {(projects || []).map((p: any) => (
@@ -180,31 +181,31 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
         </select>
 
         {/* Item description */}
-        <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Item description</label>
+        <label className={`block mb-1.5 ${t.label}`}>Item description</label>
         <input
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="e.g. 32.5N Portland cement, 50kg bag"
-          className="w-full mb-4 px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-foreground"
+          className={`${t.input} mb-4`}
         />
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Unit (optional)</label>
+            <label className={`block mb-1.5 ${t.label}`}>Unit (optional)</label>
             <input
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               placeholder="bag / m³ / unit"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-foreground"
+              className={t.input}
             />
           </div>
           <div>
-            <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Qty</label>
+            <label className={`block mb-1.5 ${t.label}`}>Qty</label>
             <input
               type="number" min={1}
               value={qty}
               onChange={(e) => setQty(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-border bg-background text-sm font-medium text-foreground"
+              className={t.input}
             />
           </div>
         </div>
@@ -212,7 +213,7 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
         <button
           onClick={() => suggestMutation.mutate()}
           disabled={!canSuggest || suggestMutation.isPending}
-          className="w-full flex items-center justify-center gap-2 bg-primary text-brand-navy px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-primary-dim transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className={`w-full flex items-center justify-center gap-2 ${t.btnPrimary} disabled:opacity-50 disabled:cursor-not-allowed`}
         >
           {suggestMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
           {suggestion ? 'Re-estimate' : 'Get AI Price'}
@@ -226,7 +227,7 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
               className="mt-6 border border-border rounded-2xl p-5 bg-muted/40"
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                <span className={t.label}>
                   {suggestion.pricedFrom === 'marketplace+ai' ? 'Marketplace-anchored' : 'AI Estimate'}
                   {suggestion.location ? ` · ${suggestion.location}` : ''}
                 </span>
@@ -238,7 +239,7 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
               {/* AI vs marketplace comparison */}
               {suggestion.marketplaceMatches && suggestion.marketplaceMatches.length > 0 && (
                 <div className="mb-4 border border-border rounded-xl overflow-hidden">
-                  <div className="bg-muted px-3 py-2 text-[9px] font-black uppercase tracking-widest text-muted-foreground">
+                  <div className={`bg-muted px-3 py-2 ${t.micro} text-muted-foreground`}>
                     Marketplace reference prices
                   </div>
                   {suggestion.marketplaceMatches.map((m, i) => (
@@ -259,8 +260,8 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
 
               <div className="flex items-end gap-3 mb-5">
                 <div className="flex-1">
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">
-                    Rate {edited && <span className="text-purple-500 normal-case">(edited)</span>}
+                  <label className={`block mb-1.5 ${t.label}`}>
+                    Rate {edited && <span className="text-purple-500 normal-case tracking-normal">(edited)</span>}
                   </label>
                   <div className="flex items-center gap-2">
                     <span className="text-foreground/50 font-bold">$</span>
@@ -268,12 +269,12 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
                       type="number" min={0}
                       value={rate}
                       onChange={(e) => setRate(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm font-bold text-foreground"
+                      className={`${t.input} font-bold`}
                     />
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="block text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Line total</span>
+                  <span className={`block mb-1.5 ${t.label}`}>Line total</span>
                   <span className="text-lg font-black text-foreground">
                     ${(Number(qty) * Number(rate || 0)).toLocaleString()}
                   </span>
@@ -284,20 +285,20 @@ const AIEstimatorModal = ({ onClose, onAccepted }: { onClose: () => void; onAcce
                 <button
                   onClick={() => acceptMutation.mutate()}
                   disabled={!canAccept || acceptMutation.isPending}
-                  className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 text-white px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 text-white px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {acceptMutation.isPending ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
                   Accept &amp; Add
                 </button>
                 <button
                   onClick={() => { setSuggestion(null); setRate(''); }}
-                  className="flex-1 flex items-center justify-center gap-2 bg-card border border-border text-foreground px-4 py-3 rounded-xl font-black text-xs uppercase tracking-wider hover:bg-muted transition-all"
+                  className={`flex-1 flex items-center justify-center gap-2 ${t.btnSecondary}`}
                 >
                   <X size={14} /> Reject
                 </button>
               </div>
               {!projectId && (
-                <p className="text-[10px] font-bold text-amber-600 mt-3 text-center uppercase tracking-wider">Select a project above to accept this price.</p>
+                <p className={`${t.micro} text-amber-500 mt-3 text-center`}>Select a project above to accept this price.</p>
               )}
             </motion.div>
           )}
