@@ -149,9 +149,9 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={BarChart}
-            title="Reports"
-            desc="Analyze financial and operational metrics."
-            path="/dashboard/finance"
+            title="Analytics"
+            desc="Live BOQ value, verification, budgets, and AI adoption."
+            path="/dashboard/analytics"
             delay={0.4}
           />
 
