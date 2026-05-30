@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import BOQ from '../models/BOQ';
 import Project from '../models/Project'; // CRITICAL: Added missing import
-import { suggestBOQRate } from '../services/aiService';
+import { suggestBOQRate, analyzeBOQ } from '../services/aiService';
 import { getVatRate } from '../utils/taxRates';
 import { sanitizePrompt } from '../utils/promptGuard';
 import Product from '../models/Product';
@@ -192,6 +192,59 @@ export const suggestPricing = async (req: any, res: Response) => {
     console.error("❌ AI PRICING ERROR:", error.message);
     res.status(503).json({
       message: "AI pricing is currently unavailable.",
+      error: error.message
+    });
+  }
+};
+
+/**
+ * @desc    AI review of a whole BOQ — missing items, duplicates, alternatives, outliers
+ * @route   POST /api/v1/boq/project/:projectId/analyze
+ */
+export const analyzeProjectBOQ = async (req: any, res: Response) => {
+  try {
+    const { projectId } = req.params;
+    const companyId = req.user.companyId;
+
+    const project = await Project.findOne({ _id: projectId, company: companyId })
+      .select('location country region city');
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
+    const boq = await BOQ.findOne({ project: projectId, company: companyId });
+    if (!boq || boq.items.length === 0) {
+      return res.status(200).json({ suggestions: [] });
+    }
+
+    const location =
+      [project.city, project.region, project.country].filter(Boolean).join(', ') ||
+      project.location ||
+      undefined;
+
+    // Only review confirmed (non-rejected) items; sanitise descriptions
+    const items = boq.items
+      .filter((it: any) => it.status !== 'rejected')
+      .map((it: any) => ({
+        description: sanitizePrompt(it.description, 200),
+        unit: it.unit,
+        qty: it.qty,
+        rate: it.rate,
+      }));
+
+    // Provide the marketplace catalogue as reference for alternatives + outliers
+    const catalogue = await Product.find({}).limit(40).lean();
+    const referencePrices = catalogue.map((p: any) => ({
+      name: p.name,
+      price: p.price,
+      unit: p.unit,
+      supplier: p.supplier,
+    }));
+
+    const suggestions = await analyzeBOQ(items, location, referencePrices);
+    res.status(200).json({ suggestions, location: location || null });
+  } catch (error: any) {
+    console.error("❌ AI BOQ ANALYSIS ERROR:", error.message);
+    res.status(503).json({
+      message: "AI analysis is currently unavailable.",
       error: error.message
     });
   }

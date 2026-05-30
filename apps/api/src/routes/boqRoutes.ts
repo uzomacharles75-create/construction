@@ -4,7 +4,8 @@ import {
   getBOQByProject,
   addBOQItem,
   verifyItem,
-  suggestPricing
+  suggestPricing,
+  analyzeProjectBOQ
 } from '../controllers/boqController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
@@ -41,6 +42,14 @@ router.post(
   authorize(['owner', 'staff']),
   aiRateLimiter,
   suggestPricing
+);
+
+// 6. AI BOQ ANALYSIS (missing items, duplicates, alternatives, outliers)
+router.post(
+  '/project/:projectId/analyze',
+  authorize(['owner', 'staff']),
+  aiRateLimiter,
+  analyzeProjectBOQ
 );
 
 export default router;

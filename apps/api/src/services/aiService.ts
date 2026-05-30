@@ -82,3 +82,117 @@ export const suggestBOQRate = async (
     confidence,
   };
 };
+
+/* ------------------------------------------------------------------ */
+/* WHOLE-BOQ ANALYSIS: missing items / duplicates / alternatives /    */
+/* price outliers                                                     */
+/* ------------------------------------------------------------------ */
+
+export interface BOQItemInput {
+  description: string;
+  unit: string;
+  qty: number;
+  rate: number;
+}
+
+export type SuggestionType = "missing" | "duplicate" | "alternative" | "outlier";
+
+export interface BOQSuggestion {
+  type: SuggestionType;
+  severity: "high" | "medium" | "low";
+  title: string;
+  detail: string;
+  relatedItems?: string[]; // descriptions of existing items this refers to
+  item?: BOQItemInput;     // an addable item (for missing / alternative)
+}
+
+const VALID_TYPES: SuggestionType[] = ["missing", "duplicate", "alternative", "outlier"];
+
+/**
+ * Review an entire BOQ and surface missing complementary items, duplicates,
+ * cheaper marketplace alternatives, and price outliers.
+ */
+export const analyzeBOQ = async (
+  items: BOQItemInput[],
+  location?: string,
+  referencePrices: ReferencePrice[] = []
+): Promise<BOQSuggestion[]> => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("Missing GEMINI_API_KEY in .env");
+  }
+  if (!items.length) return [];
+
+  const itemList = items
+    .map((it, i) => `${i + 1}. ${it.description} — ${it.qty} ${it.unit} @ ${it.rate}`)
+    .join("\n");
+
+  const referenceLine = referencePrices.length
+    ? `Marketplace catalogue (prices in USD), use for alternatives and outlier checks:\n` +
+      referencePrices
+        .map((p) => `- ${p.name}: ${p.price} per ${p.unit}${p.supplier ? ` (${p.supplier})` : ""}`)
+        .join("\n")
+    : "";
+
+  const prompt = `
+    Act as a quantity surveyor reviewing a Bill of Quantities${location ? ` for a project in ${location}` : ""}.
+
+    BOQ items (number. description — qty unit @ rate):
+    ${itemList}
+
+    ${referenceLine}
+
+    Review the BOQ and return concrete, high-value suggestions only. Look for:
+    - "missing": complementary items clearly required but absent (e.g. concrete without rebar/aggregate).
+    - "duplicate": items that appear to be the same thing entered more than once.
+    - "alternative": a cheaper marketplace product that could substitute an item.
+    - "outlier": a rate that is far from the marketplace/regional norm.
+
+    For "missing" and "alternative", include an "item" object the user can add directly.
+    Reference existing items by their description in "relatedItems" where relevant.
+    Be conservative — do not invent problems. Return at most 8 suggestions.
+
+    Return ONLY JSON in this exact shape:
+    {
+      "suggestions": [
+        {
+          "type": "missing" | "duplicate" | "alternative" | "outlier",
+          "severity": "high" | "medium" | "low",
+          "title": string,
+          "detail": string,
+          "relatedItems": string[],
+          "item": { "description": string, "unit": string, "qty": number, "rate": number }
+        }
+      ]
+    }
+  `;
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    generationConfig: { responseMimeType: "application/json" },
+  });
+
+  const result = await model.generateContent(prompt);
+  const parsed = JSON.parse(result.response.text() || "{}");
+  const raw = Array.isArray(parsed.suggestions) ? parsed.suggestions : [];
+
+  // Validate / normalise each suggestion
+  return raw
+    .filter((s: any) => VALID_TYPES.includes(s?.type))
+    .slice(0, 8)
+    .map((s: any) => ({
+      type: s.type,
+      severity: ["high", "medium", "low"].includes(s.severity) ? s.severity : "medium",
+      title: String(s.title || "Suggestion"),
+      detail: String(s.detail || ""),
+      relatedItems: Array.isArray(s.relatedItems) ? s.relatedItems.map(String).slice(0, 5) : [],
+      item:
+        s.item && s.item.description
+          ? {
+              description: String(s.item.description),
+              unit: String(s.item.unit || "unit"),
+              qty: Number(s.item.qty) || 1,
+              rate: Number(s.item.rate) || 0,
+            }
+          : undefined,
+    }));
+};
