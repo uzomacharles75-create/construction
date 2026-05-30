@@ -1,12 +1,14 @@
 import express from 'express';
-import { 
-  getBOQs, 
-  getBOQByProject, 
-  addBOQItem, 
-  verifyItem 
+import {
+  getBOQs,
+  getBOQByProject,
+  addBOQItem,
+  verifyItem,
+  suggestPricing
 } from '../controllers/boqController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
+import { aiRateLimiter } from '../middleware/aiRateLimit';
 
 const router = express.Router();
 
@@ -28,9 +30,17 @@ router.post(
 
 // 4. VERIFY ITEM
 router.put(
-  '/verify/:itemId', 
-  authorize(['owner', 'staff']), 
+  '/verify/:itemId',
+  authorize(['owner', 'staff']),
   verifyItem
+);
+
+// 5. AI PRICE SUGGESTION (stateless — returns a suggested rate + confidence)
+router.post(
+  '/suggest-pricing',
+  authorize(['owner', 'staff']),
+  aiRateLimiter,
+  suggestPricing
 );
 
 export default router;

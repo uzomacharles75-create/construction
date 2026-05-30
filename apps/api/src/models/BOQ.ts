@@ -9,6 +9,10 @@ interface IBOQItem {
   total: number;
   status: 'pending' | 'verified' | 'rejected';
   source: 'user' | 'marketplace' | 'ai';
+  // AI pricing metadata (set when an item originates from an AI suggestion)
+  suggestedRate?: number;
+  confidence?: 'high' | 'medium' | 'low';
+  aiJustification?: string;
 }
 
 // 2. Document Interface
@@ -30,7 +34,11 @@ const BOQItemSchema = new Schema<IBOQItem>({
   rate: { type: Number, required: true, default: 0 },
   total: { type: Number, default: 0 },
   status: { type: String, enum: ['pending', 'verified', 'rejected'], default: 'pending' },
-  source: { type: String, enum: ['user', 'marketplace', 'ai'], default: 'user' }
+  source: { type: String, enum: ['user', 'marketplace', 'ai'], default: 'user' },
+  // AI pricing metadata
+  suggestedRate: { type: Number },
+  confidence: { type: String, enum: ['high', 'medium', 'low'] },
+  aiJustification: { type: String }
 });
 
 // 4. Main Schema

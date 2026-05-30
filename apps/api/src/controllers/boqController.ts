@@ -1,6 +1,40 @@
 import { Response } from 'express';
 import BOQ from '../models/BOQ';
 import Project from '../models/Project'; // CRITICAL: Added missing import
+import { suggestBOQRate } from '../services/aiService';
+import { getVatRate } from '../utils/taxRates';
+import { sanitizePrompt } from '../utils/promptGuard';
+import Product from '../models/Product';
+
+/**
+ * Find marketplace products relevant to a free-text item description.
+ * Builds a keyword regex from the significant words and ranks in-stock first.
+ */
+const findMarketplaceMatches = async (description: string) => {
+  const words = description
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 2);
+
+  if (!words.length) return [];
+
+  const regex = new RegExp(words.join('|'), 'i');
+  const matches = await Product.find({
+    $or: [{ name: regex }, { category: regex }, { description: regex }],
+  })
+    .sort({ inStock: -1 })
+    .limit(5)
+    .lean();
+
+  return matches.map((p: any) => ({
+    name: p.name,
+    price: p.price,
+    unit: p.unit,
+    supplier: p.supplier,
+    category: p.category,
+  }));
+};
 
 /**
  * @desc    Get all BOQs for the company (Dashboard view)
@@ -44,7 +78,7 @@ export const getBOQByProject = async (req: any, res: Response) => {
 export const addBOQItem = async (req: any, res: Response) => {
   try {
     const { projectId } = req.params;
-    const { description, unit, qty, rate, source } = req.body;
+    const { description, unit, qty, rate, source, suggestedRate, confidence, aiJustification } = req.body;
     const companyId = req.user.companyId;
 
     const project = await Project.findOne({ _id: projectId, company: companyId });
@@ -66,7 +100,11 @@ export const addBOQItem = async (req: any, res: Response) => {
       qty: Number(qty),
       rate: Number(rate),
       source: source || 'user',
-      status: 'pending'
+      status: 'pending',
+      // Persisted only when the item came from an AI suggestion
+      ...(suggestedRate !== undefined && { suggestedRate: Number(suggestedRate) }),
+      ...(confidence && { confidence }),
+      ...(aiJustification && { aiJustification })
     });
 
     await boq.save(); // Triggers total calculation in model
@@ -99,5 +137,62 @@ export const verifyItem = async (req: any, res: Response) => {
     res.status(200).json({ message: `Item marked as ${status}`, boq });
   } catch (error) {
     res.status(500).json({ message: "Verification failed" });
+  }
+};
+
+/**
+ * @desc    Get an AI-suggested market rate for a BOQ item (does not save)
+ * @route   POST /api/v1/boq/suggest-pricing
+ */
+export const suggestPricing = async (req: any, res: Response) => {
+  try {
+    const { projectId } = req.body;
+    // Guard free-text inputs before they reach the LLM
+    const description = sanitizePrompt(req.body.description, 300);
+    const category = sanitizePrompt(req.body.category, 80);
+    const unit = sanitizePrompt(req.body.unit, 40);
+
+    if (!description || !description.trim()) {
+      return res.status(400).json({ message: "Item description is required." });
+    }
+
+    // Resolve regional context from the target project (if one is supplied)
+    let location: string | undefined;
+    let country: string | undefined;
+    if (projectId) {
+      const project = await Project.findOne({ _id: projectId, company: req.user.companyId })
+        .select('location country region city');
+      if (project) {
+        country = project.country;
+        location =
+          [project.city, project.region, project.country].filter(Boolean).join(', ') ||
+          project.location ||
+          undefined;
+      }
+    }
+
+    // Pull real anchor prices from the internal marketplace and feed them to the AI
+    const marketplaceMatches = await findMarketplaceMatches(description);
+
+    const suggestion = await suggestBOQRate(
+      description,
+      category || unit || "general",
+      location,
+      marketplaceMatches
+    );
+
+    res.status(200).json({
+      ...suggestion,
+      location: location || null,
+      vatRate: getVatRate(country),
+      marketplaceMatches, // powers the AI-vs-marketplace comparison in the UI
+      pricedFrom: marketplaceMatches.length ? 'marketplace+ai' : 'ai'
+    });
+  } catch (error: any) {
+    console.error("❌ AI PRICING ERROR:", error.message);
+    res.status(503).json({
+      message: "AI pricing is currently unavailable.",
+      error: error.message
+    });
   }
 };
