@@ -26,6 +26,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { t } from '../theme';
 import { useCurrencyStore, SUPPORTED_CURRENCIES } from '../store/useCurrencyStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { getCurrencyByCountry, getVatByCurrency } from '../lib/locations';
 
 type Confidence = 'high' | 'medium' | 'low';
@@ -687,6 +688,7 @@ const BOQEngine = () => {
 
   // Display money in the chosen currency (amounts are stored in USD)
   const { currency, setCurrency, fromUSD, format } = useCurrencyStore();
+  const { user } = useAuthStore();
   const money = (usd: number) => format(fromUSD(usd || 0));
   const vatRate = getVatByCurrency(currency.code);
   const vatAmount = subtotal * vatRate;
@@ -699,60 +701,106 @@ const BOQEngine = () => {
   const exportPDF = () => {
     const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
     const marginX = 40;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const rightX = pageWidth - marginX;
+    const NAVY: [number, number, number] = [0, 21, 41];
+    const YELLOW: [number, number, number] = [245, 197, 24];
+    const company = user?.company || 'BuildHub';
 
-    // Header
-    doc.setFontSize(20);
+    // --- Branded navy header band ---
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, pageWidth, 96, 'F');
+    // Yellow "BH" logo mark
+    doc.setFillColor(...YELLOW);
+    doc.roundedRect(marginX, 30, 36, 36, 7, 7, 'F');
+    doc.setTextColor(...NAVY);
     doc.setFont('helvetica', 'bold');
-    doc.text('Bill of Quantities', marginX, 50);
-    doc.setFontSize(10);
+    doc.setFontSize(15);
+    doc.text('BH', marginX + 8, 54);
+    // Brand name + document title
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(17);
+    doc.text(company, marginX + 50, 48);
+    doc.setTextColor(...YELLOW);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BILL OF QUANTITIES', marginX + 50, 63);
+    // Right-aligned meta in header
+    doc.setTextColor(200, 210, 220);
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(120);
-    doc.text(`Generated ${new Date().toLocaleDateString()}  ·  Currency: ${currency.code}`, marginX, 68);
-    doc.setTextColor(0);
+    doc.setFontSize(8.5);
+    doc.text(`Generated  ${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`, rightX, 44, { align: 'right' });
+    doc.text(`Currency  ${currency.code}`, rightX, 57, { align: 'right' });
+    doc.text(`Status  All items verified`, rightX, 70, { align: 'right' });
 
-    // Items table
+    // --- Items table (branded) ---
     autoTable(doc, {
-      startY: 88,
-      head: [['Description', 'Unit', 'Qty', 'Rate', 'Line Total']],
-      body: items.map((item: any) => [
+      startY: 120,
+      head: [['#', 'Description', 'Unit', 'Qty', 'Rate', 'Line Total']],
+      body: items.map((item: any, i: number) => [
+        String(i + 1),
         item.description,
         item.unit || '',
         String(item.qty),
         moneyPdf(item.rate),
         moneyPdf(item.qty * item.rate),
       ]),
-      styles: { fontSize: 9, cellPadding: 6 },
-      headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 7, textColor: [30, 41, 59], lineColor: [226, 232, 240], lineWidth: 0.5 },
+      headStyles: { fillColor: NAVY, textColor: 255, fontStyle: 'bold', fontSize: 8, cellPadding: 8 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
       columnStyles: {
-        2: { halign: 'right' },
+        0: { halign: 'center', cellWidth: 26, textColor: [148, 163, 184] },
         3: { halign: 'right' },
         4: { halign: 'right' },
+        5: { halign: 'right', fontStyle: 'bold' },
       },
       margin: { left: marginX, right: marginX },
     });
 
-    // Footer totals
-    const finalY = (doc as any).lastAutoTable?.finalY ?? 88;
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const rightX = pageWidth - marginX;
-    let y = finalY + 28;
-
+    // --- Totals block ---
+    const finalY = (doc as any).lastAutoTable?.finalY ?? 120;
+    let y = finalY + 26;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Subtotal', rightX - 160, y);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Subtotal', rightX - 170, y);
+    doc.setTextColor(30, 41, 59);
     doc.text(moneyPdf(subtotal), rightX, y, { align: 'right' });
 
     y += 18;
-    doc.text(`VAT (${(vatRate * 100).toFixed(1)}%)`, rightX - 160, y);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`VAT (${(vatRate * 100).toFixed(1)}%)`, rightX - 170, y);
+    doc.setTextColor(30, 41, 59);
     doc.text(moneyPdf(vatAmount), rightX, y, { align: 'right' });
 
-    y += 24;
+    // Navy total bar
+    y += 14;
+    doc.setFillColor(...NAVY);
+    doc.roundedRect(rightX - 240, y, 240, 34, 6, 6, 'F');
+    doc.setTextColor(...YELLOW);
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('Total (incl. VAT)', rightX - 160, y);
-    doc.text(moneyPdf(subtotal + vatAmount), rightX, y, { align: 'right' });
+    doc.setFontSize(9);
+    doc.text('TOTAL (INCL. VAT)', rightX - 228, y + 21);
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(13);
+    doc.text(moneyPdf(subtotal + vatAmount), rightX - 12, y + 22, { align: 'right' });
 
-    doc.save(`boq-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // --- Footer (yellow rule + note) on every page ---
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    for (let p = 1; p <= pageCount; p++) {
+      doc.setPage(p);
+      doc.setDrawColor(...YELLOW);
+      doc.setLineWidth(2);
+      doc.line(marginX, pageHeight - 40, marginX + 40, pageHeight - 40);
+      doc.setTextColor(148, 163, 184);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text('Generated by BuildHub — Construction Operating System', marginX, pageHeight - 26);
+      doc.text(`Page ${p} of ${pageCount}`, rightX, pageHeight - 26, { align: 'right' });
+    }
+
+    doc.save(`boq-${company.replace(/[^\w]+/g, '-').toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`);
   };
 
   if (isLoading) return <div className="p-20 text-center font-bold text-muted-foreground animate-pulse">Loading BOQ Engine...</div>;
