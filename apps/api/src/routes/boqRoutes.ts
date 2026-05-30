@@ -5,7 +5,8 @@ import {
   addBOQItem,
   verifyItem,
   suggestPricing,
-  analyzeProjectBOQ
+  analyzeProjectBOQ,
+  rejectSuggestion
 } from '../controllers/boqController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
@@ -50,6 +51,13 @@ router.post(
   authorize(['owner', 'staff']),
   aiRateLimiter,
   analyzeProjectBOQ
+);
+
+// 7. LEARNING LOOP: record a rejected AI price suggestion
+router.post(
+  '/feedback/reject',
+  authorize(['owner', 'staff']),
+  rejectSuggestion
 );
 
 export default router;

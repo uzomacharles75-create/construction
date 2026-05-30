@@ -5,6 +5,49 @@ import { suggestBOQRate, analyzeBOQ } from '../services/aiService';
 import { getVatRate } from '../utils/taxRates';
 import { sanitizePrompt } from '../utils/promptGuard';
 import Product from '../models/Product';
+import PriceFeedback from '../models/PriceFeedback';
+
+/**
+ * Record how a user responded to an AI price suggestion (learning loop, req #7).
+ * Fire-and-forget — never blocks the main request.
+ */
+const recordPriceFeedback = async (data: {
+  company: any; project?: any; description: string; category?: string;
+  location?: string; aiSuggestedRate: number; finalRate: number;
+  confidence?: string; action: 'accepted' | 'edited' | 'rejected';
+}) => {
+  try {
+    const delta = data.finalRate - data.aiSuggestedRate;
+    await PriceFeedback.create({
+      ...data,
+      delta,
+      deltaPct: data.aiSuggestedRate ? delta / data.aiSuggestedRate : 0,
+    });
+  } catch (err: any) {
+    console.error('⚠️  Failed to record price feedback:', err.message);
+  }
+};
+
+/**
+ * Pull the most relevant past corrections for an item, to nudge future estimates.
+ */
+const getRelevantFeedback = async (company: any, description: string, location?: string) => {
+  const words = description.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((w) => w.length > 2);
+  const query: any = { company, action: { $in: ['accepted', 'edited'] } };
+  if (words.length) query.description = new RegExp(words.join('|'), 'i');
+
+  let matches = await PriceFeedback.find(query).sort({ createdAt: -1 }).limit(5).lean();
+  // Prefer same-location corrections when available
+  if (location) {
+    matches.sort((a: any, b: any) => (b.location === location ? 1 : 0) - (a.location === location ? 1 : 0));
+  }
+  return matches.map((m: any) => ({
+    description: m.description,
+    aiSuggestedRate: m.aiSuggestedRate,
+    finalRate: m.finalRate,
+    location: m.location,
+  }));
+};
 
 /**
  * Find marketplace products relevant to a free-text item description.
@@ -108,7 +151,42 @@ export const addBOQItem = async (req: any, res: Response) => {
     });
 
     await boq.save(); // Triggers total calculation in model
+
+    // Learning loop: an AI item that carries a suggestedRate is an accept (or edit)
+    if (source === 'ai' && suggestedRate !== undefined) {
+      const finalRate = Number(rate);
+      const suggested = Number(suggestedRate);
+      const location = [project.city, project.region, project.country].filter(Boolean).join(', ') || project.location;
+      recordPriceFeedback({
+        company: companyId, project: projectId, description,
+        location, aiSuggestedRate: suggested, finalRate, confidence,
+        action: finalRate === suggested ? 'accepted' : 'edited',
+      });
+    }
+
     res.status(201).json({ message: "Item added", data: boq });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * @desc    Record a rejected AI price suggestion (learning loop)
+ * @route   POST /api/v1/boq/feedback/reject
+ */
+export const rejectSuggestion = async (req: any, res: Response) => {
+  try {
+    const description = sanitizePrompt(req.body.description, 300);
+    const { aiSuggestedRate, location, confidence, projectId } = req.body;
+    if (!description || aiSuggestedRate === undefined) {
+      return res.status(400).json({ message: "description and aiSuggestedRate are required." });
+    }
+    await recordPriceFeedback({
+      company: req.user.companyId, project: projectId || undefined, description,
+      location, aiSuggestedRate: Number(aiSuggestedRate), finalRate: 0, confidence,
+      action: 'rejected',
+    });
+    res.status(201).json({ message: "Feedback recorded" });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
@@ -174,11 +252,15 @@ export const suggestPricing = async (req: any, res: Response) => {
     // Pull real anchor prices from the internal marketplace and feed them to the AI
     const marketplaceMatches = await findMarketplaceMatches(description);
 
+    // Learning loop: nudge the estimate with the user's past corrections for similar items
+    const pastCorrections = await getRelevantFeedback(req.user.companyId, description, location);
+
     const suggestion = await suggestBOQRate(
       description,
       category || unit || "general",
       location,
-      marketplaceMatches
+      marketplaceMatches,
+      pastCorrections
     );
 
     res.status(200).json({

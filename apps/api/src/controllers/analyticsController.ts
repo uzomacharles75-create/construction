@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import Project from '../models/Project';
 import BOQ from '../models/BOQ';
+import PriceFeedback from '../models/PriceFeedback';
 
 /**
  * @desc    Company-wide analytics overview (BOQ value, verification, budgets, AI adoption)
@@ -10,9 +11,10 @@ export const getOverview = async (req: any, res: Response) => {
   try {
     const companyId = req.user.companyId;
 
-    const [projects, boqs] = await Promise.all([
+    const [projects, boqs, feedback] = await Promise.all([
       Project.find({ company: companyId }).lean(),
       BOQ.find({ company: companyId }).lean(),
+      PriceFeedback.find({ company: companyId }).lean(),
     ]);
 
     // --- Projects by status + budgets ---
@@ -58,7 +60,31 @@ export const getOverview = async (req: any, res: Response) => {
       .sort((a, b) => b.boqValue - a.boqValue)
       .slice(0, 6);
 
+    // --- Learning loop: AI suggestion feedback ---
+    const fbCounts: Record<string, number> = { accepted: 0, edited: 0, rejected: 0 };
+    let accuracySum = 0, accuracyN = 0;
+    for (const f of feedback) {
+      fbCounts[f.action] = (fbCounts[f.action] || 0) + 1;
+      // Accuracy = how close the AI was, for accepted/edited (rejected has no final rate)
+      if (f.action !== 'rejected') {
+        accuracySum += Math.abs(f.deltaPct || 0);
+        accuracyN++;
+      }
+    }
+    const totalFb = feedback.length;
+    const learning = {
+      total: totalFb,
+      accepted: fbCounts.accepted,
+      edited: fbCounts.edited,
+      rejected: fbCounts.rejected,
+      // Share accepted as-is (no edit)
+      acceptRate: totalFb ? fbCounts.accepted / totalFb : 0,
+      // Avg AI accuracy: 1 - mean absolute deviation between suggested and final
+      accuracy: accuracyN ? Math.max(0, 1 - accuracySum / accuracyN) : null,
+    };
+
     res.status(200).json({
+      learning,
       projects: { total: projects.length, byStatus },
       budget: {
         total: totalBudget,

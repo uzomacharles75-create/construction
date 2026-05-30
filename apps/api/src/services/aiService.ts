@@ -20,11 +20,19 @@ export interface ReferencePrice {
   supplier?: string;
 }
 
+export interface PastCorrection {
+  description: string;
+  aiSuggestedRate: number;
+  finalRate: number;
+  location?: string;
+}
+
 export const suggestBOQRate = async (
   description: string,
   category: string,
   location?: string,
-  referencePrices: ReferencePrice[] = []
+  referencePrices: ReferencePrice[] = [],
+  pastCorrections: PastCorrection[] = []
 ): Promise<BOQRateSuggestion> => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error("Missing GEMINI_API_KEY in .env");
@@ -43,10 +51,19 @@ export const suggestBOQRate = async (
         .join('\n')
     : '';
 
+  // Learning loop: the user's own past corrections steer future estimates
+  const correctionLine = pastCorrections.length
+    ? `This user previously corrected your estimates for similar items — weight these heavily:\n` +
+      pastCorrections
+        .map((c) => `- "${c.description}"${c.location ? ` (${c.location})` : ''}: you suggested ${c.aiSuggestedRate}, they used ${c.finalRate}`)
+        .join('\n')
+    : '';
+
   const prompt = `
     Act as a construction cost estimator.
     ${locationLine}
     ${referenceLine}
+    ${correctionLine}
     Analyze this item: "${description}" in category "${category}".
     Provide a suggested market rate (number, no currency symbol), the unit of
     measure, a brief one-sentence justification (mention the location if given),
