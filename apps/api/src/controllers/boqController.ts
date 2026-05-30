@@ -190,8 +190,11 @@ export const suggestPricing = async (req: any, res: Response) => {
     });
   } catch (error: any) {
     console.error("❌ AI PRICING ERROR:", error.message);
-    res.status(503).json({
-      message: "AI pricing is currently unavailable.",
+    const quota = /429|quota|Too Many Requests/i.test(error.message || '');
+    res.status(quota ? 429 : 503).json({
+      message: quota
+        ? "AI quota reached for now — please try again in a minute."
+        : "AI pricing is currently unavailable.",
       error: error.message
     });
   }
@@ -243,8 +246,11 @@ export const analyzeProjectBOQ = async (req: any, res: Response) => {
     res.status(200).json({ suggestions, location: location || null });
   } catch (error: any) {
     console.error("❌ AI BOQ ANALYSIS ERROR:", error.message);
-    res.status(503).json({
-      message: "AI analysis is currently unavailable.",
+    const quota = /429|quota|Too Many Requests/i.test(error.message || '');
+    res.status(quota ? 429 : 503).json({
+      message: quota
+        ? "AI quota reached for now — please try again in a minute."
+        : "AI analysis is currently unavailable.",
       error: error.message
     });
   }
