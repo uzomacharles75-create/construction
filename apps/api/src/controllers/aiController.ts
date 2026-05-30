@@ -1,10 +1,17 @@
 import { Request, Response } from "express";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { sanitizePrompt } from "../utils/promptGuard";
 
 export const askAssistant = async (req: any, res: Response) => {
   try {
-    const { message, history, context } = req.body;
+    const { history, context } = req.body;
     const { role, name } = req.user;
+
+    // Guard the user message before it reaches the model
+    const message = sanitizePrompt(req.body.message, 4000);
+    if (!message) {
+      return res.status(400).json({ message: "Message is required." });
+    }
 
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -45,7 +52,7 @@ Rules:
 
     const formattedHistory = safeHistory.map((m: any) => ({
       role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
+      parts: [{ text: sanitizePrompt(m.content, 4000) }],
     }));
 
     // START CHAT
