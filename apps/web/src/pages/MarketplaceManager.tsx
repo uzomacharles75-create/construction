@@ -13,6 +13,9 @@ import {
   Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MarketplaceIntelligenceTab } from '../components/marketplace/MarketplaceIntelligenceTab';
+import { MyProductsTab } from '../components/marketplace/MyProductsTab';
+import { useState } from 'react';
 
 const MarketplaceManager = () => {
   // 1. FETCH ACTIVE SHIPMENTS
@@ -33,6 +36,8 @@ const MarketplaceManager = () => {
     }
   });
 
+  const [activeTab, setActiveTab] = useState<'logistics' | 'intelligence' | 'my_products'>('intelligence');
+
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20 relative">
@@ -49,20 +54,45 @@ const MarketplaceManager = () => {
               <span className="text-primary">& Logistics</span>
             </h1>
             <p className="text-sm text-muted-foreground font-medium mt-3 max-w-lg">
-                Manage material procurement, track active deliveries, and control your site spending limits in real time.
+                Manage material procurement, track active deliveries, and leverage AI to predict demand.
             </p>
           </div>
-          <Link 
-            to="/dashboard/marketplace" 
-            className="bg-primary text-foreground px-8 py-4 rounded-[1.5rem] font-black text-xs uppercase tracking-widest shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex items-center gap-2"
-          >
-            <ShoppingBag size={18} /> New Order
-          </Link>
+          <div className="flex items-center gap-3 bg-muted p-1.5 rounded-[2rem] shadow-inner">
+             <button 
+                onClick={() => setActiveTab('logistics')}
+                className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all ${
+                  activeTab === 'logistics' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+             >
+               Logistics
+             </button>
+             <button 
+                onClick={() => setActiveTab('intelligence')}
+                className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+                  activeTab === 'intelligence' ? 'bg-primary text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+             >
+               <TrendingUp size={14} /> AI Intelligence
+             </button>
+             <button 
+                onClick={() => setActiveTab('my_products')}
+                className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all ${
+                  activeTab === 'my_products' ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+             >
+               Upload Product
+             </button>
+          </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
-          
-          {/* TRACKING SECTION */}
+        {activeTab === 'intelligence' ? (
+          <MarketplaceIntelligenceTab />
+        ) : activeTab === 'my_products' ? (
+          <MyProductsTab />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+            
+            {/* TRACKING SECTION */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center justify-between px-2">
               <h3 className="font-black text-foreground text-xl flex items-center gap-3">
@@ -208,6 +238,7 @@ const MarketplaceManager = () => {
           </div>
 
         </div>
+        )}
       </div>
     </DashboardShell>
   );
