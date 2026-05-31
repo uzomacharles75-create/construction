@@ -7,17 +7,48 @@ import {
   Lightbulb, PackageSearch, RefreshCw, Star, ArrowUpRight,
   MessageCircle, Eye, User, FileText
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import apiClient from '../../api/client';
 
 export const MarketplaceIntelligenceTab = () => {
   const queryClient = useQueryClient();
-  const [isGenerating, setIsGenerating] = useState(false);
 
   const { data: intelligence, isLoading } = useQuery({
     queryKey: ['supplier-intelligence'],
     queryFn: async () => {
-      const { data } = await apiClient.get('/marketplace/intelligence/supplier');
-      return data;
+      try {
+        const { data } = await apiClient.get('/marketplace/intelligence/supplier', {
+          skipErrorToast: true
+        } as any);
+
+        if (data._aiUnavailable) {
+          toast.error('AI Intelligence is unavailable at the moment');
+          const cached = localStorage.getItem('marketplace-intelligence-cache');
+          if (cached) {
+            const parsedCache = JSON.parse(cached);
+            // Merge fresh metrics into the cached AI data
+            if (parsedCache.trafficIntelligence && data.trafficIntelligence) {
+              parsedCache.trafficIntelligence.metrics = data.trafficIntelligence.metrics;
+            }
+            return parsedCache;
+          }
+          return data; // Return the safe fallback data if no cache
+        }
+
+        localStorage.setItem('marketplace-intelligence-cache', JSON.stringify(data));
+        return data;
+      } catch (error: any) {
+        toast.error('Gemini is unable at the moment');
+        console.error('Gemini Error:', error?.response?.data || error.message);
+        
+        const cached = localStorage.getItem('marketplace-intelligence-cache');
+        if (cached) {
+          return JSON.parse(cached);
+        }
+        
+        // Return null instead of throwing to prevent crashing if no cache
+        return null;
+      }
     }
   });
 
@@ -46,36 +77,9 @@ export const MarketplaceIntelligenceTab = () => {
     marketplaceHealthScore 
   } = intelligence;
 
-  const handleGenerateTraffic = async () => {
-    setIsGenerating(true);
-    try {
-      await apiClient.post('/marketplace/mock-traffic');
-      await queryClient.invalidateQueries({ queryKey: ['supplier-intelligence'] });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   return (
     <div className="space-y-8 pb-20 mt-4 relative z-10 animate-in fade-in duration-500">
       
-      {/* DEVELOPER TESTING: MOCK TRAFFIC INJECTION */}
-      <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center justify-between">
-         <div>
-            <p className="text-xs font-black uppercase tracking-widest text-amber-600 mb-1">Developer Testing Mode</p>
-            <p className="text-sm text-amber-700/80 font-medium">Inject raw simulated activity into the database to test the AI Intelligence Engine.</p>
-         </div>
-         <button 
-           onClick={handleGenerateTraffic}
-           disabled={isGenerating}
-           className="px-6 py-2 bg-amber-500 text-white rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-amber-600 transition-all disabled:opacity-50 flex items-center gap-2"
-         >
-           {isGenerating ? <><RefreshCw size={14} className="animate-spin" /> Injecting...</> : <><Search size={14} /> Inject Traffic</>}
-         </button>
-      </div>
-
       {/* SECTION 1: Direct Interactions (Pulled to top as requested) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[

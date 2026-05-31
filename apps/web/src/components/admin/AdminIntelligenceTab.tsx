@@ -6,14 +6,45 @@ import {
   Server, ShieldAlert, ArrowUpRight, Search, PieChart,
   Lightbulb, MessagesSquare, Users, ShoppingCart, Box
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import apiClient from '../../api/client';
 
 export const AdminIntelligenceTab = () => {
   const { data: intelligence, isLoading } = useQuery({
     queryKey: ['admin-marketplace-intelligence'],
     queryFn: async () => {
-      const { data } = await apiClient.get('/admin/marketplace/intelligence');
-      return data;
+      try {
+        const { data } = await apiClient.get('/admin/marketplace/intelligence', {
+          skipErrorToast: true
+        } as any);
+
+        if (data._aiUnavailable) {
+          toast.error('AI Intelligence is unavailable at the moment');
+          const cached = localStorage.getItem('admin-marketplace-intelligence-cache');
+          if (cached) {
+            const parsedCache = JSON.parse(cached);
+            // Merge fresh metrics into the cached AI data
+            if (parsedCache.overview && data.overview) {
+              parsedCache.overview = data.overview;
+            }
+            return parsedCache;
+          }
+          return data;
+        }
+
+        localStorage.setItem('admin-marketplace-intelligence-cache', JSON.stringify(data));
+        return data;
+      } catch (error: any) {
+        toast.error('Gemini is unable at the moment');
+        console.error('Gemini Error:', error?.response?.data || error.message);
+        
+        const cached = localStorage.getItem('admin-marketplace-intelligence-cache');
+        if (cached) {
+          return JSON.parse(cached);
+        }
+        
+        return null;
+      }
     }
   });
 
