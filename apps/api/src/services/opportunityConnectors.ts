@@ -65,43 +65,51 @@ export async function jsearchConnector(): Promise<OppInput[]> {
     const key = process.env.JSEARCH_API_KEY;
     if (!key) return [];
 
-    const url =
-      'https://jsearch.p.rapidapi.com/search?query=construction%20jobs%20in%20Nigeria&num_pages=1';
-    const res = await fetch(url, {
-      headers: {
-        'X-RapidAPI-Key': key,
-        'X-RapidAPI-Host': 'jsearch.p.rapidapi.com',
-      },
-    });
-    if (!res.ok) return [];
-    const data: any = await res.json();
-    const jobs: any[] = data?.data || [];
+    // Cover the core markets. Each query is one request — kept small for free-tier quota.
+    const queries = [
+      'construction jobs in Nigeria',
+      'civil engineering jobs in Cameroon',
+      'construction quantity surveyor jobs in Ghana',
+      'construction site engineer jobs in Kenya',
+    ];
 
     const mapped: OppInput[] = [];
-    for (const j of jobs) {
-      const text = `${j.job_title || ''} ${j.job_description || ''}`;
-      if (!isConstructionRelated(text)) continue;
+    const seen = new Set<string>();
 
-      mapped.push({
-        externalId: `jsearch:${j.job_id}`,
-        title: j.job_title || 'Construction Job',
-        description: j.job_description || '',
-        type: 'job',
-        category: guessCategory(text) || 'Engineering Job',
-        source: 'JSearch',
-        sourceUrl: j.job_apply_link || j.job_google_link || '#',
-        organization: j.employer_name || '',
-        country: j.job_country || '',
-        city: j.job_city || '',
-        locationText: [j.job_city, j.job_state, j.job_country]
-          .filter(Boolean)
-          .join(', '),
-        deadline: undefined,
-        contactEmail: '',
-        sector: 'private',
-        isConstruction: true,
-        postedAt: safeDate(j.job_posted_at_datetime_utc),
+    for (const q of queries) {
+      const url = `https://jsearch.p.rapidapi.com/search?query=${encodeURIComponent(q)}&page=1&num_pages=1`;
+      const res = await fetch(url, {
+        headers: { 'X-RapidAPI-Key': key, 'X-RapidAPI-Host': 'jsearch.p.rapidapi.com' },
       });
+      if (!res.ok) continue; // skip a failed query, keep the rest
+      const data: any = await res.json();
+      const jobs: any[] = data?.data || [];
+
+      for (const j of jobs) {
+        if (!j.job_id || seen.has(j.job_id)) continue;
+        const text = `${j.job_title || ''} ${j.job_description || ''}`;
+        if (!isConstructionRelated(text)) continue;
+        seen.add(j.job_id);
+
+        mapped.push({
+          externalId: `jsearch:${j.job_id}`,
+          title: j.job_title || 'Construction Job',
+          description: (j.job_description || '').slice(0, 1500),
+          type: 'job',
+          category: guessCategory(text) || 'Engineering Job',
+          source: 'JSearch',
+          sourceUrl: j.job_apply_link || j.job_google_link || '#',
+          organization: j.employer_name || '',
+          country: j.job_country || '',
+          city: j.job_city || '',
+          locationText: [j.job_city, j.job_state, j.job_country].filter(Boolean).join(', '),
+          deadline: undefined,
+          contactEmail: '',
+          sector: 'private',
+          isConstruction: true,
+          postedAt: safeDate(j.job_posted_at_datetime_utc),
+        });
+      }
     }
     return mapped;
   } catch {
