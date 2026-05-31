@@ -18,10 +18,10 @@ jobs:
         run: |
           cd apps/web
           yarn install
-      - name: Build (skip TypeScript)
+      - name: Build
         run: |
           cd apps/web
-          npx vite build
+          yarn build
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
@@ -31,4 +31,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: eu-north-1
-          SOURCE_DIR: apps/web/build
+          SOURCE_DIR: apps/web/dist
