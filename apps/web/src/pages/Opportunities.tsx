@@ -33,6 +33,7 @@ interface Opportunity {
   contactPhone: string;
   postedAt: string;
   matchScore: number;
+  matchReasons?: string[];
 }
 
 interface OpportunitiesResponse {
@@ -151,8 +152,19 @@ const OpportunityCard = ({
         )}
       </div>
 
+      {/* Why this matches you */}
+      {o.matchReasons && o.matchReasons.length > 0 && (
+        <div className="mt-4 flex items-start gap-2">
+          <Target size={13} className="text-primary shrink-0 mt-0.5" />
+          <p className="text-[11px] font-semibold text-muted-foreground leading-snug">
+            <span className="text-foreground/70 font-bold">Why this matches you: </span>
+            {o.matchReasons.join(' · ')}
+          </p>
+        </div>
+      )}
+
       {/* Footer: match + actions */}
-      <div className="mt-6 pt-5 border-t border-border flex items-center justify-between gap-3 flex-wrap">
+      <div className="mt-5 pt-5 border-t border-border flex items-center justify-between gap-3 flex-wrap">
         <MatchPill score={o.matchScore} />
         <div className="flex items-center gap-2">
           {o.contactEmail && (

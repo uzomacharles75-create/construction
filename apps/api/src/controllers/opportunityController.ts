@@ -9,7 +9,7 @@ import {
   isConstructionRelated,
   guessCategory,
 } from '../utils/constructionFilter';
-import { computeMatchScore } from '../utils/matchScore';
+import { computeMatchScore, matchReasons } from '../utils/matchScore';
 
 type OppInput = Partial<IOpportunity>;
 
@@ -106,6 +106,7 @@ export const getOpportunities = async (req: any, res: Response) => {
       .map((opp: any) => ({
         ...opp,
         matchScore: computeMatchScore(opp, company, now),
+        matchReasons: matchReasons(opp, company, now),
       }))
       .sort((a, b) => {
         if (b.matchScore !== a.matchScore) return b.matchScore - a.matchScore;
