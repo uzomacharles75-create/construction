@@ -19,7 +19,7 @@ jobs:
       - name: Build TypeScript
         run: cd apps/api && yarn build
       - name: Zip code
-        run: cd apps/api && zip -r deploy.zip . -x "node_modules/*"
+        run: cd apps/api && zip -r deploy.zip . -x "node_modules/*" -x ".ebextensions/*"
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v22
         with:
