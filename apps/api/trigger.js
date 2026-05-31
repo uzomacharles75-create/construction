@@ -7,3 +7,4 @@
 // deploy to node env
 // trigger deploy
 // trigger deployment
+// trigger cli deploy
