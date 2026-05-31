@@ -1,11 +1,39 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCurrencyStore } from '../store/useCurrencyStore';
+import apiClient from '../api/client';
+import { t } from '../theme';
 import {
-  Briefcase, Wrench, ClipboardList, FileText, Plus,
-  BarChart, Sparkles, MapPin, Building2, Calculator, ArrowRight
+  Briefcase, Wrench, ClipboardList, FileText,
+  BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
+  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus
 } from 'lucide-react';
+
+interface Overview {
+  projects: { total: number; byStatus: Record<string, number> };
+  budget: { total: number; spent: number; utilization: number };
+  boq: {
+    totalValue: number; verifiedValue: number; pendingValue: number;
+    itemsTotal: number; itemsVerified: number; itemsPending: number; itemsRejected: number;
+    verificationRate: number;
+  };
+}
+
+const KpiCard = ({ icon: Icon, label, value, sub, tint }: any) => (
+  <div className={`${t.statCard} flex flex-col gap-3`}>
+    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${tint}`}>
+      <Icon size={20} />
+    </div>
+    <div>
+      <p className="text-2xl font-black text-foreground leading-none">{value}</p>
+      <p className={`mt-1.5 ${t.label}`}>{label}</p>
+      {sub && <p className="text-[11px] font-bold text-muted-foreground mt-1">{sub}</p>}
+    </div>
+  </div>
+);
 
 const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, className }: any) => (
   <Link to={path} className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 ${
@@ -53,6 +81,17 @@ const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, classN
 
 const Dashboard = () => {
   const { user } = useAuthStore();
+  const { fromUSD, format } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
+
+  const { data } = useQuery<Overview>({
+    queryKey: ['analytics-overview'],
+    queryFn: async () => (await apiClient.get('/analytics/overview')).data,
+  });
+
+  const boq = data?.boq;
+  const projects = data?.projects;
+  const budget = data?.budget;
 
   return (
     <DashboardShell>
@@ -78,7 +117,42 @@ const Dashboard = () => {
               <MapPin size={16} className="text-primary" />
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </div>
+            <Link to="/dashboard/projects/new" className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Plus size={18} /> New Project
+            </Link>
           </div>
+        </div>
+
+        {/* LIVE KPI ROW */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <KpiCard
+            icon={Wallet}
+            label="Total BOQ Value"
+            value={boq ? money(boq.totalValue) : '—'}
+            sub={boq ? `${boq.itemsVerified} verified` : ' '}
+            tint="bg-primary-pale text-primary"
+          />
+          <KpiCard
+            icon={FolderKanban}
+            label="Active Projects"
+            value={projects ? projects.total : '—'}
+            sub={projects ? `${projects.byStatus['In Progress'] || 0} in progress` : ' '}
+            tint="bg-indigo-500/10 text-indigo-400"
+          />
+          <KpiCard
+            icon={CheckCircle2}
+            label="Verification Rate"
+            value={boq ? `${Math.round(boq.verificationRate * 100)}%` : '—'}
+            sub={boq ? `${boq.itemsVerified}/${boq.itemsTotal} items` : ' '}
+            tint="bg-emerald-500/10 text-emerald-400"
+          />
+          <KpiCard
+            icon={TrendingUp}
+            label="Budget Used"
+            value={budget ? `${Math.round(budget.utilization * 100)}%` : '—'}
+            sub={budget ? money(budget.spent) : ' '}
+            tint="bg-amber-500/10 text-amber-400"
+          />
         </div>
 
         {/* GRID LAYOUT */}
@@ -100,6 +174,14 @@ const Dashboard = () => {
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
             delay={0.1}
+          />
+
+          <DashboardCard
+            icon={Store}
+            title="Marketplace"
+            desc="Buy & sell heavy equipment and materials."
+            path="/dashboard/marketplace"
+            delay={0.15}
           />
 
           <DashboardCard
@@ -138,9 +220,9 @@ const Dashboard = () => {
 
           <DashboardCard
             icon={BarChart}
-            title="Reports"
-            desc="Analyze financial and operational metrics."
-            path="/dashboard/finance"
+            title="Analytics"
+            desc="Live BOQ value, verification, budgets, and AI adoption."
+            path="/dashboard/analytics"
             delay={0.4}
           />
 

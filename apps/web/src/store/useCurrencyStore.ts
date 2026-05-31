@@ -24,7 +24,12 @@ export const SUPPORTED_CURRENCIES: Currency[] = [
 
 interface CurrencyState {
   currency: Currency;
+  /** Live units-per-USD by currency code, fetched from the backend FX endpoint */
+  liveRates: Record<string, number> | null;
+  ratesSource: 'live' | 'fallback' | 'static';
   setCurrency: (currency: Currency) => void;
+  /** Fetch live FX rates from the backend (cached server-side for 1h) */
+  loadRates: () => Promise<void>;
   /** Convert an amount from USD to the selected currency */
   fromUSD: (usdAmount: number) => number;
   /** Format a local-currency amount as a display string */
@@ -32,16 +37,33 @@ interface CurrencyState {
 }
 
 const DEFAULT_CURRENCY = SUPPORTED_CURRENCIES[0]; // XAF
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 export const useCurrencyStore = create<CurrencyState>()(
   persist(
     (set, get) => ({
       currency: DEFAULT_CURRENCY,
+      liveRates: null,
+      ratesSource: 'static',
 
       setCurrency: (currency) => set({ currency }),
 
+      loadRates: async () => {
+        try {
+          const res = await fetch(`${API_URL}/fx/rates`);
+          if (!res.ok) return;
+          const data = await res.json();
+          if (data?.rates) {
+            set({ liveRates: data.rates, ratesSource: data.source === 'live' ? 'live' : 'fallback' });
+          }
+        } catch {
+          // keep static fallback rates from SUPPORTED_CURRENCIES
+        }
+      },
+
       fromUSD: (usdAmount) => {
-        const rate = get().currency.ratePerUSD;
+        const { currency, liveRates } = get();
+        const rate = liveRates?.[currency.code] ?? currency.ratePerUSD;
         return Math.round(usdAmount * rate);
       },
 
@@ -50,6 +72,13 @@ export const useCurrencyStore = create<CurrencyState>()(
         return `${symbol}${Number(localAmount).toLocaleString()} ${code}`;
       },
     }),
-    { name: 'buildhub-currency' }
+    {
+      name: 'buildhub-currency',
+      // Only persist the chosen currency; re-fetch live rates fresh each session
+      partialize: (state) => ({ currency: state.currency }) as any,
+    }
   )
 );
+
+// Fetch live rates once on app load (fire-and-forget)
+useCurrencyStore.getState().loadRates();

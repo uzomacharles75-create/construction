@@ -25,12 +25,25 @@ if (!dbUri) {
   process.exit(1);
 }
 
-mongoose.connect(dbUri)
-  .then(async () => {
+// Retry the INITIAL connection instead of giving up after a single failure
+// (transient DNS/Atlas blips were leaving the server up with a dead DB).
+const connectWithRetry = async (attempt = 1): Promise<void> => {
+  try {
+    await mongoose.connect(dbUri, { serverSelectionTimeoutMS: 10000 });
     console.log("✅ BuildHub DB Connected Successfully");
-    await backfillMissingCompanySlugs();
-  })
-  .catch((err) => console.error("❌ DB Error:", err.message));
+    await backfillMissingCompanySlugs(); // runs once, on first successful connect
+  } catch (err: any) {
+    const delay = Math.min(30000, attempt * 3000); // 3s, 6s, 9s … capped at 30s
+    console.error(`❌ DB connect attempt ${attempt} failed: ${err.message} — retrying in ${delay / 1000}s`);
+    setTimeout(() => connectWithRetry(attempt + 1), delay);
+  }
+};
+connectWithRetry();
+
+// Once connected, the driver auto-reconnects on later drops — just log it.
+mongoose.connection.on('disconnected', () => console.warn("⚠️  DB disconnected — auto-reconnecting…"));
+mongoose.connection.on('reconnected', () => console.log("✅ DB reconnected"));
+mongoose.connection.on('error', (err) => console.error("❌ DB connection error:", err.message));
 
 // 3. Real-time Comms
 io.on('connection', (socket) => {

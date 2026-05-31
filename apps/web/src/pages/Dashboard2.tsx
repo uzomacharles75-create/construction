@@ -9,7 +9,7 @@ import {
   Briefcase, Wrench, ClipboardList, 
   FileText, Plus, ChevronRight, 
   BarChart, Sparkles, MapPin, Store, Building2, Calculator,
-  Loader2, TrendingUp
+  Loader2, TrendingUp, MessageCircle
 } from 'lucide-react';
 
 // --- SUB-COMPONENT: SHIMMERING STAT CARD ---

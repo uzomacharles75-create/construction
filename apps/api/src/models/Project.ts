@@ -3,6 +3,10 @@ import mongoose, { Schema, Document } from 'mongoose';
 export interface IProject extends Document {
   name: string;
   location: string;
+  // Structured location (drives regional AI pricing + VAT). Optional for back-compat.
+  country?: string;
+  region?: string;
+  city?: string;
   clientName: string;
   budget: number;
   spent: number;
@@ -15,6 +19,9 @@ export interface IProject extends Document {
 const ProjectSchema = new Schema({
   name: { type: String, required: true },
   location: { type: String, required: true },
+  country: { type: String },
+  region: { type: String },
+  city: { type: String },
   clientName: { type: String, required: true },
   budget: { type: Number, default: 0 },
   spent: { type: Number, default: 0 },
