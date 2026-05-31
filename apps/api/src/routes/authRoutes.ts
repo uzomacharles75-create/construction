@@ -1,7 +1,7 @@
 import express from 'express';
 // 1. Import your named exports from the controller
 import { register, login, getSummary, getCompanyBySlug, getMyCompanyProfile, updateCompanyBySlug,
-updateCompanyPortfolio, updateCompanyLogo, deleteCompanyPortfolioImage, updateMyCompanyProfile } from '../controllers/authController';
+updateCompanyPortfolio, updateCompanyLogo, deleteCompanyPortfolioImage, updateMyCompanyProfile, forgotPassword, resetPassword, updateCompanyLetterhead } from '../controllers/authController';
 import { protect } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 import { handleUpload } from '../middleware/handleUpload';
@@ -39,6 +39,7 @@ router.put('/company/profile', protect, updateMyCompanyProfile);
 router.get('/company/:slug', protect, getCompanyBySlug);
 router.put('/company/:slug', protect, updateCompanyBySlug);
 router.post('/company/:slug/logo', protect, handleUpload(upload.single('file')), updateCompanyLogo);
+router.post('/company/:slug/letterhead', protect, handleUpload(upload.single('file')), updateCompanyLetterhead);
 router.post('/company/:slug/gallery', protect, handleUpload(upload.array('files', 10)), updateCompanyPortfolio);
 router.delete('/company/:slug/gallery', protect, deleteCompanyPortfolioImage);
 
