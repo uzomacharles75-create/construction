@@ -501,7 +501,6 @@ export async function runAllConnectors(): Promise<OppInput[]> {
   const results = await Promise.all([
     worldBankConnector(),
     jsearchConnector(),
-    sampleConnector(),
   ]);
   return results.flat();
 }

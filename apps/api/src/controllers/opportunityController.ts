@@ -1,10 +1,7 @@
 import { Response } from 'express';
 import Opportunity, { IOpportunity } from '../models/Opportunity';
 import Company from '../models/Company';
-import {
-  runAllConnectors,
-  sampleConnector,
-} from '../services/opportunityConnectors';
+import { runAllConnectors } from '../services/opportunityConnectors';
 import {
   isConstructionRelated,
   guessCategory,
@@ -72,11 +69,10 @@ export const ingestOpportunities = async (req: any, res: Response) => {
  */
 export const getOpportunities = async (req: any, res: Response) => {
   try {
-    // Auto-seed with the sample fallback on first ever load.
+    // On first ever load, pull from the live sources (World Bank + JSearch).
     const count = await Opportunity.estimatedDocumentCount();
     if (count === 0) {
-      const samples = await sampleConnector();
-      await upsertOpportunities(samples);
+      await upsertOpportunities(await runAllConnectors());
     }
 
     const { type, country, category, q, sector } = req.query;
