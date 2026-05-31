@@ -10,3 +10,4 @@
 // trigger cli deploy
 // wait loop
 // trigger
+// fix app name
