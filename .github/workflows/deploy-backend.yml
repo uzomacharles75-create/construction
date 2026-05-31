@@ -1,3 +1,5 @@
+cd ~/Desktop/Digitec-websites/construction
+cat > .github/workflows/deploy-backend.yml << 'EOF'
 name: Deploy Construction Backend
 
 on:
@@ -36,8 +38,24 @@ jobs:
             --version-label $VERSION \
             --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="$VERSION.zip"
           
+          echo "Waiting for version to be processed..."
+          for i in {1..30}; do
+            sleep 5
+            STATUS=$(aws elasticbeanstalk describe-application-versions \
+              --application-name construction-prod \
+              --version-label $VERSION \
+              --query "ApplicationVersions[0].Status" \
+              --output text)
+            echo "Attempt $i: Status = $STATUS"
+            if [ "$STATUS" = "PROCESSED" ]; then
+              echo "Version is ready!"
+              break
+            fi
+          done
+          
           aws elasticbeanstalk update-environment \
             --environment-name Construction-node-env-env \
             --version-label $VERSION
           
           echo "Deployment initiated!"
+EOF
