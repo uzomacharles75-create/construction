@@ -9,6 +9,26 @@ const safeDate = (val: any): Date | undefined => {
   return isNaN(d.getTime()) ? undefined : d;
 };
 
+/** Convert HTML (e.g. World Bank notice_text) to clean plain text. */
+const stripHtml = (input: any): string => {
+  if (!input) return '';
+  return String(input)
+    .replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, ' ') // drop script/style blocks
+    .replace(/<\/(p|div|tr|li|h[1-6]|table|br)>/gi, '\n')   // block ends → newline
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')                                // remaining tags → space
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&#\d+;/g, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
+
 /**
  * (a) World Bank procurement notices — REAL, free, no API key.
  */
@@ -35,7 +55,7 @@ export async function worldBankConnector(): Promise<OppInput[]> {
       mapped.push({
         externalId: `worldbank:${id}`,
         title: bidDesc || n.project_name || 'World Bank Procurement Notice',
-        description: n.notice_text || n.project_name || bidDesc,
+        description: (stripHtml(n.notice_text) || n.project_name || bidDesc).slice(0, 1500),
         type: 'tender',
         category: guessCategory(bidDesc) || group || 'Procurement/Supply',
         source: 'World Bank',
@@ -94,7 +114,7 @@ export async function jsearchConnector(): Promise<OppInput[]> {
         mapped.push({
           externalId: `jsearch:${j.job_id}`,
           title: j.job_title || 'Construction Job',
-          description: (j.job_description || '').slice(0, 1500),
+          description: stripHtml(j.job_description).slice(0, 1500),
           type: 'job',
           category: guessCategory(text) || 'Engineering Job',
           source: 'JSearch',
