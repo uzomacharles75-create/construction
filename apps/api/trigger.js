@@ -9,3 +9,4 @@
 // trigger deployment
 // trigger cli deploy
 // wait loop
+// trigger
