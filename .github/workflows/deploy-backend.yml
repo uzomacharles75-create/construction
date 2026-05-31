@@ -20,8 +20,12 @@ jobs:
         run: cd apps/api && yarn install --ignore-engines
       - name: Build TypeScript
         run: cd apps/api && yarn build
-      - name: Zip code
-        run: cd apps/api && zip -r deploy.zip . -x "node_modules/*"
+      - name: Zip code (exclude large files)
+        run: |
+          cd apps/api
+          zip -r deploy.zip . -x "node_modules/*" -x "*.log" -x "*.ts" -x "dist/*.ts"
+          echo "Zip size:"
+          ls -lh deploy.zip
       - name: Deploy to Elastic Beanstalk
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -30,32 +34,14 @@ jobs:
         run: |
           VERSION="deploy-$(date +'%Y%m%d-%H%M%S')"
           echo "Deploying version: $VERSION"
-          
           aws s3 cp apps/api/deploy.zip s3://elasticbeanstalk-eu-north-1-990521646564/$VERSION.zip
-          
           aws elasticbeanstalk create-application-version \
             --application-name construction-prod \
             --version-label $VERSION \
             --source-bundle S3Bucket="elasticbeanstalk-eu-north-1-990521646564",S3Key="$VERSION.zip"
-          
-          echo "Waiting for version to be processed..."
-          for i in {1..30}; do
-            sleep 5
-            STATUS=$(aws elasticbeanstalk describe-application-versions \
-              --application-name construction-prod \
-              --version-label $VERSION \
-              --query "ApplicationVersions[0].Status" \
-              --output text)
-            echo "Attempt $i: Status = $STATUS"
-            if [ "$STATUS" = "PROCESSED" ]; then
-              echo "Version is ready!"
-              break
-            fi
-          done
-          
+          sleep 15
           aws elasticbeanstalk update-environment \
             --environment-name Construction-node-env-env \
             --version-label $VERSION
-          
           echo "Deployment initiated!"
 EOF
