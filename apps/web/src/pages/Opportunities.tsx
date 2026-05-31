@@ -273,7 +273,7 @@ const Opportunities = () => {
         <header className={t.pageHeader}>
           <div>
             <h1 className={`${t.h2} italic flex items-center gap-3`}>
-              <Radar className="text-primary" size={30} /> Opportunities
+              <Radar className="text-primary" size={30} /> Tenders
             </h1>
             <p className={t.muted}>Construction jobs &amp; tenders, matched to your company</p>
           </div>
@@ -298,7 +298,7 @@ const Opportunities = () => {
 
         {/* KPI STRIP */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-          <KpiCard icon={Radar} label="Opportunities" value={data?.total ?? opportunities.length} tint="bg-primary-pale text-primary" />
+          <KpiCard icon={Radar} label="Total Listings" value={data?.total ?? opportunities.length} tint="bg-primary-pale text-primary" />
           <KpiCard icon={Landmark} label="Tenders" value={tenders} tint="bg-amber-500/10 text-amber-400" />
           <KpiCard icon={Briefcase} label="Jobs" value={jobs} tint="bg-indigo-500/10 text-indigo-400" />
         </div>

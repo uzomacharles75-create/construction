@@ -139,7 +139,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} locked={navLocked} />
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} locked={navLocked} />
             <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} locked={navLocked} />
-            <NavItem icon={Radar} label="Opportunities" path="/dashboard/opportunities" onNavigate={onNavigate} />
+            <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
             <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} locked={navLocked} />
