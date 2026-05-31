@@ -4,7 +4,7 @@ import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
 import {
   Briefcase, Wrench, ClipboardList, FileText, Plus,
-  BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight
+  BarChart, Sparkles, MapPin, Building2, Calculator, ArrowRight
 } from 'lucide-react';
 
 const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, className }: any) => (
@@ -78,9 +78,6 @@ const Dashboard = () => {
               <MapPin size={16} className="text-primary" />
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </div>
-            {/* <Link to="/dashboard/projects/new" className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto">
-              <Plus size={18} /> New Project
-            </Link> */}
           </div>
         </div>
 
@@ -103,14 +100,6 @@ const Dashboard = () => {
             desc="Manage directory leads and client messages."
             path="/dashboard/inquiries"
             delay={0.1}
-          />
-
-          <DashboardCard
-            icon={Store}
-            title="Marketplace"
-            desc="Buy & sell heavy equipment and materials."
-            path="/dashboard/marketplace"
-            delay={0.15}
           />
 
           <DashboardCard
