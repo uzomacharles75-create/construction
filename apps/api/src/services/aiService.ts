@@ -6,7 +6,7 @@ export const suggestBOQRate = async (description: string, category: string) => {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   const prompt = `
-    Act as a construction cost estimator in Africa. 
+    Act as a construction cost estimator in Africa.
     Analyze this item: "${description}" in category "${category}".
     Provide a suggested market rate, unit of measure, and a brief justification.
   `;
@@ -38,7 +38,7 @@ export const analyzeSupplierData = async (aggregatedData: any) => {
   const prompt = `
     Act as an AI Marketplace Intelligence engine for construction materials in Africa.
     Analyze the following raw database statistics for a specific supplier and generate highly specific business insights.
-    
+
     RAW DATA:
     ${JSON.stringify(aggregatedData)}
   `;
@@ -233,7 +233,7 @@ export const analyzeGlobalMarketplaceData = async (globalData: any) => {
   const prompt = `
     Act as an AI Marketplace Intelligence engine for construction materials in Africa.
     Analyze the following raw database statistics for the marketplace administrator.
-    
+
     RAW DATA:
     ${JSON.stringify(globalData)}
   `;

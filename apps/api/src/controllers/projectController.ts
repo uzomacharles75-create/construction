@@ -3,11 +3,20 @@ import Project from '../models/Project';
 
 export const createProject = async (req: any, res: Response) => {
   try {
-    const { name, location, clientName, budget } = req.body;
-    
+    const { name, location, country, region, city, clientName, budget } = req.body;
+
+    // Compose a human-readable location string from structured parts when not given explicitly
+    const composedLocation =
+      location ||
+      [city, region, country].filter(Boolean).join(', ') ||
+      undefined;
+
     const newProject = new Project({
       name,
-      location,
+      location: composedLocation,
+      country,
+      region,
+      city,
       clientName,
       budget,
       company: req.user.companyId // Extracted from JWT

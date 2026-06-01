@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Wrench, Lock, Wallet,
+  Inbox, Wrench, Lock, Wallet, Radar,
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -60,7 +60,7 @@ const NavItem = ({ icon: Icon, label, path, badge, onNavigate, locked }: NavItem
 
 export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
   const { user, logout } = useAuthStore();
-  const { getStep, isDone } = useOnboardingStore();
+  const { getStep } = useOnboardingStore();
   const role = user?.role;
 
   // --- BYPASS LOGIC START ---
@@ -132,16 +132,20 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
           <>
             <p className="text-[10px] font-black text-foreground/20 uppercase tracking-widest px-4 mb-2">Business Ops</p>
             <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" onNavigate={onNavigate} />
+            <NavItem icon={Briefcase} label="Projects" path="/dashboard/projects" onNavigate={onNavigate} />
             <NavItem icon={Wallet} label="Wallet" path="/dashboard/wallet" onNavigate={onNavigate} />
             <NavItem icon={Building2} label="Business Profile" path="/dashboard/settings/business" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Wrench} label="My Services" path="/dashboard/services" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Inbox} label="Inquiries" path="/dashboard/inquiries" onNavigate={onNavigate} badge={summary?.msgCount} locked={navLocked} />
             <NavItem icon={Store} label="Marketplace" path="/dashboard/marketplace" onNavigate={onNavigate} badge={summary?.orderCount} locked={navLocked} />
             <NavItem icon={ClipboardList} label="Tenders & Jobs" path="/dashboard/tenders" onNavigate={onNavigate} badge={summary?.tenderCount} locked={navLocked} />
+            <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
             <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} />
+            <NavItem icon={Sparkles} label="AI Hub" path="/dashboard/ai" onNavigate={onNavigate} />
             <NavItem icon={Settings} label="User Profile" path="/dashboard/settings/profile" onNavigate={onNavigate} />
           </>
         )}

@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
-import { OnboardingGate } from './components/layout/OnboardingGate';
 import { useAuthStore } from './store/useAuthStore';
 import { Toaster } from 'react-hot-toast';
 
@@ -45,7 +44,11 @@ import AdminSettings from './pages/admin/AdminSettings';
 
 // --- SHARED DETAIL PAGES ---
 import ProjectDetail from './pages/ProjectDetail';
+import Projects from './pages/Projects';
+import NewProject from './pages/NewProject';
+import Analytics from './pages/Analytics';
 import TenderBoard from './pages/TenderBoard';
+import Opportunities from './pages/Opportunities';
 import SubmitBid from './pages/SubmitBid';
 import TenderDetail from './pages/TenderDetail';
 import BOQEngine from './pages/BOQEngine';
@@ -118,11 +121,15 @@ function App() {
           <Route path="/dashboard/services" element={<OwnerRoute><Services /></OwnerRoute>} />
           <Route path="/dashboard/wallet" element={<OwnerRoute><Wallet /></OwnerRoute>} />
           <Route path="/dashboard/wallet/verify" element={<OwnerRoute><Wallet /></OwnerRoute>} />
-          <Route path="/dashboard/projects" element={<OwnerRoute><ProjectDetail /></OwnerRoute>} />
+          <Route path="/dashboard/projects/new" element={<OwnerRoute><NewProject /></OwnerRoute>} />
+          <Route path="/dashboard/projects" element={<OwnerRoute><Projects /></OwnerRoute>} />
+          <Route path="/dashboard/projects/:id" element={<OwnerRoute><ProjectDetail /></OwnerRoute>} />
           <Route path="/dashboard/boq" element={<OwnerRoute><BOQEngine /></OwnerRoute>} />
+          <Route path="/dashboard/analytics" element={<OwnerRoute><Analytics /></OwnerRoute>} />
           <Route path="/dashboard/ai" element={<OwnerRoute><AIAssistant /></OwnerRoute>} />
           <Route path="/dashboard/documents" element={<OwnerRoute><Documents /></OwnerRoute>} />
           <Route path="/dashboard/tenders" element={<OwnerRoute><TenderBoard /></OwnerRoute>} />
+          <Route path="/dashboard/opportunities" element={<OwnerRoute><Opportunities /></OwnerRoute>} />
           <Route path="/dashboard/tenders/:id/bid" element={<OwnerRoute><SubmitBid /></OwnerRoute>} />
           <Route path="/dashboard/tenders/:id" element={<OwnerRoute><TenderDetail /></OwnerRoute>} />
 
