@@ -25,7 +25,7 @@ export const suggestBOQRate = async (description: string, category: string) => {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: responseSchema
+      responseSchema: responseSchema as any
     }
   });
 
@@ -220,7 +220,7 @@ export const analyzeSupplierData = async (aggregatedData: any) => {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: responseSchema
+      responseSchema: responseSchema as any
     }
   });
 
@@ -275,7 +275,7 @@ export const analyzeGlobalMarketplaceData = async (globalData: any) => {
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: responseSchema
+      responseSchema: responseSchema as any
     }
   });
 

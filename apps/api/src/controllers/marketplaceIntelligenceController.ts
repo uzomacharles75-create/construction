@@ -52,7 +52,54 @@ export const getSupplierIntelligence = async (req: Request, res: Response) => {
     };
 
     // 2. Pass raw data to OpenAI to synthesize the JSON object
-    const intelligenceData = await analyzeSupplierData(rawData);
+    let intelligenceData;
+    try {
+      intelligenceData = await analyzeSupplierData(rawData);
+    } catch (aiError: any) {
+      console.error("Gemini AI Error:", aiError.message);
+      
+      const getInteractionCount = (action: string) => 
+        rawData.interactions.find((i: any) => i._id === action)?.count || 0;
+
+      intelligenceData = {
+        _aiUnavailable: true,
+        demandForecasting: {
+          category: "AI Unavailable", region: "N/A", percentageIncrease: 0, timeframeDays: 0, recommendation: "AI service is currently unavailable due to quota limits."
+        },
+        regionalDemand: [],
+        searchIntelligence: {
+          searches: 0, product: "AI Unavailable", timeframe: "", supplierCount: 0, status: "Offline"
+        },
+        marketplaceOpportunity: {
+          category: "AI Unavailable", status: "Offline", recommendation: "Please try again later."
+        },
+        supplierSalesIntelligence: {
+          topPerforming: [], lowPerforming: [], recommendations: []
+        },
+        priceIntelligence: {
+          product: "AI Unavailable", region: "N/A", averageMarketPrice: 0, yourPrice: 0, differencePercentage: 0, status: "Offline"
+        },
+        competitorIntelligence: {
+          summary: "AI Unavailable", categories: []
+        },
+        leadQualityScoring: { recentLeads: [] },
+        trafficIntelligence: {
+          mostTrafficRegions: [],
+          metrics: {
+            productViews: rawData.productViews || 0,
+            profileVisits: getInteractionCount('profile_visit'),
+            whatsappClicks: getInteractionCount('whatsapp_click'),
+            chatClicks: getInteractionCount('chat_click'),
+            rfqRequests: getInteractionCount('rfq_request')
+          }
+        },
+        buyerJourney: { dropOffPoint: "AI Unavailable", dropOffPercentage: 0, recommendation: "Offline" },
+        aiMarketing: { trend: "AI Unavailable", recommendation: "Please try again later when AI quota resets." },
+        inventoryPrediction: { product: "AI Unavailable", daysRemaining: 0, recommendedRestock: 0 },
+        seasonalDemand: { product: "AI Unavailable", season: "N/A", recommendation: "Offline" },
+        marketplaceHealthScore: { score: 0, maxScore: 100, recommendations: ["AI service is currently down. Core metrics are still tracking."] }
+      };
+    }
 
     res.status(200).json(intelligenceData);
   } catch (error: any) {
@@ -96,7 +143,34 @@ export const getAdminIntelligence = async (req: Request, res: Response) => {
     };
 
     // 2. Pass to OpenAI
-    const adminIntelligenceData = await analyzeGlobalMarketplaceData(rawGlobalData);
+    let adminIntelligenceData;
+    try {
+      adminIntelligenceData = await analyzeGlobalMarketplaceData(rawGlobalData);
+    } catch (aiError: any) {
+      console.error("Gemini AI Error:", aiError.message);
+      
+      const getActivityCount = (action: string) => 
+        rawGlobalData.activityCounts.find((a: any) => a._id === action)?.count || 0;
+
+      adminIntelligenceData = {
+        _aiUnavailable: true,
+        overview: {
+          totalSuppliers: rawGlobalData.totalSuppliers,
+          totalProducts: rawGlobalData.totalProducts,
+          totalInquiries: getActivityCount('search'),
+          totalRFQs: getActivityCount('rfq_request'),
+          totalWhatsappClicks: getActivityCount('whatsapp_click'),
+          totalChatConversations: getActivityCount('chat_click')
+        },
+        demandIntelligence: {
+          fastestGrowing: "AI Unavailable",
+          fastestDeclining: "AI Unavailable",
+          highestDemandRegions: [],
+          supplierShortages: []
+        },
+        growthOpportunities: ["AI service is currently unavailable. Core metrics are still tracking."]
+      };
+    }
 
     res.status(200).json(adminIntelligenceData);
   } catch (error: any) {
