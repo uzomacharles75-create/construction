@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Building2, Briefcase, Store,
   ClipboardList, FileText, Calculator, Landmark,
   Users, Sparkles, Files, Settings, Crown, HardHat, ShieldCheck, BarChart3, LogOut,
-  Inbox, Wrench, Lock, Wallet, Radar,
+  Inbox, Wrench, Lock, Wallet, Radar, Receipt
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -142,6 +142,7 @@ export const Sidebar = ({ onNavigate }: { onNavigate?: () => void }) => {
             <NavItem icon={Radar} label="Tenders" path="/dashboard/opportunities" onNavigate={onNavigate} />
             <NavItem icon={Landmark} label="Finance & Reports" path="/dashboard/finance" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={FileText} label="Invoices" path="/dashboard/invoices" onNavigate={onNavigate} locked={navLocked} />
+            <NavItem icon={Receipt} label="Smart Receipts" path="/dashboard/receipts" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Users} label="Workers & Team" path="/dashboard/workforce" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={Calculator} label="BOQ Tools" path="/dashboard/boq" onNavigate={onNavigate} locked={navLocked} />
             <NavItem icon={BarChart3} label="Analytics" path="/dashboard/analytics" onNavigate={onNavigate} />
