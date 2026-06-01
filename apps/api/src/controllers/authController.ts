@@ -9,6 +9,7 @@ import Tender from '../models/Tender';
 import Message from '../models/Message';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 // @desc    Register + Auto-generate Slug
 export const register = async (req: Request, res: Response) => {
@@ -229,6 +230,63 @@ export const deleteCompanyPortfolioImage = async (req: any, res: Response) => {
     res.status(500).json({ message: "Failed to remove image" });
   }
 };
+// @desc    Forgot Password — issue a reset token
+export const forgotPassword = async (req: Request, res: Response) => {
+  const genericMessage =
+    "If an account with that email exists, a password reset link has been sent.";
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required." });
+
+    const user = await User.findOne({ email });
+
+    // Always respond generically to avoid leaking whether the email exists.
+    if (!user) return res.status(200).json({ message: genericMessage });
+
+    const token = crypto.randomBytes(32).toString('hex');
+    (user as any).resetPasswordToken = token;
+    (user as any).resetPasswordExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+    await user.save();
+
+    const frontendBase = process.env.FRONTEND_URL || process.env.CLIENT_URL || "http://localhost:5173";
+    const resetLink = `${frontendBase}/reset-password/${token}`;
+
+    // No mailer is configured in this codebase — log the link so it can be delivered manually.
+    console.log(`[forgotPassword] Password reset link for ${email}: ${resetLink}`);
+
+    return res.status(200).json({ message: genericMessage });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to process password reset request." });
+  }
+};
+
+// @desc    Reset Password using a valid token
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token) return res.status(400).json({ message: "Reset token is missing." });
+    if (!password) return res.status(400).json({ message: "New password is required." });
+
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() },
+    });
+
+    if (!user) return res.status(400).json({ message: "Invalid or expired reset token." });
+
+    user.password = await bcrypt.hash(password, 12);
+    (user as any).resetPasswordToken = undefined;
+    (user as any).resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.status(200).json({ message: "Password successfully reset." });
+  } catch (error) {
+    return res.status(500).json({ message: "Failed to reset password." });
+  }
+};
+
 // @desc    Update company profile using JWT companyId (no slug needed — safe for new accounts)
 export const updateMyCompanyProfile = async (req: any, res: Response) => {
   try {

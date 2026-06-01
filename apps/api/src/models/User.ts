@@ -5,7 +5,9 @@ const UserSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'owner', 'staff'], default: 'owner' },
-  company: { type: Schema.Types.ObjectId, ref: 'Company' } // Link to their business
+  company: { type: Schema.Types.ObjectId, ref: 'Company' }, // Link to their business
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 }, { timestamps: true });
 
 export default mongoose.model('User', UserSchema);
