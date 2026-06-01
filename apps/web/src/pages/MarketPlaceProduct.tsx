@@ -150,9 +150,28 @@ const MarketplaceProduct = () => {
                >
                  <Package size={20} /> Request Bulk Quote
                </button>
-               <button className="px-10 py-5 bg-card text-foreground font-black text-xs uppercase tracking-widest rounded-2xl border-2 border-border hover:bg-muted transition-all">
-                 Contact Rep
-               </button>
+               {product.ownerId ? (
+                 <a 
+                   onClick={() => {
+                      apiClient.post('/marketplace/track', { 
+                        action: 'whatsapp_click', 
+                        region: 'Unknown', 
+                        city: 'Unknown', 
+                        metadata: { productId: product._id, productName: product.name, supplierId: product.ownerId, category: product.category } 
+                      }).catch(console.error);
+                   }}
+                   href={`https://wa.me/${product.whatsappNumber || ''}?text=${encodeURIComponent(`Hello, I would like to purchase or get more information about your product: ${product.name} (Category: ${product.category}, Price: $${product.price} per ${product.unit}).`)}`}
+                   target="_blank"
+                   rel="noreferrer"
+                   className="px-10 py-5 bg-card text-foreground font-black text-xs uppercase tracking-widest rounded-2xl border-2 border-border hover:bg-muted transition-all text-center"
+                 >
+                   Contact Rep
+                 </a>
+               ) : (
+                 <button disabled className="px-10 py-5 bg-card text-muted-foreground font-black text-xs uppercase tracking-widest rounded-2xl border-2 border-border opacity-50 cursor-not-allowed">
+                   No Contact Info
+                 </button>
+               )}
             </div>
             
             <div className="mt-8 flex items-center gap-2 justify-center lg:justify-start text-[10px] font-black text-foreground/35 uppercase tracking-widest">

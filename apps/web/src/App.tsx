@@ -55,6 +55,7 @@ import BOQEngine from './pages/BOQEngine';
 import Documents from './pages/Documents';
 import AIAssistant from './pages/AIAssistant';
 import PublicMarketplace from './pages/PublicMarketPlace';
+import MarketplaceProduct from './pages/MarketPlaceProduct';
 import PublicPostTender from './pages/PublicPostTender';
 
 // Wrapper: every owner dashboard route goes through OnboardingGate
@@ -96,6 +97,7 @@ function App() {
           <Route path="/register" element={isAuthenticated ? <Navigate to={getHomePath()} /> : <Register />} />
           <Route path="/directory" element={<PublicDirectory />} />
           <Route path="/marketplace" element={<PublicMarketplace />} />
+          <Route path="/product/:id" element={<MarketplaceProduct />} />
           <Route path="/company/:id" element={<PublicCompanyProfile />} />
           <Route path="/post-project" element={<PublicPostTender />} />
           <Route path="/about" element={<About />} />

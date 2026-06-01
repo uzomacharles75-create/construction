@@ -4,9 +4,11 @@ import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/useAuthStore';
 import { 
   BarChart3, Users, Building2, ShieldAlert, Activity, 
-  Loader2, TrendingUp, Globe2, Server
+  Loader2, TrendingUp, Globe2, Server, BrainCircuit
 } from 'lucide-react';
 import { motion} from 'framer-motion';
+import { useState } from 'react';
+import { AdminIntelligenceTab } from '../../components/admin/AdminIntelligenceTab';
 
 const AdminDashboard = () => {
   const { user } = useAuthStore();
@@ -22,6 +24,8 @@ const AdminDashboard = () => {
     queryKey: ['admin-activity-logs'],
     queryFn: async () => (await apiClient.get('/admin/activity')).data
   });
+
+  const [activeTab, setActiveTab] = useState<'network' | 'intelligence'>('intelligence');
 
   return (
     <DashboardShell>
@@ -49,7 +53,30 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        {/* TOP METRICS (ZERO MOCK DATA) */}
+        <div className="flex items-center gap-3 bg-muted p-1.5 rounded-[2rem] shadow-inner mb-8 w-fit">
+           <button 
+              onClick={() => setActiveTab('network')}
+              className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all ${
+                activeTab === 'network' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              }`}
+           >
+             Network Activity
+           </button>
+           <button 
+              onClick={() => setActiveTab('intelligence')}
+              className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+                activeTab === 'intelligence' ? 'bg-primary text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              }`}
+           >
+             <BrainCircuit size={14} /> AI Intelligence
+           </button>
+        </div>
+
+        {activeTab === 'intelligence' ? (
+          <AdminIntelligenceTab />
+        ) : (
+          <>
+            {/* TOP METRICS (ZERO MOCK DATA) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
           {[
             { 
@@ -146,7 +173,9 @@ const AdminDashboard = () => {
               </div>
            </div>
 
-        </div>
+         </div>
+         </>
+        )}
       </div>
     </DashboardShell>
   );

@@ -177,6 +177,24 @@ export const updateCompanyLogo = async (req: any, res: Response) => {
   }
 };
 
+export const updateCompanyLetterhead = async (req: any, res: Response) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No image file provided" });
+
+    const company = await getAuthorizedCompany(req, req.params.slug);
+    if (!company) return res.status(403).json({ message: "Unauthorized update attempt." });
+
+    if (!company.receiptSettings) company.receiptSettings = {};
+    company.receiptSettings.letterhead = req.file.path;
+    await company.save();
+
+    res.status(200).json({ message: "Letterhead updated in cloud", letterhead: company.receiptSettings.letterhead });
+  } catch (error) {
+    console.error('Letterhead upload error:', error);
+    res.status(500).json({ message: "Cloudinary upload failed" });
+  }
+};
+
 export const updateCompanyPortfolio = async (req: any, res: Response) => {
   try {
     if (!req.files || req.files.length === 0) return res.status(400).json({ message: "No photos provided" });

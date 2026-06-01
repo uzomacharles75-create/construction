@@ -53,7 +53,9 @@ apiClient.interceptors.response.use(
       }
     } else {
       // Show error toast for everything else (400, 403, 500)
-      toast.error(message);
+      if ((error.config as any)?.skipErrorToast !== true) {
+        toast.error(message);
+      }
     }
 
     return Promise.reject(error);

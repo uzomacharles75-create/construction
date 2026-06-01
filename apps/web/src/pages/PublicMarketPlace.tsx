@@ -101,19 +101,49 @@ const PublicMarketplace = () => {
                   key={p._id} 
                   className="bg-card border border-border p-4 rounded-[2.5rem] shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden"
                 >
-                  {/* PRODUCT IMAGE */}
-                  <Link to={`/product/${p._id}`} className="block relative z-10">
-                    <div className="aspect-[4/3] bg-muted rounded-[2rem] overflow-hidden mb-6 relative border border-border/50">
-                       <img 
-                        src={p.image || "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80"} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
-                        alt={p.name}
-                       />
-                       <div className="absolute top-4 left-4 bg-background px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-foreground shadow-sm border border-border">
-                          {p.category}
-                       </div>
+                  {p.ownerId ? (
+                      <a 
+                        onClick={() => {
+                          apiClient.post('/marketplace/track', { 
+                            action: 'whatsapp_click', 
+                            region: 'Unknown', 
+                            city: 'Unknown', 
+                            metadata: { productId: p._id, productName: p.name, supplierId: p.ownerId, category: p.category } 
+                          }).catch(console.error);
+                        }}
+                        href={`https://wa.me/${p.whatsappNumber || ''}?text=${encodeURIComponent(`Hello, I would like to purchase or get more information about your product: ${p.name} (Category: ${p.category}, Price: $${p.price} per ${p.unit}).`)}`} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="block relative z-10"
+                      >
+                        <div className="aspect-[4/3] bg-muted rounded-[2rem] overflow-hidden mb-6 relative border border-border/50">
+                          <img 
+                            src={p.image || "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80"} 
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out" 
+                            alt={p.name}
+                          />
+                          <div className="absolute top-4 left-4 bg-background px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-foreground shadow-sm border border-border">
+                              {p.category}
+                          </div>
+                        </div>
+                      </a>
+                  ) : (
+                    <div className="block relative z-10 opacity-70">
+                      <div className="aspect-[4/3] bg-muted rounded-[2rem] overflow-hidden mb-6 relative border border-border/50">
+                        <img 
+                          src={p.image || "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&q=80"} 
+                          className="w-full h-full object-cover grayscale" 
+                          alt={p.name}
+                        />
+                        <div className="absolute top-4 left-4 bg-background/50 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-foreground shadow-sm border border-border">
+                            {p.category}
+                        </div>
+                        <div className="absolute inset-0 bg-background/20 flex items-center justify-center backdrop-blur-[1px]">
+                          <span className="bg-background text-foreground px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-border shadow-md">Owner Unavailable</span>
+                        </div>
+                      </div>
                     </div>
-                  </Link>
+                  )}
 
                   <div className="px-4 pb-4 relative z-10">
                      <div className="flex items-center gap-2 mb-3">
@@ -128,12 +158,28 @@ const PublicMarketplace = () => {
                            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1 tracking-widest">Price / {p.unit}</p>
                            <span className="text-3xl font-black text-foreground tracking-tighter">${p.price?.toLocaleString()}</span>
                         </div>
-                        <Link 
-                          to={`/product/${p._id}`}
-                          className="w-14 h-14 bg-foreground text-background flex items-center justify-center rounded-[1.25rem] shadow-sm hover:bg-primary hover:text-foreground transition-colors duration-300 group/btn"
-                        >
-                           <ShoppingBag size={22} />
-                        </Link>
+                        {p.ownerId ? (
+                            <a 
+                              onClick={() => {
+                                apiClient.post('/marketplace/track', { 
+                                  action: 'whatsapp_click', 
+                                  region: 'Unknown', 
+                                  city: 'Unknown', 
+                                  metadata: { productId: p._id, productName: p.name, supplierId: p.ownerId, category: p.category } 
+                                }).catch(console.error);
+                              }}
+                              href={`https://wa.me/${p.whatsappNumber || ''}?text=${encodeURIComponent(`Hello, I would like to purchase or get more information about your product: ${p.name} (Category: ${p.category}, Price: $${p.price} per ${p.unit}).`)}`} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="w-14 h-14 bg-foreground text-background flex items-center justify-center rounded-[1.25rem] shadow-sm hover:bg-primary hover:text-foreground transition-colors duration-300 group/btn"
+                            >
+                               <ShoppingBag size={22} />
+                            </a>
+                        ) : (
+                          <div className="w-14 h-14 bg-muted text-muted-foreground flex items-center justify-center rounded-[1.25rem] shadow-sm cursor-not-allowed">
+                             <ShoppingBag size={22} />
+                          </div>
+                        )}
                      </div>
                   </div>
                 </motion.div>
