@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   ArrowRight,
   HardHat,
-  Store,
   Loader2,
   AlertCircle,
   Eye,

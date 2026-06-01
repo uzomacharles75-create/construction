@@ -1,12 +1,17 @@
 import express from 'express';
-import { 
-  getBOQs, 
-  getBOQByProject, 
-  addBOQItem, 
-  verifyItem 
+import {
+  getBOQs,
+  getBOQByProject,
+  addBOQItem,
+  verifyItem,
+  suggestPricing,
+  analyzeProjectBOQ,
+  rejectSuggestion,
+  generateBOQDraft
 } from '../controllers/boqController';
 import { protect } from '../middleware/auth';
 import { authorize } from '../middleware/roleCheck';
+import { aiRateLimiter } from '../middleware/aiRateLimit';
 
 const router = express.Router();
 
@@ -28,9 +33,40 @@ router.post(
 
 // 4. VERIFY ITEM
 router.put(
-  '/verify/:itemId', 
-  authorize(['owner', 'staff']), 
+  '/verify/:itemId',
+  authorize(['owner', 'staff']),
   verifyItem
+);
+
+// 5. AI PRICE SUGGESTION (stateless — returns a suggested rate + confidence)
+router.post(
+  '/suggest-pricing',
+  authorize(['owner', 'staff']),
+  aiRateLimiter,
+  suggestPricing
+);
+
+// 6. AI BOQ ANALYSIS (missing items, duplicates, alternatives, outliers)
+router.post(
+  '/project/:projectId/analyze',
+  authorize(['owner', 'staff']),
+  aiRateLimiter,
+  analyzeProjectBOQ
+);
+
+// 7. LEARNING LOOP: record a rejected AI price suggestion
+router.post(
+  '/feedback/reject',
+  authorize(['owner', 'staff']),
+  rejectSuggestion
+);
+
+// 8. CONVERSATIONAL BOQ GENERATION (free-text brief → full draft BOQ)
+router.post(
+  '/generate',
+  authorize(['owner', 'staff']),
+  aiRateLimiter,
+  generateBOQDraft
 );
 
 export default router;

@@ -95,7 +95,7 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
 const TopUpModal = ({ onClose }: { onClose: () => void }) => {
-  const { currency: storeCurrency, setCurrency } = useCurrencyStore();
+  const { setCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
   const [countryCode, setCountryCode] = useState('CM');
   const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
