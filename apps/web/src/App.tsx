@@ -25,6 +25,10 @@ import InvoiceEditor from './pages/InvoiceEditor';
 import DirectoryLeads from './pages/DirectoryLeads';
 import MarketplaceManager from './pages/MarketplaceManager';
 import Invoices from './pages/Invoices';
+import Receipts from './pages/Receipts';
+import CreateReceipt from './pages/CreateReceipt';
+import ReceiptDetail from './pages/ReceiptDetail';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Services from './pages/Services';
 import Wallet from './pages/Wallet';
 
@@ -118,6 +122,15 @@ function App() {
           <Route path="/dashboard/directory" element={<Navigate to="/dashboard/inquiries" replace />} />
           <Route path="/dashboard/marketplace" element={<OwnerRoute><MarketplaceManager /></OwnerRoute>} />
           <Route path="/dashboard/invoices" element={<OwnerRoute><Invoices /></OwnerRoute>} />
+          <Route path="/dashboard/receipts" element={<OwnerRoute><Receipts /></OwnerRoute>} />
+          <Route path="/dashboard/receipts/new" element={
+            <OwnerRoute>
+              <ErrorBoundary>
+                <CreateReceipt />
+              </ErrorBoundary>
+            </OwnerRoute>
+          } />
+          <Route path="/dashboard/receipts/:id" element={<OwnerRoute><ReceiptDetail /></OwnerRoute>} />
           <Route path="/dashboard/services" element={<OwnerRoute><Services /></OwnerRoute>} />
           <Route path="/dashboard/wallet" element={<OwnerRoute><Wallet /></OwnerRoute>} />
           <Route path="/dashboard/wallet/verify" element={<OwnerRoute><Wallet /></OwnerRoute>} />

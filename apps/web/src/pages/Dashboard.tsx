@@ -9,7 +9,7 @@ import { t } from '../theme';
 import {
   Briefcase, Wrench, ClipboardList, FileText,
   BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
-  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus
+  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus, Receipt
 } from 'lucide-react';
 
 interface Overview {
@@ -198,6 +198,14 @@ const Dashboard = () => {
             desc="Create, send, and track financial invoices instantly."
             path="/dashboard/invoices"
             delay={0.25}
+          />
+
+          <DashboardCard
+            icon={Receipt}
+            title="Smart Receipts"
+            desc="Generate, track, and download professional smart receipts."
+            path="/dashboard/receipts"
+            delay={0.27}
           />
 
           <DashboardCard
