@@ -28,13 +28,13 @@ const DirectoryLeads = () => {
         </header>
 
         {isLoading ? (
-          <div className="h-64 flex items-center justify-center text-white/35 font-bold animate-pulse">
+          <div className="h-64 flex items-center justify-center text-foreground/35 font-bold animate-pulse">
             <Loader2 className="animate-spin mr-2" /> Syncing with Directory...
           </div>
         ) : leads?.length === 0 ? (
           <div className={t.emptyState}>
-            <Inbox className="mx-auto text-white/15 mb-4" size={48} />
-            <h3 className="text-xl font-bold text-white/50">No inquiries yet</h3>
+            <Inbox className="mx-auto text-foreground/15 mb-4" size={48} />
+            <h3 className="text-xl font-bold text-muted-foreground">No inquiries yet</h3>
             <p className={t.label + ' mt-1 italic'}>Update your profile to attract more clients</p>
           </div>
         ) : (
@@ -44,17 +44,17 @@ const DirectoryLeads = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 key={lead._id}
-                className="bg-brand-navy-card border border-brand-border p-6 rounded-[2.5rem] shadow-sm hover:shadow-card hover:border-brand-yellow/20 transition-all flex flex-col md:flex-row items-center justify-between group gap-6"
+                className="bg-card border border-border p-6 rounded-[2.5rem] shadow-sm hover:shadow-card hover:border-primary/20 transition-all flex flex-col md:flex-row items-center justify-between group gap-6"
               >
                 <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 bg-brand-yellow rounded-[1.5rem] flex items-center justify-center text-brand-navy font-black text-xl shadow-sm shrink-0">
+                  <div className="w-16 h-16 bg-primary rounded-[1.5rem] flex items-center justify-center text-brand-navy font-black text-xl shadow-sm shrink-0">
                     {lead.clientName?.charAt(0) || '?'}
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-white">{lead.projectInterest || 'General Inquiry'}</h3>
-                    <div className="flex items-center gap-4 mt-1 text-white/50 text-xs font-bold uppercase tracking-tight">
-                      <span className="flex items-center gap-1"><User size={14} className="text-brand-yellow" /> {lead.clientName}</span>
-                      <span className="flex items-center gap-1"><MapPin size={14} className="text-brand-yellow" /> {lead.location || 'BuildHub Network'}</span>
+                    <h3 className="text-lg font-black text-foreground">{lead.projectInterest || 'General Inquiry'}</h3>
+                    <div className="flex items-center gap-4 mt-1 text-muted-foreground text-xs font-bold uppercase tracking-tight">
+                      <span className="flex items-center gap-1"><User size={14} className="text-primary" /> {lead.clientName}</span>
+                      <span className="flex items-center gap-1"><MapPin size={14} className="text-primary" /> {lead.location || 'BuildHub Network'}</span>
                     </div>
                   </div>
                 </div>
@@ -62,7 +62,7 @@ const DirectoryLeads = () => {
                 <div className="flex items-center gap-6 mt-4 md:mt-0">
                   <div className="text-right hidden md:block">
                     <p className={t.label + ' mb-0.5'}>Received</p>
-                    <p className="text-xs font-bold text-white/50">{new Date(lead.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs font-bold text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</p>
                   </div>
 
                   <button
@@ -72,7 +72,7 @@ const DirectoryLeads = () => {
                     {lead.status}
                   </button>
 
-                  <button className="p-4 bg-brand-navy-light border border-brand-border rounded-2xl text-white/50 group-hover:bg-brand-navy group-hover:text-white transition-all">
+                  <button className="p-4 bg-muted border border-border rounded-2xl text-muted-foreground group-hover:bg-background group-hover:text-foreground transition-all">
                     <MessageSquare size={20} />
                   </button>
                 </div>

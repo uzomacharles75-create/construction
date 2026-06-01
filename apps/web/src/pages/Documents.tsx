@@ -22,23 +22,23 @@ const DocItem = ({ doc }: any) => {
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       whileHover={{ y: -5 }}
-      className="bg-brand-navy-card border border-brand-border p-6 rounded-[2.5rem] border border-brand-border shadow-sm hover:shadow-card transition-all group flex flex-col justify-between"
+      className="bg-card border border-border p-6 rounded-[2.5rem] border border-border shadow-sm hover:shadow-card transition-all group flex flex-col justify-between"
     >
       <div className="flex justify-between items-start mb-6">
         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-          isImage ? 'bg-brand-yellow-pale text-brand-yellow' : 'bg-rose-50 text-rose-500'
+          isImage ? 'bg-primary-pale text-primary' : 'bg-rose-50 text-rose-500'
         }`}>
           {isImage ? <ImageIcon size={28} /> : <FileText size={28} />}
         </div>
-        <button className="text-white/35 group-hover:text-white transition-colors">
+        <button className="text-foreground/35 group-hover:text-foreground transition-colors">
           <MoreVertical size={18} />
         </button>
       </div>
       <div>
-        <h4 className="font-bold text-white text-sm truncate mb-1" title={doc.name}>
+        <h4 className="font-bold text-foreground text-sm truncate mb-1" title={doc.name}>
           {doc.name}
         </h4>
-        <p className="text-[10px] font-black text-white/50 uppercase tracking-widest">
+        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">
           {doc.fileSize || 'N/A'} • {new Date(doc.createdAt).toLocaleDateString()}
         </p>
       </div>
@@ -76,14 +76,14 @@ const Documents = () => {
       <div className="max-w-7xl mx-auto pb-20">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight">Cloud Documents</h1>
-            <p className="text-sm text-white/50 font-medium">Secure storage for company blueprints and project files.</p>
+            <h1 className="text-4xl font-black text-foreground tracking-tight">Cloud Documents</h1>
+            <p className="text-sm text-muted-foreground font-medium">Secure storage for company blueprints and project files.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="hidden md:flex items-center gap-2 px-6 py-3 bg-brand-navy-card border border-brand-border text-brand-muted rounded-2xl font-bold text-xs hover:bg-brand-navy-light transition-all">
+            <button className="hidden md:flex items-center gap-2 px-6 py-3 bg-card border border-border text-brand-muted rounded-2xl font-bold text-xs hover:bg-muted transition-all">
               <FolderPlus size={18} /> New Folder
             </button>
-            <button className="bg-brand-navy text-white px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow flex items-center gap-2 hover:bg-brand-yellow transition-all">
+            <button className="bg-background text-foreground px-8 py-3.5 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow flex items-center gap-2 hover:bg-primary transition-all">
               <UploadCloud size={18} /> Upload File
             </button>
           </div>
@@ -92,41 +92,41 @@ const Documents = () => {
         {/* DYNAMIC STORAGE STATS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           {[
-            { label: 'Drawings', val: stats.drawings, color: 'text-brand-yellow' },
+            { label: 'Drawings', val: stats.drawings, color: 'text-primary' },
             { label: 'Contracts', val: stats.contracts, color: 'text-purple-600' },
             { label: 'Invoices', val: stats.invoices, color: 'text-emerald-600' },
             { label: 'Photos', val: stats.photos, color: 'text-amber-600' },
           ].map((stat, i) => (
-            <div key={i} className="bg-brand-navy-card border border-brand-border p-6 rounded-[2rem] border border-brand-border shadow-sm">
-               <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">{stat.label}</p>
-               <h3 className={`text-2xl font-black ${stat.color}`}>{stat.val} <span className="text-[10px] text-white/35">Files</span></h3>
+            <div key={i} className="bg-card border border-border p-6 rounded-[2rem] border border-border shadow-sm">
+               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">{stat.label}</p>
+               <h3 className={`text-2xl font-black ${stat.color}`}>{stat.val} <span className="text-[10px] text-foreground/35">Files</span></h3>
             </div>
           ))}
         </div>
 
         {/* SEARCH BAR */}
         <div className="relative mb-12">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/35" size={20} />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground/35" size={20} />
           <input 
             type="text" 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by file name, project ID or extension..." 
-            className="w-full bg-brand-navy-card border border-brand-border rounded-[2.5rem] py-5 pl-16 pr-6 shadow-premium outline-none text-white font-medium focus:ring-4 ring-brand-yellow transition-all"
+            className="w-full bg-card border border-border rounded-[2.5rem] py-5 pl-16 pr-6 shadow-premium outline-none text-foreground font-medium focus:ring-4 ring-primary transition-all"
           />
         </div>
 
         {/* FILE GRID (REAL DATA) */}
         {isLoading ? (
           <div className="py-20 text-center flex flex-col items-center">
-            <Loader2 className="animate-spin text-brand-yellow mb-4" size={40} />
-            <p className="font-bold text-white/50">Accessing Cloud Storage...</p>
+            <Loader2 className="animate-spin text-primary mb-4" size={40} />
+            <p className="font-bold text-muted-foreground">Accessing Cloud Storage...</p>
           </div>
         ) : filteredDocs?.length === 0 ? (
-          <div className="bg-brand-navy-card border border-brand-border p-20 rounded-[4rem] text-center border-2 border-dashed border-brand-border">
+          <div className="bg-card border border-border p-20 rounded-[4rem] text-center border-2 border-dashed border-border">
              <Inbox className="mx-auto text-slate-100 mb-4" size={64} />
-             <h3 className="text-xl font-bold text-white/50">No documents found</h3>
-             <p className="text-sm text-white/35 mt-1">Upload your first file to get started</p>
+             <h3 className="text-xl font-bold text-muted-foreground">No documents found</h3>
+             <p className="text-sm text-foreground/35 mt-1">Upload your first file to get started</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

@@ -26,15 +26,15 @@ const TenderCard = ({ tender }: any) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ x: 10 }}
-      className={`bg-brand-navy-card p-6 rounded-[2.5rem] border ${isUrgent ? 'border-amber-200 shadow-amber-50' : 'border-brand-border'} shadow-premium flex flex-col md:flex-row items-center gap-6 group cursor-pointer transition-all`}
+      className={`bg-card p-6 rounded-[2.5rem] border ${isUrgent ? 'border-amber-200 shadow-amber-50' : 'border-border'} shadow-premium flex flex-col md:flex-row items-center gap-6 group cursor-pointer transition-all`}
     >
-      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${isUrgent ? 'bg-amber-50 text-amber-600' : 'bg-brand-yellow-pale text-brand-yellow'}`}>
+      <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 ${isUrgent ? 'bg-amber-50 text-amber-600' : 'bg-primary-pale text-primary'}`}>
         <Briefcase size={28} />
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-[9px] font-black uppercase tracking-widest text-brand-yellow bg-brand-yellow-pale px-2 py-0.5 rounded-md">
+          <span className="text-[9px] font-black uppercase tracking-widest text-primary bg-primary-pale px-2 py-0.5 rounded-md">
             {tender.category || 'General Construction'}
           </span>
           {isUrgent && (
@@ -43,31 +43,31 @@ const TenderCard = ({ tender }: any) => {
             </span>
           )}
         </div>
-        <h3 className="text-xl font-black text-white group-hover:text-brand-yellow transition-colors truncate">
+        <h3 className="text-xl font-black text-foreground group-hover:text-primary transition-colors truncate">
             {tender.title}
         </h3>
-        <div className="flex flex-wrap items-center gap-4 mt-3 text-[11px] text-white/50 font-bold uppercase tracking-tight">
+        <div className="flex flex-wrap items-center gap-4 mt-3 text-[11px] text-muted-foreground font-bold uppercase tracking-tight">
           <div className="flex items-center gap-1">
-            <MapPin size={14} className="text-brand-yellow" />
+            <MapPin size={14} className="text-primary" />
             <span>{tender.location}</span>
           </div>
           <div className="flex items-center gap-1 text-brand-muted">
-            <Clock size={14} className="text-brand-yellow" />
+            <Clock size={14} className="text-primary" />
             <span>Deadline: {new Date(tender.deadline).toLocaleDateString()}</span>
           </div>
         </div>
       </div>
 
-      <div className="text-right flex flex-col items-end gap-2 w-full md:w-auto border-t md:border-t-0 md:border-l border-brand-border pt-4 md:pt-0 md:pl-8">
-        <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">Est. Project Budget</p>
-        <p className="text-2xl font-black text-white tracking-tighter italic">
+      <div className="text-right flex flex-col items-end gap-2 w-full md:w-auto border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-8">
+        <p className="text-[10px] font-black text-foreground/35 uppercase tracking-widest">Est. Project Budget</p>
+        <p className="text-2xl font-black text-foreground tracking-tighter italic">
             ${tender.budget?.toLocaleString()}
         </p>
         
         {/* UPDATED ACTION: Go to Details first */}
         <Link 
           to={`/dashboard/tenders/${tender.slug}`} 
-          className="flex items-center gap-2 text-brand-yellow font-black text-[10px] uppercase tracking-widest hover:underline group-hover:pr-2 transition-all"
+          className="flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest hover:underline group-hover:pr-2 transition-all"
         >
           <Eye size={14} />
           View Project Details <ArrowUpRight size={14} />
@@ -98,16 +98,16 @@ const TenderBoard = () => {
         {/* HEADER SECTION */}
         <header className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6 px-2">
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight italic">Tenders & Jobs</h1>
-            <p className="text-sm text-white/50 font-medium mt-1">High-value opportunities updated across the network in real-time.</p>
+            <h1 className="text-4xl font-black text-foreground tracking-tight italic">Tenders & Jobs</h1>
+            <p className="text-sm text-muted-foreground font-medium mt-1">High-value opportunities updated across the network in real-time.</p>
           </div>
           <div className="flex items-center gap-3">
-            <button className="bg-brand-navy-card px-5 py-3 rounded-2xl border border-brand-border text-white/50 font-black text-[10px] uppercase tracking-widest hover:bg-brand-navy-light transition-all shadow-sm">
+            <button className="bg-card px-5 py-3 rounded-2xl border border-border text-muted-foreground font-black text-[10px] uppercase tracking-widest hover:bg-muted transition-all shadow-sm">
               <Filter size={18} className="inline mr-2" /> Filter
             </button>
          {/*  <Link 
               to="/dashboard/tenders/create"
-              className="bg-brand-yellow text-brand-navy px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-yellow hover:bg-brand-yellow-dim hover:scale-105 transition-all"
+              className="bg-primary text-brand-navy px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl shadow-yellow hover:bg-primary-dim hover:scale-105 transition-all"
             >
               Post a Tender
             </Link>*/}
@@ -116,23 +116,23 @@ const TenderBoard = () => {
 
         {/* ANALYTICS STRIP (DATA DRIVEN) */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-brand-navy p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
+          <div className="bg-background p-8 rounded-[3rem] text-foreground shadow-2xl relative overflow-hidden">
              <div className="absolute top-[-10px] right-[-10px] opacity-10"><DollarSign size={80} /></div>
              <p className="text-[10px] font-black text-brand-muted uppercase tracking-widest mb-1">Live Market Volume</p>
              <h3 className="text-3xl font-black italic tracking-tighter">
                 {isLoading ? "..." : `$${(totalVolume / 1000000).toFixed(1)}M`}
              </h3>
           </div>
-          <div className="bg-brand-navy-card border border-brand-border p-8 rounded-[3rem] border border-brand-border shadow-sm flex items-center justify-between">
+          <div className="bg-card border border-border p-8 rounded-[3rem] border border-border shadow-sm flex items-center justify-between">
              <div>
-                <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Open Opportunities</p>
-                <h3 className="text-3xl font-black text-white">{isLoading ? "---" : openCount}</h3>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Open Opportunities</p>
+                <h3 className="text-3xl font-black text-foreground">{isLoading ? "---" : openCount}</h3>
              </div>
-             <div className="w-12 h-12 bg-brand-yellow-pale rounded-2xl flex items-center justify-center text-brand-yellow shadow-sm"><Briefcase size={24} /></div>
+             <div className="w-12 h-12 bg-primary-pale rounded-2xl flex items-center justify-center text-primary shadow-sm"><Briefcase size={24} /></div>
           </div>
-          <div className="bg-brand-navy-card border border-brand-border p-8 rounded-[3rem] border border-brand-border shadow-sm flex items-center justify-between">
+          <div className="bg-card border border-border p-8 rounded-[3rem] border border-border shadow-sm flex items-center justify-between">
              <div>
-                <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Regional Matches</p>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Regional Matches</p>
                 <h3 className="text-3xl font-black text-emerald-500">12</h3>
              </div>
              <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm"><BadgeCheck size={24} /></div>
@@ -143,14 +143,14 @@ const TenderBoard = () => {
         <div className="space-y-4">
           {isLoading ? (
             <div className="py-24 text-center">
-              <Loader2 className="animate-spin text-brand-yellow mx-auto mb-4" size={40} />
-              <p className="font-black text-white/35 uppercase tracking-widest text-xs">Scanning Construction Network...</p>
+              <Loader2 className="animate-spin text-primary mx-auto mb-4" size={40} />
+              <p className="font-black text-foreground/35 uppercase tracking-widest text-xs">Scanning Construction Network...</p>
             </div>
           ) : openCount === 0 ? (
-            <div className="bg-brand-navy-card border border-brand-border p-24 rounded-[4rem] text-center border-2 border-dashed border-brand-border">
+            <div className="bg-card border border-border p-24 rounded-[4rem] text-center border-2 border-dashed border-border">
                <Inbox className="mx-auto text-slate-100 mb-4" size={64} />
-               <h3 className="text-xl font-bold text-white/50">No active tenders found</h3>
-               <p className="text-sm text-white/35 mt-1 font-medium">Check back soon or broaden your search criteria.</p>
+               <h3 className="text-xl font-bold text-muted-foreground">No active tenders found</h3>
+               <p className="text-sm text-foreground/35 mt-1 font-medium">Check back soon or broaden your search criteria.</p>
             </div>
           ) : (
             <AnimatePresence>
@@ -163,7 +163,7 @@ const TenderBoard = () => {
 
         {!isLoading && openCount > 0 && (
           <div className="mt-16 text-center">
-            <button className="text-white/50 font-black text-[10px] uppercase tracking-[0.4em] hover:text-brand-yellow transition-all flex items-center gap-3 mx-auto">
+            <button className="text-muted-foreground font-black text-[10px] uppercase tracking-[0.4em] hover:text-primary transition-all flex items-center gap-3 mx-auto">
               Syncing more opportunities <Clock size={16} />
             </button>
           </div>

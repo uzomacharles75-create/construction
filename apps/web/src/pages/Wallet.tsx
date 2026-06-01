@@ -86,16 +86,16 @@ const VerifyBanner = ({ txId, onSuccess }: { txId: string; onSuccess: () => void
   }
 
   return (
-    <div className="flex items-center gap-3 bg-brand-yellow/10 border border-brand-yellow/30 rounded-2xl px-5 py-4 mb-6">
-      <Loader2 className="text-brand-yellow animate-spin shrink-0" size={20} />
-      <p className="text-sm font-bold text-brand-yellow">Verifying your payment… this takes a few seconds.</p>
+    <div className="flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-2xl px-5 py-4 mb-6">
+      <Loader2 className="text-primary animate-spin shrink-0" size={20} />
+      <p className="text-sm font-bold text-primary">Verifying your payment… this takes a few seconds.</p>
     </div>
   );
 };
 
 // ─── TopUp Modal ──────────────────────────────────────────────────
 const TopUpModal = ({ onClose }: { onClose: () => void }) => {
-  const { currency: storeCurrency, setCurrency } = useCurrencyStore();
+  const { setCurrency } = useCurrencyStore();
   const [usdAmount, setUsdAmount] = useState('');
   const [countryCode, setCountryCode] = useState('CM');
   const [ratePreview, setRatePreview] = useState<{ localAmount: number; currency: string } | null>(null);
@@ -160,25 +160,25 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
       >
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-brand-yellow/15 rounded-2xl flex items-center justify-center">
-              <WalletIcon size={20} className="text-brand-yellow" />
+            <div className="w-10 h-10 bg-primary/15 rounded-2xl flex items-center justify-center">
+              <WalletIcon size={20} className="text-primary" />
             </div>
-            <h2 className="text-xl font-black text-white">Top Up Wallet</h2>
+            <h2 className="text-xl font-black text-foreground">Top Up Wallet</h2>
           </div>
-          <button onClick={onClose} className="text-white/30 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-foreground/30 hover:text-foreground transition-colors">
             <X size={20} />
           </button>
         </div>
 
         {/* Country selector */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">
+          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1.5 block">
             Your Payment Country
           </label>
           <select
             value={countryCode}
             onChange={(e) => setCountryCode(e.target.value)}
-            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white border border-white/5 outline-none focus:ring-2 focus:ring-brand-yellow/30 appearance-none"
+            className="w-full px-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-foreground border border-white/5 outline-none focus:ring-2 focus:ring-primary/30 appearance-none"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code} className="bg-[#0a1628]">{c.label}</option>
@@ -188,14 +188,14 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
 
         {/* Quick amounts */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">Quick Select (USD)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1.5 block">Quick Select (USD)</label>
           <div className="grid grid-cols-3 gap-2">
             {QUICK_USD.map((a) => (
               <button
                 key={a}
                 type="button"
                 onClick={() => setUsdAmount(String(a))}
-                className={`py-3 rounded-xl font-black text-sm transition-all ${String(a) === usdAmount ? 'bg-brand-yellow text-brand-navy' : 'bg-white/5 text-white/60 hover:bg-white/10 border border-white/5'}`}
+                className={`py-3 rounded-xl font-black text-sm transition-all ${String(a) === usdAmount ? 'bg-primary text-brand-navy' : 'bg-white/5 text-foreground/60 hover:bg-white/10 border border-white/5'}`}
               >
                 ${a}
               </button>
@@ -205,16 +205,16 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
 
         {/* Custom amount */}
         <div className="mb-5">
-          <label className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1.5 block">Custom Amount (USD)</label>
+          <label className="text-[10px] font-black uppercase tracking-widest text-foreground/40 mb-1.5 block">Custom Amount (USD)</label>
           <div className="relative">
-            <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
+            <DollarSign size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-foreground/30" />
             <input
               type="number"
               min="1"
               placeholder="Enter amount in USD"
               value={usdAmount}
               onChange={(e) => setUsdAmount(e.target.value)}
-              className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-white placeholder-white/25 border border-white/5 outline-none focus:ring-2 focus:ring-brand-yellow/30"
+              className="w-full pl-10 pr-4 py-3.5 bg-white/5 rounded-2xl text-sm font-medium text-foreground placeholder-white/25 border border-white/5 outline-none focus:ring-2 focus:ring-primary/30"
             />
           </div>
         </div>
@@ -226,12 +226,12 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="bg-brand-yellow/10 border border-brand-yellow/20 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between"
+              className="bg-primary/10 border border-primary/20 rounded-2xl px-5 py-4 mb-5 flex items-center justify-between"
             >
-              <span className="text-sm text-white/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
+              <span className="text-sm text-foreground/60 font-medium">${Number(usdAmount).toLocaleString()} USD =</span>
               {loadingRate
-                ? <Loader2 size={16} className="text-brand-yellow animate-spin" />
-                : <span className="text-lg font-black text-brand-yellow">
+                ? <Loader2 size={16} className="text-primary animate-spin" />
+                : <span className="text-lg font-black text-primary">
                     {ratePreview?.localAmount?.toLocaleString()} {ratePreview?.currency}
                   </span>
               }
@@ -243,7 +243,7 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
           type="button"
           onClick={() => initiateMutation.mutate()}
           disabled={!usdAmount || Number(usdAmount) < 1 || initiateMutation.isPending}
-          className="w-full py-4 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="w-full py-4 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center justify-center gap-2 hover:scale-[1.02] transition-all shadow-yellow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {initiateMutation.isPending
             ? <><Loader2 size={18} className="animate-spin" /> Creating payment link…</>
@@ -251,7 +251,7 @@ const TopUpModal = ({ onClose }: { onClose: () => void }) => {
           }
         </button>
 
-        <p className="text-center text-[11px] text-white/30 mt-4">
+        <p className="text-center text-[11px] text-foreground/30 mt-4">
           Secured by Swychr · You will be redirected to complete payment
         </p>
       </motion.div>
@@ -304,15 +304,15 @@ const Wallet = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tight">Workspace Wallet</h1>
-            <p className="text-sm text-white/50 font-medium mt-1">
+            <h1 className="text-3xl font-black text-foreground tracking-tight">Workspace Wallet</h1>
+            <p className="text-sm text-muted-foreground font-medium mt-1">
               Fund your account to unlock BOQ exports, listings, and premium tools.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setShowTopUp(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm shadow-yellow hover:scale-[1.02] transition-all shrink-0"
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-brand-navy rounded-2xl font-black text-sm shadow-yellow hover:scale-[1.02] transition-all shrink-0"
           >
             <Plus size={18} /> Top Up Wallet
           </button>
@@ -323,36 +323,36 @@ const Wallet = () => {
           {/* Balance card */}
           <motion.div
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="md:col-span-2 bg-brand-navy-card rounded-[2.5rem] border border-brand-yellow/20 p-8 relative overflow-hidden"
+            className="md:col-span-2 bg-card rounded-[2.5rem] border border-primary/20 p-8 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-yellow/5 blur-[80px] rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
             <div className="flex items-start justify-between mb-6 relative">
-              <div className="w-14 h-14 bg-brand-yellow/15 rounded-2xl flex items-center justify-center">
-                <WalletIcon size={26} className="text-brand-yellow" />
+              <div className="w-14 h-14 bg-primary/15 rounded-2xl flex items-center justify-center">
+                <WalletIcon size={26} className="text-primary" />
               </div>
-              <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Available balance</span>
+              <span className="text-[10px] font-black text-foreground/30 uppercase tracking-widest">Available balance</span>
             </div>
             {balanceLoading ? (
-              <Loader2 size={32} className="animate-spin text-brand-yellow mb-2" />
+              <Loader2 size={32} className="animate-spin text-primary mb-2" />
             ) : (
               <div>
-                <p className="text-5xl font-black text-white tracking-tighter mb-1">
+                <p className="text-5xl font-black text-foreground tracking-tighter mb-1">
                   {balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                  <span className="text-2xl text-white/40 ml-2">{currency}</span>
+                  <span className="text-2xl text-foreground/40 ml-2">{currency}</span>
                 </p>
-                <p className="text-sm text-white/40 font-medium">{format(balance)}</p>
+                <p className="text-sm text-foreground/40 font-medium">{format(balance)}</p>
               </div>
             )}
           </motion.div>
 
           {/* Quick stats */}
           <div className="space-y-4">
-            <div className="bg-brand-navy-card rounded-[2rem] border border-brand-border p-5">
+            <div className="bg-card rounded-[2rem] border border-border p-5">
   <div className="flex items-center gap-3 mb-2">
     <TrendingUp size={18} className="text-emerald-400" />
-    <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Total Credited</span>
+    <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Total Credited</span>
   </div>
-  <p className="text-xl font-black text-white">
+  <p className="text-xl font-black text-foreground">
     {historyLoading
       ? '…'
       : `${(history ?? [])
@@ -366,12 +366,12 @@ const Wallet = () => {
     }
   </p>
 </div>
-            <div className="bg-brand-navy-card rounded-[2rem] border border-brand-border p-5">
+            <div className="bg-card rounded-[2rem] border border-border p-5">
               <div className="flex items-center gap-3 mb-2">
-                <Clock size={18} className="text-white/40" />
-                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Transactions</span>
+                <Clock size={18} className="text-foreground/40" />
+                <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">Transactions</span>
               </div>
-              <p className="text-xl font-black text-white">
+              <p className="text-xl font-black text-foreground">
                 {historyLoading ? '…' : (history?.length ?? 0)}
               </p>
             </div>
@@ -380,15 +380,15 @@ const Wallet = () => {
 
         {/* Top-up CTA banner when balance is 0 */}
         {!balanceLoading && balance === 0 && (
-          <div className="bg-brand-yellow/10 border border-brand-yellow/20 rounded-3xl p-6 mb-10 flex items-center justify-between gap-4">
+          <div className="bg-primary/10 border border-primary/20 rounded-3xl p-6 mb-10 flex items-center justify-between gap-4">
             <div>
-              <p className="font-black text-brand-yellow text-sm mb-0.5">Your wallet is empty</p>
-              <p className="text-xs text-white/50 font-medium">Top up to unlock all platform features including BOQ exports and paid listings.</p>
+              <p className="font-black text-primary text-sm mb-0.5">Your wallet is empty</p>
+              <p className="text-xs text-muted-foreground font-medium">Top up to unlock all platform features including BOQ exports and paid listings.</p>
             </div>
             <button
               type="button"
               onClick={() => setShowTopUp(true)}
-              className="px-5 py-2.5 bg-brand-yellow text-brand-navy rounded-xl font-black text-xs shrink-0 hover:scale-105 transition-all"
+              className="px-5 py-2.5 bg-primary text-brand-navy rounded-xl font-black text-xs shrink-0 hover:scale-105 transition-all"
             >
               Add Funds
             </button>
@@ -396,27 +396,27 @@ const Wallet = () => {
         )}
 
         {/* Transaction history */}
-        <div className="bg-brand-navy-card rounded-[2.5rem] border border-brand-border overflow-hidden">
-          <div className="px-8 py-6 border-b border-brand-border flex items-center justify-between">
-            <h3 className="font-black text-white text-base">Transaction History</h3>
+        <div className="bg-card rounded-[2.5rem] border border-border overflow-hidden">
+          <div className="px-8 py-6 border-b border-border flex items-center justify-between">
+            <h3 className="font-black text-foreground text-base">Transaction History</h3>
             <button
               type="button"
               onClick={() => {}}
-              className="p-2 rounded-xl text-white/40 hover:text-brand-yellow hover:bg-white/5 transition-all"
+              className="p-2 rounded-xl text-foreground/40 hover:text-primary hover:bg-white/5 transition-all"
             >
               <RefreshCw size={16} />
             </button>
           </div>
 
           {historyLoading ? (
-            <div className="flex items-center justify-center py-20 text-white/30">
+            <div className="flex items-center justify-center py-20 text-foreground/30">
               <Loader2 size={32} className="animate-spin" />
             </div>
           ) : !history?.length ? (
             <div className="text-center py-20">
-              <WalletIcon size={40} className="mx-auto text-white/15 mb-3" />
-              <p className="text-white/40 font-bold text-sm">No transactions yet</p>
-              <p className="text-white/25 text-xs mt-1">Your top-ups and spending will appear here.</p>
+              <WalletIcon size={40} className="mx-auto text-foreground/15 mb-3" />
+              <p className="text-foreground/40 font-bold text-sm">No transactions yet</p>
+              <p className="text-muted-foreground/50 text-xs mt-1">Your top-ups and spending will appear here.</p>
             </div>
           ) : (
             <div className="divide-y divide-brand-border">
@@ -435,8 +435,8 @@ const Wallet = () => {
                         : <ArrowDownCircle size={20} />}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-white">{tx.note || (tx.type === 'credit' ? 'Top-up' : 'Debit')}</p>
-                      <p className="text-[11px] text-white/40 font-medium">
+                      <p className="text-sm font-black text-foreground">{tx.note || (tx.type === 'credit' ? 'Top-up' : 'Debit')}</p>
+                      <p className="text-[11px] text-foreground/40 font-medium">
                         {tx.date ? new Date(tx.date).toLocaleString() : '—'}
                         {tx.transactionId && <span className="ml-2 opacity-50 font-mono text-[10px]">{tx.transactionId.slice(-12)}</span>}
                       </p>

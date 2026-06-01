@@ -1,209 +1,241 @@
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { Skeleton } from '../components/ui/Skeleton';
+import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import { useAuthStore } from '../store/useAuthStore';
+import { useCurrencyStore } from '../store/useCurrencyStore';
 import apiClient from '../api/client';
-import {
-  Briefcase, Wrench, ClipboardList, FileText, Plus, ChevronRight,
-  BarChart, Sparkles, MapPin, Store, Building2, Calculator,
-  Loader2, TrendingUp, Inbox
-} from 'lucide-react';
 import { t } from '../theme';
+import {
+  Briefcase, Wrench, ClipboardList, FileText,
+  BarChart, Sparkles, MapPin, Store, Building2, Calculator, ArrowRight,
+  Wallet, FolderKanban, CheckCircle2, TrendingUp, Plus
+} from 'lucide-react';
 
-const StatCard = ({ icon: Icon, title, value, sub, iconBg, isLoading }: any) => (
-  <div className="bg-brand-navy-card border border-brand-border p-5 rounded-3xl flex gap-4 shadow-sm hover:shadow-card transition-all">
-    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${iconBg}`}>
-      {isLoading
-        ? <Loader2 size={18} className="animate-spin text-white/20" />
-        : <Icon size={20} />
-      }
+interface Overview {
+  projects: { total: number; byStatus: Record<string, number> };
+  budget: { total: number; spent: number; utilization: number };
+  boq: {
+    totalValue: number; verifiedValue: number; pendingValue: number;
+    itemsTotal: number; itemsVerified: number; itemsPending: number; itemsRejected: number;
+    verificationRate: number;
+  };
+}
+
+const KpiCard = ({ icon: Icon, label, value, sub, tint }: any) => (
+  <div className={`${t.statCard} flex flex-col gap-3`}>
+    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${tint}`}>
+      <Icon size={20} />
     </div>
-    <div className="flex-1 min-w-0">
-      <p className={t.label + ' mb-1'}>{title}</p>
-      {isLoading
-        ? <Skeleton className="h-6 w-20 mb-1" />
-        : <h3 className="text-xl font-black text-white tracking-tight">{value}</h3>
-      }
-      <p className="text-[10px] text-white/40 font-medium">{sub}</p>
+    <div>
+      <p className="text-2xl font-black text-foreground leading-none">{value}</p>
+      <p className={`mt-1.5 ${t.label}`}>{label}</p>
+      {sub && <p className="text-[11px] font-bold text-muted-foreground mt-1">{sub}</p>}
     </div>
   </div>
 );
 
-const QuickAccess = ({ icon: Icon, label, bg, path }: any) => (
-  <Link to={path} className="flex flex-col items-center gap-2 cursor-pointer group shrink-0">
-    <div className={`w-14 h-14 rounded-[1.25rem] flex items-center justify-center ${bg} text-white shadow-sm transition-all group-hover:scale-110 group-hover:-translate-y-1`}>
-      <Icon size={22} />
-    </div>
-    <span className="text-[10px] font-black text-white/40 uppercase tracking-tighter group-hover:text-brand-yellow transition-colors">{label}</span>
+const DashboardCard = ({ icon: Icon, title, desc, path, delay, isPrimary, className }: any) => (
+  <Link to={path} className={`group block relative overflow-hidden rounded-[2rem] border transition-all duration-300 hover:-translate-y-1 ${
+    isPrimary
+      ? 'bg-foreground text-background border-foreground shadow-xl'
+      : 'bg-card text-foreground border-border shadow-sm hover:shadow-lg'
+  } ${className}`}>
+
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.4 }}
+      className="relative z-10 h-full p-5 sm:p-8 flex flex-col justify-between"
+    >
+      <div className="flex justify-between items-start mb-4 sm:mb-6">
+        <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-[1rem] flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${
+          isPrimary ? 'bg-background/10 text-primary' : 'bg-muted text-foreground'
+        }`}>
+          <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+        </div>
+        <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 transform translate-x-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 ${
+          isPrimary ? 'bg-primary text-foreground' : 'bg-foreground text-background'
+        }`}>
+           <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+        </div>
+      </div>
+
+      <div className="relative z-20">
+        <h3 className={`text-base sm:text-xl font-black tracking-tight mb-1 sm:mb-2 ${isPrimary ? 'text-background' : 'text-foreground'}`}>
+          {title}
+        </h3>
+        <p className={`text-[10px] sm:text-xs font-semibold leading-relaxed max-w-[90%] ${isPrimary ? 'text-background/70' : 'text-muted-foreground'}`}>
+          {desc}
+        </p>
+      </div>
+
+      <div className={`absolute -bottom-6 -right-6 pointer-events-none transition-transform duration-500 group-hover:scale-110 ${
+        isPrimary ? 'opacity-5 text-background' : 'opacity-[0.03] text-foreground'
+      }`}>
+        <Icon size={140} />
+      </div>
+    </motion.div>
   </Link>
 );
 
 const Dashboard = () => {
   const { user } = useAuthStore();
+  const { fromUSD, format } = useCurrencyStore();
+  const money = (usd: number) => format(fromUSD(usd || 0));
 
-  const { data: projects, isLoading: projectsLoading } = useQuery({
-    queryKey: ['dashboard-projects'],
-    queryFn: async () => {
-      const { data } = await apiClient.get('/projects');
-      return data.slice(0, 5);
-    },
+  const { data } = useQuery<Overview>({
+    queryKey: ['analytics-overview'],
+    queryFn: async () => (await apiClient.get('/analytics/overview')).data,
   });
 
-  const { data: summary, isLoading: summaryLoading } = useQuery({
-    queryKey: ['dashboard-summary'],
-    queryFn: async () => (await apiClient.get('/auth/company/summary')).data,
-  });
+  const boq = data?.boq;
+  const projects = data?.projects;
+  const budget = data?.budget;
 
   return (
     <DashboardShell>
       <div className="max-w-[1600px] mx-auto pb-20">
 
         {/* HEADER */}
-        <div className={t.pageHeader}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12 border-b border-border pb-8">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-            <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Workspace Active</span>
+            </div>
+            <h1 className="text-4xl font-black text-foreground tracking-tight leading-tight">
               Good morning, {user?.name?.split(' ')[0] || 'Member'} 👋
             </h1>
-            <p className="text-xs text-white/40 font-bold uppercase tracking-widest mt-1 italic">
-              {user?.company || 'BuildHub Workspace'} • Premium Tier
+            <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-2">
+              {user?.company || 'BuildHub'} • Premium Tier
             </p>
           </motion.div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-brand-navy-card px-5 py-2.5 rounded-2xl border border-brand-border text-[10px] font-black uppercase text-white/40 shadow-sm">
-              <MapPin size={14} className="text-brand-yellow" />
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2 bg-muted px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest text-foreground/50 w-full sm:w-auto justify-center">
+              <MapPin size={16} className="text-primary" />
               {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
             </div>
-            <Link to="/dashboard/projects/new" className={t.btnPrimary + ' flex items-center gap-2'}>
-              <Plus size={16} /> New Project
+            <Link to="/dashboard/projects/new" className="bg-primary text-foreground hover:bg-primary-dim transition-all shadow-md px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 w-full sm:w-auto">
+              <Plus size={18} /> New Project
             </Link>
           </div>
         </div>
 
-        {/* QUICK ACCESS BAR */}
-        <div className="bg-brand-navy-card border border-brand-border p-10 rounded-[3rem] flex justify-between shadow-sm mb-10 overflow-x-auto no-scrollbar gap-10">
-          <QuickAccess icon={Building2}   label="Inquiries" bg="bg-brand-navy"     path="/dashboard/inquiries" />
-          <QuickAccess icon={Store}       label="Market"    bg="bg-emerald-500"    path="/dashboard/marketplace" />
-          <QuickAccess icon={ClipboardList} label="Tenders" bg="bg-orange-500"    path="/dashboard/tenders" />
-          <QuickAccess icon={FileText}    label="Invoices"  bg="bg-purple-600"     path="/dashboard/invoices" />
-          <QuickAccess icon={Calculator}  label="BOQ Tool"  bg="bg-rose-500"       path="/dashboard/boq" />
-          <QuickAccess icon={Briefcase}   label="Projects"  bg="bg-indigo-600"     path="/dashboard/projects" />
-          <QuickAccess icon={Wrench}      label="Services"  bg="bg-brand-yellow"   path="/dashboard/services" />
-          <QuickAccess icon={Sparkles}    label="AI Hub"    bg="bg-violet-600"     path="/dashboard/ai" />
-          <QuickAccess icon={BarChart}    label="Reports"   bg="bg-rose-600"       path="/dashboard/finance" />
+        {/* LIVE KPI ROW */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <KpiCard
+            icon={Wallet}
+            label="Total BOQ Value"
+            value={boq ? money(boq.totalValue) : '—'}
+            sub={boq ? `${boq.itemsVerified} verified` : ' '}
+            tint="bg-primary-pale text-primary"
+          />
+          <KpiCard
+            icon={FolderKanban}
+            label="Active Projects"
+            value={projects ? projects.total : '—'}
+            sub={projects ? `${projects.byStatus['In Progress'] || 0} in progress` : ' '}
+            tint="bg-indigo-500/10 text-indigo-400"
+          />
+          <KpiCard
+            icon={CheckCircle2}
+            label="Verification Rate"
+            value={boq ? `${Math.round(boq.verificationRate * 100)}%` : '—'}
+            sub={boq ? `${boq.itemsVerified}/${boq.itemsTotal} items` : ' '}
+            tint="bg-emerald-500/10 text-emerald-400"
+          />
+          <KpiCard
+            icon={TrendingUp}
+            label="Budget Used"
+            value={budget ? `${Math.round(budget.utilization * 100)}%` : '—'}
+            sub={budget ? money(budget.spent) : ' '}
+            tint="bg-amber-500/10 text-amber-400"
+          />
         </div>
 
-        {/* STATS GRID */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5 mb-10">
-          <StatCard title="Active Sites"   value={summary?.projectCount || '0'} sub="On-site operations" icon={Briefcase}     iconBg="bg-brand-yellow-pale text-brand-yellow" isLoading={summaryLoading} />
-          <StatCard title="New Inquiries"  value={summary?.msgCount || '0'}     sub="Directory leads"   icon={Inbox}          iconBg="bg-emerald-500/10 text-emerald-400"     isLoading={summaryLoading} />
-          <StatCard title="Open Tenders"   value={summary?.tenderCount || '0'}  sub="Market matches"   icon={ClipboardList}  iconBg="bg-orange-500/10 text-orange-400"       isLoading={summaryLoading} />
-          <StatCard title="Total Revenue"  value={`$${summary?.totalIncome?.toLocaleString() || '0'}`} sub="Annual gross" icon={TrendingUp} iconBg="bg-purple-500/10 text-purple-400" isLoading={summaryLoading} />
-          <StatCard title="Outstanding"    value={summary?.invoiceCount || '0'} sub="Pending payments" icon={FileText}       iconBg="bg-rose-500/10 text-rose-400"           isLoading={summaryLoading} />
+        {/* GRID LAYOUT */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-6">
+
+          <DashboardCard
+            icon={Briefcase}
+            title="Project Pulse"
+            desc="Monitor ongoing site operations, track progress, and manage daily field reports."
+            path="/dashboard/projects"
+            delay={0.05}
+            isPrimary={true}
+            className="sm:col-span-2 lg:col-span-2 xl:col-span-2"
+          />
+
+          <DashboardCard
+            icon={Building2}
+            title="Inquiries"
+            desc="Manage directory leads and client messages."
+            path="/dashboard/inquiries"
+            delay={0.1}
+          />
+
+          <DashboardCard
+            icon={Store}
+            title="Marketplace"
+            desc="Buy & sell heavy equipment and materials."
+            path="/dashboard/marketplace"
+            delay={0.15}
+          />
+
+          <DashboardCard
+            icon={ClipboardList}
+            title="Tenders"
+            desc="Browse open tenders and submit bids."
+            path="/dashboard/tenders"
+            delay={0.2}
+          />
+
+          <DashboardCard
+            icon={FileText}
+            title="Invoices"
+            desc="Create, send, and track financial invoices instantly."
+            path="/dashboard/invoices"
+            delay={0.25}
+          />
+
+          <DashboardCard
+            icon={Calculator}
+            title="BOQ Tool"
+            desc="Generate professional Bills of Quantities."
+            path="/dashboard/boq"
+            delay={0.3}
+          />
+
+          <DashboardCard
+            icon={Sparkles}
+            title="AI Hub"
+            desc="Leverage AI for engineering insights and safety."
+            path="/dashboard/ai"
+            delay={0.35}
+            isPrimary={true}
+            className="sm:col-span-2 lg:col-span-2"
+          />
+
+          <DashboardCard
+            icon={BarChart}
+            title="Analytics"
+            desc="Live BOQ value, verification, budgets, and AI adoption."
+            path="/dashboard/analytics"
+            delay={0.4}
+          />
+
+          <DashboardCard
+            icon={Wrench}
+            title="Services"
+            desc="Configure your service offerings and public profile."
+            path="/dashboard/services"
+            delay={0.45}
+          />
+
         </div>
 
-        {/* PROJECTS + FINANCE */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-
-          {/* Projects table */}
-          <div className="lg:col-span-2 bg-brand-navy-card border border-brand-border rounded-[2.5rem] p-8 shadow-sm">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className={t.label}>Live Project Pulse</h3>
-              <Link to="/dashboard/projects" className="text-[10px] font-black text-brand-yellow border-b border-brand-yellow/20 hover:border-brand-yellow transition-all uppercase tracking-widest pb-0.5">
-                View Portfolio
-              </Link>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[9px] text-white/35 uppercase font-black tracking-[0.2em] border-b border-brand-border">
-                    <th className="pb-5">Site</th>
-                    <th className="pb-5">Status</th>
-                    <th className="pb-5">Progress</th>
-                    <th className="pb-5 text-right">Budget</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {projectsLoading
-                    ? [1,2,3,4].map(i => (
-                        <tr key={i}><td colSpan={4} className="py-4"><Skeleton className="h-10 w-full" /></td></tr>
-                      ))
-                    : projects?.map((p: any) => (
-                        <motion.tr
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          key={p._id}
-                          className="text-xs font-bold text-white/70 hover:bg-brand-navy-light/40 transition-colors cursor-pointer group border-b border-brand-border"
-                        >
-                          <td className="py-5 font-black text-white">{p.name}</td>
-                          <td>
-                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${p.status === 'In Progress' ? 'bg-brand-yellow-pale text-brand-yellow' : 'bg-white/5 text-white/40'}`}>
-                              {p.status}
-                            </span>
-                          </td>
-                          <td>
-                            <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                              <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${p.progress}%` }}
-                                className="h-full bg-brand-yellow"
-                              />
-                            </div>
-                          </td>
-                          <td className="text-right flex items-center justify-end gap-3 text-white font-black">
-                            ${p.budget?.toLocaleString()}
-                            <ChevronRight size={14} className="text-white/15 group-hover:text-brand-yellow transition-all" />
-                          </td>
-                        </motion.tr>
-                      ))
-                  }
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Financial summary */}
-          <div className="bg-brand-navy-card border border-brand-border rounded-[2.5rem] p-10 flex flex-col items-center shadow-sm">
-            <h3 className={t.label + ' w-full mb-10'}>Financial Telemetry</h3>
-            <div className="relative w-52 h-52 flex items-center justify-center mb-10">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle cx="104" cy="104" r="85" stroke="currentColor" strokeWidth="22" fill="transparent" className="text-white/5" />
-                <motion.circle
-                  cx="104" cy="104" r="85" stroke="currentColor" strokeWidth="22" fill="transparent"
-                  strokeDasharray="534"
-                  initial={{ strokeDashoffset: 534 }}
-                  animate={{ strokeDashoffset: 534 - (534 * 0.75) }}
-                  transition={{ duration: 2, ease: 'easeOut' }}
-                  className="text-brand-yellow"
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <h2 className="text-3xl font-black text-white tracking-tighter italic">
-                  {summaryLoading ? '...' : `$${((summary?.balance || 0) / 1000).toFixed(1)}k`}
-                </h2>
-                <p className={t.label + ' mt-1'}>Available</p>
-              </div>
-            </div>
-            <div className="w-full space-y-5">
-              {[
-                { label: 'Total Revenue', value: summary?.totalIncome, color: 'bg-emerald-500' },
-                { label: 'Total OpEx',    value: summary?.totalExpenses, color: 'bg-rose-500' },
-              ].map(row => (
-                <div key={row.label} className="flex justify-between items-center text-xs">
-                  <div className="flex items-center gap-3 font-bold text-white/40">
-                    <div className={`w-2.5 h-2.5 rounded-full ${row.color}`} />
-                    <span className="uppercase tracking-widest text-[10px]">{row.label}</span>
-                  </div>
-                  <span className="font-black text-white">${row.value?.toLocaleString() || '0'}</span>
-                </div>
-              ))}
-              <Link to="/dashboard/finance" className="block text-center text-brand-yellow text-[10px] font-black uppercase tracking-[0.2em] pt-6 hover:underline">
-                Open Financial Audit →
-              </Link>
-            </div>
-          </div>
-        </div>
       </div>
     </DashboardShell>
   );

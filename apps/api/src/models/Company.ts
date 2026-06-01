@@ -17,6 +17,16 @@ export interface ICompany extends Document {
   status: 'pending' | 'verified' | 'rejected';
   owner: mongoose.Types.ObjectId;
   plan: 'basic' | 'pro' | 'enterprise';
+  walletBalance?: number;
+  walletHistory?: Array<{
+    type: 'credit' | 'debit';
+    amount: number;
+    amountUSD?: number;
+    currency?: string;
+    note?: string;
+    transactionId?: string;
+    date: Date;
+  }>;
 }
 
 const CompanySchema = new Schema({
