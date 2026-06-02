@@ -1,7 +1,7 @@
 import express from 'express';
 // 1. Import your named exports from the controller
 import { register, login, getSummary, getCompanyBySlug, getMyCompanyProfile, updateCompanyBySlug,
-updateCompanyPortfolio, updateCompanyLogo, deleteCompanyPortfolioImage, updateMyCompanyProfile } from '../controllers/authController';
+updateCompanyPortfolio, updateCompanyLogo, deleteCompanyPortfolioImage, updateMyCompanyProfile, forgotPassword, resetPassword, updateCompanyLetterhead } from '../controllers/authController';
 import { protect } from '../middleware/auth';
 import { upload } from '../middleware/upload';
 import { handleUpload } from '../middleware/handleUpload';
@@ -23,6 +23,20 @@ router.post('/register', register);
 router.post('/login', login);
 
 /**
+ * @route   POST /api/v1/auth/forgotpassword
+ * @desc    Issue a password reset token
+ * @access  Public
+ */
+router.post('/forgotpassword', forgotPassword);
+
+/**
+ * @route   PUT /api/v1/auth/resetpassword/:token
+ * @desc    Reset password using a valid token
+ * @access  Public
+ */
+router.put('/resetpassword/:token', resetPassword);
+
+/**
  * @route   GET /api/v1/auth/company/summary
  * @desc    Get dashboard summary stats for the company
  * @access  Private
@@ -39,6 +53,7 @@ router.put('/company/profile', protect, updateMyCompanyProfile);
 router.get('/company/:slug', protect, getCompanyBySlug);
 router.put('/company/:slug', protect, updateCompanyBySlug);
 router.post('/company/:slug/logo', protect, handleUpload(upload.single('file')), updateCompanyLogo);
+router.post('/company/:slug/letterhead', protect, handleUpload(upload.single('file')), updateCompanyLetterhead);
 router.post('/company/:slug/gallery', protect, handleUpload(upload.array('files', 10)), updateCompanyPortfolio);
 router.delete('/company/:slug/gallery', protect, deleteCompanyPortfolioImage);
 

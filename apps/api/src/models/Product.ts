@@ -8,7 +8,9 @@ const ProductSchema = new Schema({
   supplier: { type: String, required: true },
   image: String,
   description: String,
-  inStock: { type: Boolean, default: true }
+  inStock: { type: Boolean, default: true },
+  ownerId: { type: Schema.Types.ObjectId, ref: 'Company' },
+  whatsappNumber: { type: String }
 }, { timestamps: true });
 
 export default mongoose.model('Product', ProductSchema);

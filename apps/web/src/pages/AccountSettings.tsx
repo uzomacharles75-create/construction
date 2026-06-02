@@ -21,18 +21,18 @@ const SettingRow = ({ icon: Icon, title, desc, onClick }: any) => (
   <motion.div 
     whileHover={{ x: 5 }}
     onClick={onClick}
-    className="flex items-center justify-between p-6 bg-brand-navy-card border border-brand-border rounded-3xl hover:shadow-card hover:shadow-card transition-all cursor-pointer group"
+    className="flex items-center justify-between p-6 bg-card border border-border rounded-3xl hover:shadow-card hover:shadow-card transition-all cursor-pointer group"
   >
     <div className="flex items-center gap-5">
-      <div className="w-12 h-12 bg-brand-navy-light rounded-2xl flex items-center justify-center text-white/50 group-hover:text-brand-yellow group-hover:bg-brand-yellow-pale transition-all">
+      <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center text-muted-foreground group-hover:text-primary group-hover:bg-primary-pale transition-all">
         <Icon size={22} />
       </div>
       <div>
         <h4 className="text-sm font-bold text-brand-navy leading-tight">{title}</h4>
-        <p className="text-[11px] text-white/50 mt-0.5 font-medium">{desc}</p>
+        <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{desc}</p>
       </div>
     </div>
-    <ChevronRight size={18} className="text-white/35 group-hover:text-brand-navy transition-colors" />
+    <ChevronRight size={18} className="text-foreground/35 group-hover:text-brand-navy transition-colors" />
   </motion.div>
 );
 
@@ -51,26 +51,26 @@ const AccountSettings = () => {
         </header>
 
         {/* PROFILE OVERVIEW CARD (DYNAMIC) */}
-        <section className="bg-brand-navy-card rounded-[2.5rem] p-8 border border-brand-border shadow-premium mb-10 flex items-center gap-8">
+        <section className="bg-card rounded-[2.5rem] p-8 border border-border shadow-premium mb-10 flex items-center gap-8">
           <div className="relative group">
-            <div className="w-24 h-24 rounded-[2rem] bg-brand-navy-light overflow-hidden ring-4 ring-slate-50 flex items-center justify-center">
+            <div className="w-24 h-24 rounded-[2rem] bg-muted overflow-hidden ring-4 ring-slate-50 flex items-center justify-center">
               {/* If user has no avatar, show initials */}
               <span className="text-3xl font-black text-brand-navy italic opacity-20">
                 {user?.name?.charAt(0) || 'U'}
               </span>
             </div>
-            <button className="absolute -bottom-2 -right-2 bg-brand-navy text-white p-2.5 rounded-xl shadow-lg hover:bg-brand-yellow transition-all">
+            <button className="absolute -bottom-2 -right-2 bg-background text-foreground p-2.5 rounded-xl shadow-lg hover:bg-primary transition-all">
               <Camera size={16} />
             </button>
           </div>
           <div className="flex-1">
             <h2 className="text-2xl font-black text-brand-navy">{user?.name}</h2>
-            <p className="text-sm text-white/50 font-medium capitalize">
+            <p className="text-sm text-muted-foreground font-medium capitalize">
                 {user?.role} • BuildHub Workspace User
             </p>
             <div className="flex items-center gap-2 mt-3">
                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${
-                 user?.role === 'owner' ? 'bg-brand-yellow-pale text-brand-yellow' : 'bg-emerald-50 text-emerald-600'
+                 user?.role === 'owner' ? 'bg-primary-pale text-primary' : 'bg-emerald-50 text-emerald-600'
                }`}>
                  {user?.role === 'owner' ? 'Admin Access' : 'Staff Access'}
                </span>
@@ -83,7 +83,7 @@ const AccountSettings = () => {
           
           {/* PERSONAL INFORMATION */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black text-white/35 uppercase tracking-[0.2em] px-2">Personal Identity</h3>
+            <h3 className="text-xs font-black text-foreground/35 uppercase tracking-[0.2em] px-2">Personal Identity</h3>
             <div className="space-y-3">
               <SettingRow 
                 icon={User} 
@@ -100,7 +100,7 @@ const AccountSettings = () => {
 
           {/* SECURITY */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black text-white/35 uppercase tracking-[0.2em] px-2">Security & Privacy</h3>
+            <h3 className="text-xs font-black text-foreground/35 uppercase tracking-[0.2em] px-2">Security & Privacy</h3>
             <div className="space-y-3">
               <SettingRow icon={Lock} title="Password" desc="Change or update your password" />
               <SettingRow icon={ShieldCheck} title="Two-Factor Authentication" desc="Enable 2FA for enhanced protection" />
@@ -110,26 +110,26 @@ const AccountSettings = () => {
 
           {/* PREFERENCES */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black text-white/35 uppercase tracking-[0.2em] px-2">System Preferences</h3>
+            <h3 className="text-xs font-black text-foreground/35 uppercase tracking-[0.2em] px-2">System Preferences</h3>
             <div className="space-y-3">
               {/* Premium iOS Style Toggle */}
-              <div className="flex items-center justify-between p-6 bg-brand-navy-card border border-brand-border rounded-3xl shadow-sm">
+              <div className="flex items-center justify-between p-6 bg-card border border-border rounded-3xl shadow-sm">
                 <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 bg-brand-navy-light rounded-2xl flex items-center justify-center text-white/50">
+                  <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center text-muted-foreground">
                     <Bell size={22} />
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-brand-navy leading-tight">Push Notifications</h4>
-                    <p className="text-[11px] text-white/50 mt-0.5 font-medium">Alerts for site logs and invoices</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">Alerts for site logs and invoices</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => setNotifications(!notifications)}
-                  className={`w-12 h-6 rounded-full transition-all relative ${notifications ? 'bg-brand-yellow' : 'bg-brand-navy-light'}`}
+                  className={`w-12 h-6 rounded-full transition-all relative ${notifications ? 'bg-primary' : 'bg-muted'}`}
                 >
                   <motion.div 
                     animate={{ x: notifications ? 24 : 4 }}
-                    className="absolute top-1 w-4 h-4 bg-brand-navy-card rounded-full shadow-sm"
+                    className="absolute top-1 w-4 h-4 bg-card rounded-full shadow-sm"
                   />
                 </button>
               </div>
@@ -150,7 +150,7 @@ const AccountSettings = () => {
               </div>
               <button 
                 onClick={logout}
-                className="bg-brand-navy-card text-rose-500 px-8 py-4 rounded-2xl font-bold text-sm shadow-sm border border-rose-200 hover:bg-rose-500 hover:text-white transition-all flex items-center gap-2"
+                className="bg-card text-rose-500 px-8 py-4 rounded-2xl font-bold text-sm shadow-sm border border-rose-200 hover:bg-rose-500 hover:text-foreground transition-all flex items-center gap-2"
               >
                 <Trash2 size={18} />
                 Delete Account

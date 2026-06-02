@@ -1,17 +1,19 @@
-import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { DashboardShell } from '../components/layout/DashboardShell';
 import apiClient from '../api/client';
-import { 
-  ShoppingBag, 
-  Truck, 
+import {
+  Truck,
   Package, 
   ChevronRight, 
   Loader2, 
   TrendingUp,
-  FileText
+  FileText,
+  Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MarketplaceIntelligenceTab } from '../components/marketplace/MarketplaceIntelligenceTab';
+import { MyProductsTab } from '../components/marketplace/MyProductsTab';
+import { useState } from 'react';
 
 const MarketplaceManager = () => {
   // 1. FETCH ACTIVE SHIPMENTS
@@ -32,74 +34,127 @@ const MarketplaceManager = () => {
     }
   });
 
+  const [activeTab, setActiveTab] = useState<'logistics' | 'intelligence' | 'my_products'>('intelligence');
+
   return (
     <DashboardShell>
-      <div className="max-w-[1600px] mx-auto pb-20">
+      <div className="max-w-[1600px] mx-auto pb-20 relative">
         
         {/* HEADER */}
-        <header className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+        <header className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-6 relative z-10">
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight">Supply Chain & Logistics</h1>
-            <p className="text-sm text-white/50 font-medium italic underline underline-offset-4 decoration-blue-600/20">
-                Manage material procurement, track deliveries, and control site spending.
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-2.5 h-2.5 rounded-full bg-primary animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Logistics Active</span>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-foreground tracking-tight leading-tight">
+              Supply Chain <br />
+              <span className="text-primary">& Logistics</span>
+            </h1>
+            <p className="text-sm text-muted-foreground font-medium mt-3 max-w-lg">
+                Manage material procurement, track active deliveries, and leverage AI to predict demand.
             </p>
           </div>
-          <Link 
-            to="/dashboard/marketplace" 
-            className="bg-brand-yellow text-brand-navy px-8 py-4 rounded-3xl font-black text-xs uppercase tracking-widest shadow-xl shadow-yellow hover:bg-brand-yellow-dim hover:scale-105 transition-all flex items-center gap-2"
-          >
-            <ShoppingBag size={18} /> Order Materials
-          </Link>
+          <div className="flex items-center gap-3 bg-muted p-1.5 rounded-[2rem] shadow-inner">
+             <button 
+                onClick={() => setActiveTab('logistics')}
+                className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all ${
+                  activeTab === 'logistics' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+             >
+               Logistics
+             </button>
+             <button 
+                onClick={() => setActiveTab('intelligence')}
+                className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all flex items-center gap-2 ${
+                  activeTab === 'intelligence' ? 'bg-primary text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+             >
+               <TrendingUp size={14} /> AI Intelligence
+             </button>
+             <button 
+                onClick={() => setActiveTab('my_products')}
+                className={`px-6 py-3 rounded-[1.5rem] font-black text-xs uppercase tracking-widest transition-all ${
+                  activeTab === 'my_products' ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+             >
+               Upload Product
+             </button>
+          </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* TRACKING SECTION (REAL DATA) */}
+        {activeTab === 'intelligence' ? (
+          <MarketplaceIntelligenceTab />
+        ) : activeTab === 'my_products' ? (
+          <MyProductsTab />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+            
+            {/* TRACKING SECTION */}
           <div className="lg:col-span-2 space-y-6">
-            <h3 className="font-black text-white text-lg flex items-center gap-2 px-2">
-                <Truck size={22} className="text-brand-yellow" /> Active Site Deliveries
-            </h3>
+            <div className="flex items-center justify-between px-2">
+              <h3 className="font-black text-foreground text-xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-[1rem] bg-foreground flex items-center justify-center text-background shadow-sm">
+                    <Truck size={20} />
+                  </div>
+                  Active Deliveries
+              </h3>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                {orders?.length || 0} In Transit
+              </span>
+            </div>
             
             {ordersLoading ? (
               <div className="py-20 text-center animate-pulse flex flex-col items-center">
-                <Loader2 className="animate-spin text-brand-yellow mb-4" size={32} />
-                <p className="font-bold text-white/50">Locating shipments...</p>
+                <Loader2 className="animate-spin text-foreground mb-4" size={32} />
+                <p className="font-bold text-muted-foreground">Locating shipments...</p>
               </div>
             ) : orders?.length === 0 ? (
-              <div className="bg-brand-navy-card border border-brand-border p-20 rounded-[3rem] border-2 border-dashed border-brand-border text-center">
-                 <Package className="mx-auto text-slate-100 mb-4" size={48} />
-                 <h3 className="text-xl font-bold text-white/50">No active orders</h3>
-                 <p className="text-xs text-white/35 mt-1 uppercase font-black tracking-widest">Your supply chain is currently idle</p>
+              <div className="bg-muted border border-border p-20 rounded-[3rem] border-dashed text-center">
+                 <Package className="mx-auto text-foreground/20 mb-6" size={56} />
+                 <h3 className="text-2xl font-black text-foreground tracking-tight">No active orders</h3>
+                 <p className="text-sm text-muted-foreground mt-2 font-medium">Your supply chain is currently idle.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {orders?.map((order: any) => (
+                {orders?.map((order: any, idx: number) => (
                   <motion.div 
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1, duration: 0.5 }}
                     key={order._id} 
-                    className="bg-brand-navy-card border border-brand-border p-8 rounded-[3rem] border border-brand-border shadow-sm flex items-center justify-between hover:shadow-md transition-all group"
+                    className="bg-card border border-border p-6 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all duration-300 group relative overflow-hidden"
                   >
-                    <div className="flex items-center gap-6">
-                       <div className="w-16 h-16 bg-brand-navy-light rounded-[1.5rem] flex items-center justify-center text-white/50 group-hover:bg-brand-yellow-pale group-hover:text-brand-yellow transition-colors">
-                          <Package size={28} />
-                       </div>
-                       <div>
-                          <h4 className="font-black text-white text-sm">{order.itemName}</h4>
-                          <p className="text-[10px] text-white/50 font-bold uppercase tracking-[0.1em] mt-1">
-                            {order.supplier} • ID: {order.orderNumber}
-                          </p>
-                       </div>
-                    </div>
-                    <div className="flex items-center gap-6">
-                       <span className={`text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest ${
-                         order.status === 'In Transit' ? 'bg-brand-yellow-pale text-brand-yellow' : 'bg-amber-50 text-amber-600'
-                       }`}>
-                         {order.status}
-                       </span>
-                       <button className="p-3 bg-brand-navy-light rounded-xl text-white/35 hover:bg-brand-navy hover:text-white transition-all">
-                          <ChevronRight size={18} />
-                       </button>
+                    
+                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="flex items-center gap-6">
+                         <div className="w-16 h-16 bg-muted rounded-[1.5rem] flex items-center justify-center text-foreground group-hover:bg-primary transition-all duration-300 shadow-sm">
+                            <Package size={28} />
+                         </div>
+                         <div>
+                            <h4 className="font-black text-foreground text-lg">{order.itemName}</h4>
+                            <div className="flex items-center gap-2 mt-1 opacity-70">
+                              <Clock size={12} className="text-muted-foreground" />
+                              <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">
+                                {order.supplier} • #{order.orderNumber}
+                              </p>
+                            </div>
+                         </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto mt-4 sm:mt-0 border-t sm:border-t-0 border-border pt-4 sm:pt-0">
+                         <div className="flex items-center gap-2">
+                           <span className={`w-2 h-2 rounded-full animate-pulse ${order.status === 'In Transit' ? 'bg-primary' : 'bg-foreground/40'}`} />
+                           <span className={`text-[10px] font-black uppercase tracking-widest ${
+                             order.status === 'In Transit' ? 'text-primary' : 'text-foreground/60'
+                           }`}>
+                             {order.status}
+                           </span>
+                         </div>
+                         <button className="w-12 h-12 bg-muted rounded-[1.25rem] flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors duration-300 shadow-sm border border-border">
+                            <ChevronRight size={20} />
+                         </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -107,58 +162,81 @@ const MarketplaceManager = () => {
             )}
           </div>
 
-          {/* ANALYTICS WIDGET (REAL DATA) */}
+          {/* ANALYTICS WIDGET */}
           <div className="space-y-6">
-            <div className="bg-brand-navy p-10 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden h-[450px] flex flex-col justify-between">
-               <div className="absolute top-[-20px] right-[-20px] opacity-5">
-                  <TrendingUp size={240} />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              className="bg-foreground p-10 rounded-[3rem] text-background shadow-xl relative overflow-hidden h-[460px] flex flex-col justify-between border border-foreground"
+            >
+               
+               <div className="absolute top-4 right-4 opacity-5 text-background">
+                  <TrendingUp size={180} />
                </div>
                
                <div className="relative z-10">
-                  <p className="text-[11px] font-black text-brand-muted uppercase tracking-[0.2em] mb-3">Procurement Budget</p>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    <p className="text-[10px] font-black text-background/60 uppercase tracking-[0.2em]">Procurement Budget</p>
+                  </div>
+                  
                   {statsLoading ? (
-                    <div className="h-10 w-32 bg-brand-navy-card/10 animate-pulse rounded-lg" />
+                    <div className="h-14 w-40 bg-background/10 animate-pulse rounded-xl" />
                   ) : (
-                    <h2 className="text-5xl font-black italic tracking-tighter">${stats?.totalSpent?.toLocaleString() || '0.00'}</h2>
+                    <h2 className="text-5xl md:text-6xl font-black tracking-tighter text-background">
+                      ${stats?.totalSpent?.toLocaleString() || '0.00'}
+                    </h2>
                   )}
-                  <div className="mt-6 flex items-center gap-2">
-                    <div className="w-full h-1.5 bg-brand-navy-card/10 rounded-full overflow-hidden">
+                  
+                  <div className="mt-8 flex items-center gap-4">
+                    <div className="w-full h-2 bg-background/10 rounded-full overflow-hidden">
                        <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${stats?.budgetUtilization || 0}%` }}
-                        className="h-full bg-brand-yellow shadow-[0_0_15px_rgba(37,99,235,0.5)]" 
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className="h-full bg-primary relative"
                        />
                     </div>
-                    <span className="text-[10px] font-black text-brand-yellow">{stats?.budgetUtilization || 0}%</span>
+                    <span className="text-sm font-black text-background">{stats?.budgetUtilization || 0}%</span>
                   </div>
-                  <p className="text-xs text-white/50 mt-4 font-medium italic">Available Credit: ${stats?.availableCredit?.toLocaleString() || '0.00'}</p>
+                  <p className="text-xs text-background/60 mt-4 font-semibold uppercase tracking-widest">
+                    Available Credit: <span className="text-primary">${stats?.availableCredit?.toLocaleString() || '0.00'}</span>
+                  </p>
                </div>
 
                <div className="space-y-3 relative z-10">
-                  <button className="w-full py-4 bg-brand-navy-card/10 hover:bg-brand-navy-card/20 transition-all rounded-2xl text-[10px] font-black uppercase tracking-widest border border-brand-border/10 flex items-center justify-center gap-2">
-                    <FileText size={14} /> Download Site Log
+                  <button className="w-full py-4 bg-background/5 hover:bg-background/10 transition-colors rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest border border-background/20 flex items-center justify-center gap-2 group/btn">
+                    <FileText size={16} className="text-background/50 group-hover/btn:text-background transition-colors" /> Download Log
                   </button>
-                  <button className="w-full py-4 bg-brand-yellow hover:bg-brand-yellow-dim transition-all rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg">
+                  <button className="w-full py-4 bg-primary text-foreground hover:bg-primary-dim transition-colors rounded-[1.5rem] text-[10px] font-black uppercase tracking-widest shadow-md">
                     Manage Suppliers
                   </button>
                </div>
-            </div>
+            </motion.div>
 
             {/* QUICK INFO CARD */}
-            <div className="bg-brand-navy-card border border-brand-border p-8 rounded-[2.5rem] border border-brand-border shadow-sm">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600">
-                        <TrendingUp size={20} />
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-card border border-border p-8 rounded-[2.5rem] shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group"
+            >
+                <div className="absolute right-0 top-0 w-32 h-32 bg-muted rounded-bl-[100px] pointer-events-none" />
+                <div className="flex items-center gap-5 relative z-10">
+                    <div className="w-14 h-14 bg-muted rounded-[1.25rem] flex items-center justify-center text-foreground shadow-sm border border-border">
+                        <TrendingUp size={24} />
                     </div>
                     <div>
-                        <h4 className="font-bold text-white text-sm">Efficiency Score</h4>
-                        <p className="text-xs text-white/50">Material waste reduced by 14%</p>
+                        <h4 className="font-black text-foreground text-lg tracking-tight">Efficiency Score</h4>
+                        <p className="text-xs text-muted-foreground font-semibold mt-1">Material waste reduced by 14%</p>
                     </div>
                 </div>
-            </div>
+            </motion.div>
           </div>
 
         </div>
+        )}
       </div>
     </DashboardShell>
   );

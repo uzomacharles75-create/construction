@@ -138,14 +138,14 @@ const Services = () => {
       <div className="max-w-[1400px] mx-auto pb-20">
         <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-black text-white tracking-tight">My Services</h1>
-            <p className="text-sm text-white/50 font-medium mt-1">
+            <h1 className="text-3xl font-black text-foreground tracking-tight">My Services</h1>
+            <p className="text-sm text-muted-foreground font-medium mt-1">
               Add construction services with photos. Public services appear on your company directory page.
             </p>
           </div>
           <button
             onClick={() => (showForm ? resetForm() : setShowForm(true))}
-            className="flex items-center gap-2 px-6 py-3 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm shadow-yellow hover:scale-[1.02] transition-all"
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-brand-navy rounded-2xl font-black text-sm shadow-yellow hover:scale-[1.02] transition-all"
           >
             <Plus size={18} /> Add Service
           </button>
@@ -157,28 +157,28 @@ const Services = () => {
               initial={{ opacity: 0, y: -16, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              className="bg-brand-navy-card rounded-[2.5rem] border border-brand-yellow/30 shadow-yellow p-8 mb-8"
+              className="bg-card rounded-[2.5rem] border border-primary/30 shadow-yellow p-8 mb-8"
             >
-              <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-                <Wrench size={18} className="text-brand-yellow" /> New Service
+              <h3 className="text-lg font-black text-foreground mb-6 flex items-center gap-2">
+                <Wrench size={18} className="text-primary" /> New Service
               </h3>
 
               <div className="mb-6">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-2 block">Service Photo</label>
+                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-2 block">Service Photo</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="relative aspect-video max-w-md rounded-3xl overflow-hidden border-2 border-dashed border-brand-border bg-brand-navy-light cursor-pointer group hover:border-brand-yellow/40 transition-all"
+                  className="relative aspect-video max-w-md rounded-3xl overflow-hidden border-2 border-dashed border-border bg-muted cursor-pointer group hover:border-primary/40 transition-all"
                 >
                   {imagePreview ? (
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-white/40 gap-2">
-                      <ImagePlus size={32} className="text-brand-yellow" />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-foreground/40 gap-2">
+                      <ImagePlus size={32} className="text-primary" />
                       <span className="text-xs font-bold uppercase tracking-widest">Upload service image</span>
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-brand-navy/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <Camera size={28} className="text-brand-yellow" />
+                  <div className="absolute inset-0 bg-background/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                    <Camera size={28} className="text-primary" />
                   </div>
                 </div>
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImagePick} />
@@ -186,61 +186,61 @@ const Services = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">Service Name *</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-1 block">Service Name *</label>
                   <input
                     type="text"
                     placeholder="e.g. Residential Foundation Works"
                     value={form.name}
                     onChange={e => setForm({ ...form, name: e.target.value })}
-                    className="w-full p-4 bg-brand-navy-light rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/40 font-medium text-sm border-none text-white"
+                    className="w-full p-4 bg-muted rounded-2xl outline-none focus:ring-2 focus:ring-primary/40 font-medium text-sm border-none text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">Category *</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-1 block">Category *</label>
                   <select
                     value={form.category}
                     onChange={e => setForm({ ...form, category: e.target.value })}
-                    className="w-full p-4 bg-brand-navy-light rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/40 font-medium text-sm border-none text-white"
+                    className="w-full p-4 bg-muted rounded-2xl outline-none focus:ring-2 focus:ring-primary/40 font-medium text-sm border-none text-foreground"
                   >
                     <option value="">Select category...</option>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">Description</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-1 block">Description</label>
                   <textarea
                     placeholder="Describe what this service includes..."
                     value={form.description}
                     onChange={e => setForm({ ...form, description: e.target.value })}
-                    className="w-full p-4 bg-brand-navy-light rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/40 font-medium text-sm border-none h-24 resize-none text-white"
+                    className="w-full p-4 bg-muted rounded-2xl outline-none focus:ring-2 focus:ring-primary/40 font-medium text-sm border-none h-24 resize-none text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">Price From ({currency.code})</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-1 block">Price From ({currency.code})</label>
                   <input
                     type="number"
                     placeholder="50,000"
                     value={form.priceFrom}
                     onChange={e => setForm({ ...form, priceFrom: e.target.value })}
-                    className="w-full p-4 bg-brand-navy-light rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/40 font-medium text-sm border-none text-white"
+                    className="w-full p-4 bg-muted rounded-2xl outline-none focus:ring-2 focus:ring-primary/40 font-medium text-sm border-none text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">Price To ({currency.code})</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-1 block">Price To ({currency.code})</label>
                   <input
                     type="number"
                     placeholder="500,000"
                     value={form.priceTo}
                     onChange={e => setForm({ ...form, priceTo: e.target.value })}
-                    className="w-full p-4 bg-brand-navy-light rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/40 font-medium text-sm border-none text-white"
+                    className="w-full p-4 bg-muted rounded-2xl outline-none focus:ring-2 focus:ring-primary/40 font-medium text-sm border-none text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/50 px-1 mb-1 block">Pricing Unit</label>
+                  <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground px-1 mb-1 block">Pricing Unit</label>
                   <select
                     value={form.unit}
                     onChange={e => setForm({ ...form, unit: e.target.value })}
-                    className="w-full p-4 bg-brand-navy-light rounded-2xl outline-none focus:ring-2 focus:ring-brand-yellow/40 font-medium text-sm border-none text-white"
+                    className="w-full p-4 bg-muted rounded-2xl outline-none focus:ring-2 focus:ring-primary/40 font-medium text-sm border-none text-foreground"
                   >
                     {['project', 'm²', 'm³', 'unit', 'day', 'hour'].map(u => <option key={u} value={u}>{u}</option>)}
                   </select>
@@ -249,22 +249,22 @@ const Services = () => {
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, isPublic: !form.isPublic })}
-                    className={`w-12 h-6 rounded-full transition-all ${form.isPublic ? 'bg-brand-yellow' : 'bg-brand-navy-light'} relative`}
+                    className={`w-12 h-6 rounded-full transition-all ${form.isPublic ? 'bg-primary' : 'bg-muted'} relative`}
                   >
-                    <div className={`w-5 h-5 bg-brand-navy-card rounded-full absolute top-0.5 transition-all shadow ${form.isPublic ? 'left-6' : 'left-0.5'}`} />
+                    <div className={`w-5 h-5 bg-card rounded-full absolute top-0.5 transition-all shadow ${form.isPublic ? 'left-6' : 'left-0.5'}`} />
                   </button>
-                  <span className="text-sm font-bold text-white/70 flex items-center gap-1">
-                    {form.isPublic ? <Globe size={14} className="text-brand-yellow" /> : <Lock size={14} />}
+                  <span className="text-sm font-bold text-foreground/70 flex items-center gap-1">
+                    {form.isPublic ? <Globe size={14} className="text-primary" /> : <Lock size={14} />}
                     {form.isPublic ? 'Visible on public directory' : 'Hidden from directory'}
                   </span>
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-6">
-                <button onClick={resetForm} className="px-6 py-3 text-white/50 font-black text-sm hover:text-white">Cancel</button>
+                <button onClick={resetForm} className="px-6 py-3 text-muted-foreground font-black text-sm hover:text-foreground">Cancel</button>
                 <button
                   onClick={handleSubmit}
                   disabled={addMutation.isPending}
-                  className="px-8 py-3 bg-brand-yellow text-brand-navy rounded-2xl font-black text-sm flex items-center gap-2 hover:scale-[1.02] transition-all"
+                  className="px-8 py-3 bg-primary text-brand-navy rounded-2xl font-black text-sm flex items-center gap-2 hover:scale-[1.02] transition-all"
                 >
                   {addMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
                   Save Service
@@ -275,14 +275,14 @@ const Services = () => {
         </AnimatePresence>
 
         {isLoading ? (
-          <div className="h-64 flex items-center justify-center text-white/35 animate-pulse font-bold">
+          <div className="h-64 flex items-center justify-center text-foreground/35 animate-pulse font-bold">
             <Loader2 className="animate-spin mr-2" /> Loading services...
           </div>
         ) : services?.length === 0 ? (
-          <div className="bg-brand-navy-card border border-brand-border p-20 rounded-[3rem] border-2 border-dashed text-center">
-            <Wrench className="mx-auto text-white/15 mb-4" size={48} />
-            <h3 className="text-xl font-bold text-white/50">No services yet</h3>
-            <p className="text-xs text-white/35 mt-1 uppercase font-black tracking-widest">Add your first service to appear in the directory</p>
+          <div className="bg-card border border-border p-20 rounded-[3rem] border-2 border-dashed text-center">
+            <Wrench className="mx-auto text-foreground/15 mb-4" size={48} />
+            <h3 className="text-xl font-bold text-muted-foreground">No services yet</h3>
+            <p className="text-xs text-foreground/35 mt-1 uppercase font-black tracking-widest">Add your first service to appear in the directory</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
@@ -291,13 +291,13 @@ const Services = () => {
                 key={svc._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-brand-navy-card rounded-[2rem] border border-brand-border overflow-hidden hover:shadow-card hover:border-brand-yellow/30 transition-all group"
+                className="bg-card rounded-[2rem] border border-border overflow-hidden hover:shadow-card hover:border-primary/30 transition-all group"
               >
-                <div className="relative aspect-[16/10] bg-brand-navy-light">
+                <div className="relative aspect-[16/10] bg-muted">
                   {svc.image ? (
                     <img src={svc.image} alt={svc.name} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex flex-col items-center justify-center text-white/25 gap-2">
+                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/50 gap-2">
                       <Wrench size={32} />
                       <span className="text-[10px] font-black uppercase tracking-widest">No image</span>
                     </div>
@@ -309,7 +309,7 @@ const Services = () => {
                       cardImageInputRef.current?.click();
                     }}
                     disabled={imageMutation.isPending && uploadingServiceId === svc._id}
-                    className="absolute bottom-3 right-3 px-3 py-1.5 bg-brand-navy/80 backdrop-blur text-white text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-brand-yellow hover:text-brand-navy"
+                    className="absolute bottom-3 right-3 px-3 py-1.5 bg-background/80 backdrop-blur text-foreground text-[10px] font-black uppercase tracking-wider rounded-xl flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-primary hover:text-brand-navy"
                   >
                     {imageMutation.isPending && uploadingServiceId === svc._id
                       ? <Loader2 size={12} className="animate-spin" />
@@ -320,29 +320,29 @@ const Services = () => {
 
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-3">
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${svc.isPublic ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-white/50'}`}>
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${svc.isPublic ? 'bg-emerald-500/20 text-emerald-400' : 'bg-white/10 text-muted-foreground'}`}>
                       {svc.isPublic ? 'On directory' : 'Hidden'}
                     </span>
                     <button
                       onClick={() => deleteMutation.mutate(svc._id)}
-                      className="p-2 rounded-xl hover:bg-rose-500/20 hover:text-rose-400 text-white/35 transition-all"
+                      className="p-2 rounded-xl hover:bg-rose-500/20 hover:text-rose-400 text-foreground/35 transition-all"
                     >
                       <Trash2 size={16} />
                     </button>
                   </div>
-                  <h3 className="font-black text-white text-base mb-1">{svc.name}</h3>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white/50 flex items-center gap-1 mb-3">
+                  <h3 className="font-black text-foreground text-base mb-1">{svc.name}</h3>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-1 mb-3">
                     <Tag size={10} /> {svc.category}
                   </span>
                   {svc.description && (
-                    <p className="text-xs text-white/60 font-medium mb-4 leading-relaxed line-clamp-2">{svc.description}</p>
+                    <p className="text-xs text-foreground/60 font-medium mb-4 leading-relaxed line-clamp-2">{svc.description}</p>
                   )}
                   {(svc.priceFrom || svc.priceTo) && (
-                    <div className="flex items-center gap-1 text-brand-yellow font-black text-sm">
+                    <div className="flex items-center gap-1 text-primary font-black text-sm">
                       <DollarSign size={14} />
                       {svc.priceFrom && format(Number(svc.priceFrom))}
                       {svc.priceTo && ` – ${format(Number(svc.priceTo))}`}
-                      <span className="text-white/35 font-medium text-xs ml-1 flex items-center gap-1">
+                      <span className="text-foreground/35 font-medium text-xs ml-1 flex items-center gap-1">
                         <Clock size={10} /> / {svc.unit}
                       </span>
                     </div>

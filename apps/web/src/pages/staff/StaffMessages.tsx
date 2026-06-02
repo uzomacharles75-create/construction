@@ -184,7 +184,7 @@ const StaffMessages = () => {
 
   return (
     <DashboardShell>
-      <div className="min-h-[calc(100dvh-8rem)] h-[calc(100dvh-8rem)] sm:h-[calc(100dvh-10rem)] flex bg-brand-navy-card rounded-2xl sm:rounded-[3.5rem] shadow-premium border border-brand-border overflow-hidden">
+      <div className="min-h-[calc(100dvh-8rem)] h-[calc(100dvh-8rem)] sm:h-[calc(100dvh-10rem)] flex bg-card rounded-2xl sm:rounded-[3.5rem] shadow-premium border border-border overflow-hidden">
 
         {/* LEFT SIDEBAR */}
         <aside
@@ -192,24 +192,24 @@ const StaffMessages = () => {
             showList
               ? 'flex'
               : 'hidden'
-          } md:flex w-full md:w-80 border-r border-brand-border flex-col bg-brand-navy-light/30 shrink-0`}
+          } md:flex w-full md:w-80 border-r border-border flex-col bg-muted/30 shrink-0`}
         >
           {/* HEADER */}
-          <div className="p-8 border-b border-brand-border bg-brand-navy-card">
-            <h2 className="font-black text-white tracking-tight">
+          <div className="p-8 border-b border-border bg-card">
+            <h2 className="font-black text-foreground tracking-tight">
               Team Comms
             </h2>
 
             <div className="mt-4 relative">
               <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-white/35"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/35"
                 size={14}
               />
 
               <input
                 type="text"
                 placeholder="Find colleague..."
-                className="w-full pl-9 pr-4 py-2 bg-brand-navy-light rounded-xl text-[11px] font-bold border-none outline-none focus:ring-2 focus:ring-brand-yellow/10"
+                className="w-full pl-9 pr-4 py-2 bg-muted rounded-xl text-[11px] font-bold border-none outline-none focus:ring-2 focus:ring-primary/10"
               />
             </div>
           </div>
@@ -217,7 +217,7 @@ const StaffMessages = () => {
           {/* CHAT LIST */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {loadingChats ? (
-              <div className="p-10 text-center animate-pulse text-white/35 font-bold text-xs uppercase tracking-widest">
+              <div className="p-10 text-center animate-pulse text-foreground/35 font-bold text-xs uppercase tracking-widest">
                 Loading encrypted lines...
               </div>
             ) : (
@@ -240,11 +240,11 @@ const StaffMessages = () => {
                       className={`p-6 m-2 rounded-[2rem] cursor-pointer transition-all flex gap-4 items-center ${
                         activeChat?._id ===
                         chat._id
-                          ? 'bg-brand-yellow text-brand-navy shadow-xl shadow-yellow'
-                          : 'hover:bg-brand-navy-card'
+                          ? 'bg-primary text-brand-navy shadow-xl shadow-yellow'
+                          : 'hover:bg-card'
                       }`}
                     >
-                      <div className="w-10 h-10 rounded-xl bg-brand-navy-card/20 flex items-center justify-center font-black text-xs shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-card/20 flex items-center justify-center font-black text-xs shrink-0">
                         {otherUser?.name?.charAt(
                           0
                         ) || 'U'}
@@ -260,8 +260,8 @@ const StaffMessages = () => {
                           className={`text-[10px] truncate ${
                             activeChat?._id ===
                             chat._id
-                              ? 'text-brand-yellow'
-                              : 'text-white/50'
+                              ? 'text-primary'
+                              : 'text-muted-foreground'
                           }`}
                         >
                           {chat.lastMessage ||
@@ -282,12 +282,12 @@ const StaffMessages = () => {
             showChat
               ? 'flex'
               : 'hidden'
-          } md:flex flex-1 flex-col bg-brand-navy-card min-w-0`}
+          } md:flex flex-1 flex-col bg-card min-w-0`}
         >
           {activeChat ? (
             <>
               {/* TOP BAR */}
-              <header className="p-4 sm:p-6 border-b border-brand-border flex justify-between items-center px-4 sm:px-10 gap-2">
+              <header className="p-4 sm:p-6 border-b border-border flex justify-between items-center px-4 sm:px-10 gap-2">
                 <div className="flex items-center gap-3 min-w-0">
 
                   <button
@@ -297,7 +297,7 @@ const StaffMessages = () => {
                         null
                       )
                     }
-                    className="md:hidden p-2 rounded-xl bg-brand-navy-light shrink-0"
+                    className="md:hidden p-2 rounded-xl bg-muted shrink-0"
                     aria-label="Back"
                   >
                     <ArrowLeft
@@ -317,14 +317,14 @@ const StaffMessages = () => {
 
                     return (
                       <>
-                        <div className="w-10 h-10 rounded-xl bg-brand-navy flex items-center justify-center text-white font-black text-xs italic">
+                        <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center text-foreground font-black text-xs italic">
                           {otherUser?.name?.charAt(
                             0
                           ) || 'U'}
                         </div>
 
                         <div>
-                          <p className="text-xs font-black text-white">
+                          <p className="text-xs font-black text-foreground">
                             {otherUser?.name ||
                               'Unknown User'}
                           </p>
@@ -339,13 +339,13 @@ const StaffMessages = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button className="p-2.5 text-white/35 hover:text-brand-yellow transition-all">
+                  <button className="p-2.5 text-foreground/35 hover:text-primary transition-all">
                     <Phone
                       size={18}
                     />
                   </button>
 
-                  <button className="p-2.5 text-white/35 hover:text-brand-yellow transition-all">
+                  <button className="p-2.5 text-foreground/35 hover:text-primary transition-all">
                     <MoreHorizontal
                       size={18}
                     />
@@ -354,10 +354,10 @@ const StaffMessages = () => {
               </header>
 
               {/* MESSAGES */}
-              <div className="flex-1 overflow-y-auto p-4 sm:p-10 space-y-6 custom-scrollbar bg-brand-navy/50">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-10 space-y-6 custom-scrollbar bg-background/50">
 
                 {loadingMessages ? (
-                  <div className="h-full flex items-center justify-center text-white/35 italic text-xs">
+                  <div className="h-full flex items-center justify-center text-foreground/35 italic text-xs">
                     Accessing technical logs...
                   </div>
                 ) : (
@@ -387,15 +387,15 @@ const StaffMessages = () => {
                           className={`max-w-[85%] sm:max-w-[70%] p-5 rounded-[2rem] text-xs font-medium leading-relaxed shadow-sm ${
                             msg.senderId ===
                             user?.id
-                              ? 'bg-brand-yellow text-brand-navy rounded-tr-none'
-                              : 'bg-brand-navy-card text-white/90 border border-brand-border rounded-tl-none'
+                              ? 'bg-primary text-brand-navy rounded-tr-none'
+                              : 'bg-card text-foreground/90 border border-border rounded-tl-none'
                           }`}
                         >
                           {msg.text}
                         </div>
 
                         <div className="mt-2 px-2 flex items-center gap-1">
-                          <span className="text-[9px] text-white/35 font-black uppercase">
+                          <span className="text-[9px] text-foreground/35 font-black uppercase">
                             {new Date(
                               msg.createdAt
                             ).toLocaleTimeString(
@@ -413,7 +413,7 @@ const StaffMessages = () => {
                             user?.id && (
                             <CheckCheck
                               size={12}
-                              className="text-brand-yellow"
+                              className="text-primary"
                             />
                           )}
                         </div>
@@ -426,12 +426,12 @@ const StaffMessages = () => {
               </div>
 
               {/* INPUT */}
-              <footer className="p-4 sm:p-8 border-t border-brand-border bg-brand-navy-card">
+              <footer className="p-4 sm:p-8 border-t border-border bg-card">
                 <form
                   onSubmit={
                     handleSend
                   }
-                  className="flex gap-4 items-center bg-brand-navy-light p-2 rounded-[2.5rem] border border-brand-border focus-within:ring-4 ring-brand-yellow transition-all"
+                  className="flex gap-4 items-center bg-muted p-2 rounded-[2.5rem] border border-border focus-within:ring-4 ring-primary transition-all"
                 >
                   <input
                     type="text"
@@ -455,12 +455,12 @@ const StaffMessages = () => {
                         )[0] ||
                       'User'
                     }...`}
-                    className="flex-1 bg-transparent border-none outline-none px-6 py-3 text-xs font-bold text-white"
+                    className="flex-1 bg-transparent border-none outline-none px-6 py-3 text-xs font-bold text-foreground"
                   />
 
                   <button
                     type="submit"
-                    className="bg-brand-yellow p-4 rounded-[1.5rem] text-brand-navy shadow-xl hover:bg-brand-navy transition-all"
+                    className="bg-primary p-4 rounded-[1.5rem] text-brand-navy shadow-xl hover:bg-background transition-all"
                   >
                     <Send
                       size={20}
@@ -473,14 +473,14 @@ const StaffMessages = () => {
             <div className="flex-1 flex flex-col items-center justify-center text-center p-20 opacity-30">
               <MessageSquare
                 size={64}
-                className="text-white/15 mb-6"
+                className="text-foreground/15 mb-6"
               />
 
-              <h3 className="text-2xl font-black text-white">
+              <h3 className="text-2xl font-black text-foreground">
                 Site Coordination Hub
               </h3>
 
-              <p className="text-xs font-bold text-white/50 mt-2 uppercase tracking-widest">
+              <p className="text-xs font-bold text-muted-foreground mt-2 uppercase tracking-widest">
                 Select a team member
                 to begin
               </p>

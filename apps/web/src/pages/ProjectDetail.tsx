@@ -37,10 +37,10 @@ const ProjectDetail = () => {
   });
 
   if (isLoading) return (
-    <div className="h-screen flex items-center justify-center bg-brand-navy-card">
+    <div className="h-screen flex items-center justify-center bg-card">
       <div className="text-center">
-        <Loader2 className="animate-spin text-brand-yellow mb-4 mx-auto" size={40} />
-        <p className="font-black text-white/50 uppercase tracking-widest text-xs">Syncing Site Data...</p>
+        <Loader2 className="animate-spin text-primary mb-4 mx-auto" size={40} />
+        <p className="font-black text-muted-foreground uppercase tracking-widest text-xs">Syncing Site Data...</p>
       </div>
     </div>
   );
@@ -55,25 +55,25 @@ const ProjectDetail = () => {
         <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-12">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
             <div className="flex items-center gap-3 mb-2">
-               <h1 className="text-4xl font-black text-white tracking-tight">{project?.name}</h1>
+               <h1 className="text-4xl font-black text-foreground tracking-tight">{project?.name}</h1>
                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${
-                 project?.status === 'In Progress' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-brand-yellow-pale text-brand-yellow'
+                 project?.status === 'In Progress' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-primary-pale text-primary'
                }`}>
                  {project?.status}
                </span>
             </div>
-            <div className="flex items-center gap-4 text-white/50 text-sm font-bold uppercase tracking-tight">
-              <div className="flex items-center gap-1"><MapPin size={16} className="text-brand-yellow" /> {project?.location}</div>
-              <div className="flex items-center gap-1"><Clock size={16} className="text-brand-yellow" /> Started: {new Date(project?.createdAt).toLocaleDateString()}</div>
+            <div className="flex items-center gap-4 text-muted-foreground text-sm font-bold uppercase tracking-tight">
+              <div className="flex items-center gap-1"><MapPin size={16} className="text-primary" /> {project?.location}</div>
+              <div className="flex items-center gap-1"><Clock size={16} className="text-primary" /> Started: {new Date(project?.createdAt).toLocaleDateString()}</div>
             </div>
           </motion.div>
 
-          <div className="bg-brand-navy-card border border-brand-border p-4 rounded-3xl shadow-sm border border-brand-border flex items-center gap-4 px-6">
+          <div className="bg-card border border-border p-4 rounded-3xl shadow-sm border border-border flex items-center gap-4 px-6">
             <div className="text-right">
-              <p className="text-[10px] font-black text-white/35 uppercase tracking-widest">Client</p>
-              <p className="text-sm font-black text-white">{project?.clientName || "Private"}</p>
+              <p className="text-[10px] font-black text-foreground/35 uppercase tracking-widest">Client</p>
+              <p className="text-sm font-black text-foreground">{project?.clientName || "Private"}</p>
             </div>
-            <div className="w-10 h-10 bg-brand-yellow rounded-2xl flex items-center justify-center text-brand-navy font-black text-xs italic shadow-lg">
+            <div className="w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-brand-navy font-black text-xs italic shadow-lg">
                {project?.clientName?.charAt(0) || 'C'}
             </div>
           </div>
@@ -83,34 +83,34 @@ const ProjectDetail = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           
           {/* BUDGET UTILIZATION */}
-          <div className="bg-brand-navy-card border border-brand-border p-8 rounded-[3rem] border border-brand-border shadow-sm">
-             <p className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-3 px-1">Budget Utilized</p>
+          <div className="bg-card border border-border p-8 rounded-[3rem] border border-border shadow-sm">
+             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3 px-1">Budget Utilized</p>
              <div className="flex items-end gap-2 mb-6">
-                <h3 className="text-4xl font-black text-white">${project?.spent?.toLocaleString()}</h3>
-                <p className="text-white/35 text-xs font-bold mb-1.5 uppercase">/ ${project?.budget?.toLocaleString()}</p>
+                <h3 className="text-4xl font-black text-foreground">${project?.spent?.toLocaleString()}</h3>
+                <p className="text-foreground/35 text-xs font-bold mb-1.5 uppercase">/ ${project?.budget?.toLocaleString()}</p>
              </div>
-             <div className="w-full h-2.5 bg-brand-navy-light rounded-full overflow-hidden border border-brand-border">
+             <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden border border-border">
                 <motion.div 
                   initial={{ width: 0 }} 
                   animate={{ width: `${budgetPercent}%` }}
-                  className={`h-full ${budgetPercent > 90 ? 'bg-rose-500' : 'bg-brand-yellow'} shadow-lg`} 
+                  className={`h-full ${budgetPercent > 90 ? 'bg-rose-500' : 'bg-primary'} shadow-lg`} 
                 />
              </div>
           </div>
 
           {/* COMPLETION PERCENTAGE */}
-          <div className="bg-brand-navy-card border border-brand-border p-8 rounded-[3rem] border border-brand-border shadow-sm">
-             <p className="text-[10px] font-black text-white/50 uppercase tracking-[0.2em] mb-3 px-1">Project Completion</p>
-             <h3 className="text-4xl font-black text-white mb-6 italic">{project?.progress}%</h3>
+          <div className="bg-card border border-border p-8 rounded-[3rem] border border-border shadow-sm">
+             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-3 px-1">Project Completion</p>
+             <h3 className="text-4xl font-black text-foreground mb-6 italic">{project?.progress}%</h3>
              <div className="flex gap-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
-                  <div key={i} className={`flex-1 h-2 rounded-full transition-all duration-1000 ${i * 10 <= project?.progress ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-brand-navy-light'}`} />
+                  <div key={i} className={`flex-1 h-2 rounded-full transition-all duration-1000 ${i * 10 <= project?.progress ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-muted'}`} />
                 ))}
              </div>
           </div>
 
           {/* MATERIAL LOGISTICS */}
-          <div className="bg-brand-navy p-8 rounded-[3rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden">
+          <div className="bg-background p-8 rounded-[3rem] text-foreground flex flex-col justify-between shadow-2xl relative overflow-hidden">
              <TrendingUp className="absolute right-[-20px] top-[-20px] opacity-10 w-40 h-40" />
              <div className="flex justify-between items-start relative z-10">
                <p className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">Logistics Alert</p>
@@ -118,7 +118,7 @@ const ProjectDetail = () => {
              </div>
              <div className="relative z-10">
                <h3 className="text-xl font-bold mb-1 italic">Resource Shortage</h3>
-               <p className="text-white/50 text-[10px] font-medium leading-relaxed">Check Procurement for pending steel reinforcement delivery.</p>
+               <p className="text-muted-foreground text-[10px] font-medium leading-relaxed">Check Procurement for pending steel reinforcement delivery.</p>
              </div>
           </div>
         </div>
@@ -127,50 +127,50 @@ const ProjectDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           
           {/* DAILY SITE LOGS (REAL DATA) */}
-          <div className="bg-brand-navy-card rounded-[3rem] shadow-premium border border-brand-border overflow-hidden flex flex-col">
-             <div className="p-8 border-b border-brand-border flex justify-between items-center bg-brand-navy-light/30">
-               <h3 className="font-black text-white uppercase text-xs tracking-widest">Site Execution Logs</h3>
-               <button className="text-brand-yellow font-black text-[10px] uppercase tracking-widest hover:underline">New Entry</button>
+          <div className="bg-card rounded-[3rem] shadow-premium border border-border overflow-hidden flex flex-col">
+             <div className="p-8 border-b border-border flex justify-between items-center bg-muted/30">
+               <h3 className="font-black text-foreground uppercase text-xs tracking-widest">Site Execution Logs</h3>
+               <button className="text-primary font-black text-[10px] uppercase tracking-widest hover:underline">New Entry</button>
              </div>
              <div className="p-8 space-y-8 flex-1">
                {logs?.length === 0 ? (
-                 <p className="text-center py-10 text-white/35 italic">No logs recorded for this site yet.</p>
+                 <p className="text-center py-10 text-foreground/35 italic">No logs recorded for this site yet.</p>
                ) : logs?.map((log: any, i: number) => (
                  <div key={i} className="flex gap-5 group">
-                   <div className="w-12 h-12 bg-brand-navy-light rounded-2xl flex items-center justify-center shrink-0 border border-brand-border group-hover:bg-brand-yellow-pale group-hover:border-brand-yellow transition-all">
-                     <HardHat size={20} className="text-white/50 group-hover:text-brand-yellow" />
+                   <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center shrink-0 border border-border group-hover:bg-primary-pale group-hover:border-primary transition-all">
+                     <HardHat size={20} className="text-muted-foreground group-hover:text-primary" />
                    </div>
                    <div className="flex-1">
-                     <h4 className="text-sm font-black text-white">{log.title}</h4>
-                     <p className="text-[10px] text-white/50 font-bold uppercase tracking-tighter mt-0.5">
+                     <h4 className="text-sm font-black text-foreground">{log.title}</h4>
+                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter mt-0.5">
                        {log.staffName} • {new Date(log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                      </p>
                    </div>
-                   <div className="text-[9px] font-black text-brand-yellow bg-brand-yellow-pale px-3 py-1 rounded-lg h-fit uppercase tracking-widest">{log.status}</div>
+                   <div className="text-[9px] font-black text-primary bg-primary-pale px-3 py-1 rounded-lg h-fit uppercase tracking-widest">{log.status}</div>
                  </div>
                ))}
              </div>
           </div>
 
           {/* ACTIVE WORKFORCE */}
-          <div className="bg-brand-navy-card rounded-[3rem] shadow-premium border border-brand-border p-10">
-             <h3 className="font-black text-white uppercase text-xs tracking-widest mb-10">Site Workforce</h3>
+          <div className="bg-card rounded-[3rem] shadow-premium border border-border p-10">
+             <h3 className="font-black text-foreground uppercase text-xs tracking-widest mb-10">Site Workforce</h3>
              <div className="grid grid-cols-4 gap-6">
                 {project?.workers?.length > 0 ? project.workers.map((worker: any, i: number) => (
                   <div key={i} className="flex flex-col items-center">
-                    <div className="w-16 h-16 rounded-[1.5rem] bg-brand-navy-light mb-3 overflow-hidden ring-4 ring-slate-50 group border border-brand-border">
+                    <div className="w-16 h-16 rounded-[1.5rem] bg-muted mb-3 overflow-hidden ring-4 ring-slate-50 group border border-border">
                        <img src={worker.avatar || `https://i.pravatar.cc/150?u=${worker._id}`} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                     </div>
                     <span className="text-[9px] font-black text-emerald-500 uppercase tracking-tighter">On Site</span>
                   </div>
                 )) : (
-                  <div className="col-span-4 py-10 text-center border-2 border-dashed border-brand-border rounded-[2rem]">
-                    <Users className="mx-auto text-white/15 mb-2" size={32} />
-                    <p className="text-[10px] font-black text-white/35 uppercase">No team members assigned</p>
+                  <div className="col-span-4 py-10 text-center border-2 border-dashed border-border rounded-[2rem]">
+                    <Users className="mx-auto text-foreground/15 mb-2" size={32} />
+                    <p className="text-[10px] font-black text-foreground/35 uppercase">No team members assigned</p>
                   </div>
                 )}
              </div>
-             <button className="w-full mt-12 py-5 bg-brand-navy text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:bg-brand-yellow-dim transition-all">
+             <button className="w-full mt-12 py-5 bg-background text-foreground font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-xl hover:bg-primary-dim transition-all">
                 Assign Technical Team
              </button>
           </div>

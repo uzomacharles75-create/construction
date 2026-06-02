@@ -22,6 +22,16 @@ interface CompanyProfile {
   slug?: string;
   status?: string;
   portfolio?: string[];
+  receiptSettings?: {
+    letterhead?: string;
+    whatsappNumber?: string;
+    taxId?: string;
+    defaultTaxRate?: number;
+    themeColor?: string;
+    signature?: string;
+    defaultPaymentTerms?: string;
+    format?: 'standard' | 'modern' | 'minimal';
+  };
 }
 
 const BusinessSettings = () => {
@@ -64,6 +74,15 @@ const BusinessSettings = () => {
     country: formData.country !== undefined ? formData.country : company?.country ?? '',
     sector: formData.sector !== undefined ? formData.sector : company?.sector ?? 'General Construction',
     address: formData.address !== undefined ? formData.address : company?.address ?? '',
+    receiptSettings: {
+      whatsappNumber: formData.receiptSettings?.whatsappNumber !== undefined ? formData.receiptSettings.whatsappNumber : company?.receiptSettings?.whatsappNumber ?? '',
+      taxId: formData.receiptSettings?.taxId !== undefined ? formData.receiptSettings.taxId : company?.receiptSettings?.taxId ?? '',
+      defaultTaxRate: formData.receiptSettings?.defaultTaxRate !== undefined ? formData.receiptSettings.defaultTaxRate : company?.receiptSettings?.defaultTaxRate ?? 0,
+      themeColor: formData.receiptSettings?.themeColor !== undefined ? formData.receiptSettings.themeColor : company?.receiptSettings?.themeColor ?? '#000000',
+      signature: formData.receiptSettings?.signature !== undefined ? formData.receiptSettings.signature : company?.receiptSettings?.signature ?? '',
+      defaultPaymentTerms: formData.receiptSettings?.defaultPaymentTerms !== undefined ? formData.receiptSettings.defaultPaymentTerms : company?.receiptSettings?.defaultPaymentTerms ?? '',
+      format: formData.receiptSettings?.format !== undefined ? formData.receiptSettings.format : company?.receiptSettings?.format ?? 'standard',
+    }
   };
 
   useEffect(() => { return () => { if (tempLogo) URL.revokeObjectURL(tempLogo); }; }, [tempLogo]);
@@ -126,8 +145,8 @@ const BusinessSettings = () => {
   const isUpdating = updateMutation.status === 'pending';
 
   if (isLoading) return (
-    <div className="h-screen flex items-center justify-center bg-brand-navy">
-      <Loader2 className="animate-spin text-brand-yellow" size={40} />
+    <div className="h-screen flex items-center justify-center bg-background">
+      <Loader2 className="animate-spin text-primary" size={40} />
     </div>
   );
 
@@ -145,33 +164,33 @@ const BusinessSettings = () => {
     <DashboardShell>
       <div className="max-w-6xl mx-auto pb-40">
         {/* PROFILE CARD */}
-        <div className="bg-brand-navy-card border border-brand-border rounded-[3.5rem] overflow-hidden mb-12 shadow-sm">
-          <div className="h-48 bg-brand-navy relative overflow-hidden">
+        <div className="bg-card border border-border rounded-[3.5rem] overflow-hidden mb-12 shadow-sm">
+          <div className="h-48 bg-background relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-brand-yellow/10 to-transparent" />
           </div>
           <div className="px-12 pb-12">
             <div className="relative -top-20 flex flex-col md:flex-row items-end gap-8 mb-6">
-              <div className="w-44 h-44 bg-brand-navy rounded-[3rem] border-4 border-brand-border overflow-hidden relative flex items-center justify-center group shrink-0">
+              <div className="w-44 h-44 bg-background rounded-[3rem] border-4 border-border overflow-hidden relative flex items-center justify-center group shrink-0">
                 {logoPreview
                   ? <img src={logoPreview} className="w-full h-full object-cover" alt="Logo" />
-                  : <span className="text-6xl font-black text-white/20 italic">{company?.name?.charAt(0)}</span>
+                  : <span className="text-6xl font-black text-foreground/20 italic">{company?.name?.charAt(0)}</span>
                 }
                 <div
                   onClick={() => logoInputRef.current?.click()}
-                  className="absolute inset-0 bg-brand-navy/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-sm"
+                  className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-sm"
                 >
-                  <Camera className="text-white mb-2" size={32} />
-                  <span className="text-[10px] text-white font-black uppercase tracking-widest text-center px-4">Update Logo</span>
+                  <Camera className="text-foreground mb-2" size={32} />
+                  <span className="text-[10px] text-foreground font-black uppercase tracking-widest text-center px-4">Update Logo</span>
                 </div>
                 <input type="file" ref={logoInputRef} className="hidden" onChange={handleLogoChange} accept="image/*" />
               </div>
               <div className="pb-10">
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-3xl font-black text-white tracking-tight">{company?.name}</h2>
-                  {company?.status === 'verified' && <CheckCircle2 size={24} className="text-brand-yellow" />}
+                  <h2 className="text-3xl font-black text-foreground tracking-tight">{company?.name}</h2>
+                  {company?.status === 'verified' && <CheckCircle2 size={24} className="text-primary" />}
                 </div>
-                <p className="text-sm text-white/50 font-bold uppercase tracking-widest flex items-center gap-2">
-                  <MapPin size={14} className="text-brand-yellow" /> {effectiveFormData.city || 'City'}, {effectiveFormData.country || 'Country'}
+                <p className="text-sm text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">
+                  <MapPin size={14} className="text-primary" /> {effectiveFormData.city || 'City'}, {effectiveFormData.country || 'Country'}
                 </p>
               </div>
             </div>
@@ -189,9 +208,9 @@ const BusinessSettings = () => {
                 </div>
               ))}
               <button
-                onClick={() => updateMutation.mutate(effectiveFormData as Record<string, string>)}
+                onClick={() => updateMutation.mutate(effectiveFormData as unknown as Record<string, string>)}
                 disabled={!companySlug || isUpdating}
-                className="flex items-center justify-center gap-3 bg-brand-yellow text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-brand-yellow-dim transition-all h-[60px] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-3 bg-primary text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all h-[60px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                 Save Profile
@@ -201,10 +220,10 @@ const BusinessSettings = () => {
         </div>
 
         {/* GALLERY */}
-        <div className="bg-brand-navy-card border border-brand-border rounded-[3.5rem] p-12 shadow-sm">
+        <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm">
           <div className="flex justify-between items-center mb-10 px-2">
             <div>
-              <h3 className="text-2xl font-black text-white">Project Showcase</h3>
+              <h3 className="text-2xl font-black text-foreground">Project Showcase</h3>
               <p className={t.muted}>Visual evidence of your completed construction works.</p>
             </div>
             <button
@@ -224,34 +243,134 @@ const BusinessSettings = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   key={url}
-                  className="aspect-square rounded-[2.5rem] overflow-hidden relative group bg-brand-navy-light border border-brand-border"
+                  className="aspect-square rounded-[2.5rem] overflow-hidden relative group bg-muted border border-border"
                 >
                   <img src={url} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Portfolio" />
                   <div
                     onClick={() => deleteImage(url)}
                     className="absolute inset-0 bg-rose-600/80 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer"
                   >
-                    <Trash2 className="text-white" size={28} />
-                    <span className="text-[10px] text-white font-black mt-2 uppercase tracking-widest">Remove</span>
+                    <Trash2 className="text-foreground" size={28} />
+                    <span className="text-[10px] text-foreground font-black mt-2 uppercase tracking-widest">Remove</span>
                   </div>
                 </motion.div>
               ))}
               {tempGallery.map((url, i) => (
-                <div key={`temp-${i}`} className="aspect-square rounded-[2.5rem] overflow-hidden relative border-2 border-brand-yellow/20 bg-brand-navy-light">
+                <div key={`temp-${i}`} className="aspect-square rounded-[2.5rem] overflow-hidden relative border-2 border-primary/20 bg-muted">
                   <img src={url} className="w-full h-full object-cover opacity-40 blur-[1px]" alt="Uploading" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <Loader2 className="animate-spin text-brand-yellow" size={32} />
+                    <Loader2 className="animate-spin text-primary" size={32} />
                   </div>
                 </div>
               ))}
             </AnimatePresence>
             <div
               onClick={() => galleryInputRef.current?.click()}
-              className="aspect-square rounded-[2.5rem] border-2 border-dashed border-brand-border flex flex-col items-center justify-center text-white/15 cursor-pointer hover:border-brand-yellow hover:text-brand-yellow transition-all hover:bg-brand-navy-light/30"
+              className="aspect-square rounded-[2.5rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-foreground/15 cursor-pointer hover:border-primary hover:text-primary transition-all hover:bg-muted/30"
             >
               <Plus size={40} className="mb-2" />
               <span className="text-[9px] font-black uppercase tracking-widest">Add Files</span>
             </div>
+          </div>
+        </div>
+
+        {/* SMART RECEIPT SETTINGS */}
+        <div className="bg-card border border-border rounded-[3.5rem] p-12 shadow-sm mt-12">
+          <div className="mb-10 px-2">
+            <h3 className="text-2xl font-black text-foreground">Smart Receipt Settings</h3>
+            <p className={t.muted}>Configure the default layout, tax, and branding for your generated receipts.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-1">
+              <label className={t.label + ' block px-1'}>Default Tax Rate (%)</label>
+              <input
+                type="number"
+                value={effectiveFormData.receiptSettings?.defaultTaxRate || 0}
+                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, defaultTaxRate: Number(e.target.value) } })}
+                className={t.input}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={t.label + ' block px-1'}>Tax ID / VAT Number</label>
+              <input
+                type="text"
+                value={effectiveFormData.receiptSettings?.taxId || ''}
+                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, taxId: e.target.value } })}
+                className={t.input}
+                placeholder="Optional"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={t.label + ' block px-1'}>WhatsApp Number (for receipts)</label>
+              <input
+                type="text"
+                value={effectiveFormData.receiptSettings?.whatsappNumber || ''}
+                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, whatsappNumber: e.target.value } })}
+                className={t.input}
+                placeholder="+237..."
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={t.label + ' block px-1'}>Default Payment Terms</label>
+              <input
+                type="text"
+                value={effectiveFormData.receiptSettings?.defaultPaymentTerms || ''}
+                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, defaultPaymentTerms: e.target.value } })}
+                className={t.input}
+                placeholder="e.g. Due on receipt"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className={t.label + ' block px-1'}>Layout Format</label>
+              <select
+                value={effectiveFormData.receiptSettings?.format || 'standard'}
+                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, format: e.target.value as 'standard' | 'modern' | 'minimal' } })}
+                className={t.input}
+              >
+                <option value="standard">Standard</option>
+                <option value="modern">Modern (Bordered)</option>
+                <option value="minimal">Minimal (Clean)</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className={t.label + ' block px-1'}>Theme Color</label>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="color"
+                  value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
+                  onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, themeColor: e.target.value } })}
+                  className="w-12 h-12 rounded cursor-pointer border-0 p-0"
+                />
+                <input
+                  type="text"
+                  value={effectiveFormData.receiptSettings?.themeColor || '#000000'}
+                  onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, themeColor: e.target.value } })}
+                  className={t.input}
+                />
+              </div>
+            </div>
+            <div className="space-y-1 col-span-1 md:col-span-2">
+              <label className={t.label + ' block px-1'}>Digital Signature (Name or Image URL)</label>
+              <input
+                type="text"
+                value={effectiveFormData.receiptSettings?.signature || ''}
+                onChange={e => setFormData({ ...formData, receiptSettings: { ...formData.receiptSettings, ...company?.receiptSettings, signature: e.target.value } })}
+                className={t.input}
+                placeholder="John Doe or https://..."
+              />
+            </div>
+          </div>
+          
+          <div className="mt-8 flex justify-end">
+            <button
+              onClick={() => updateMutation.mutate(effectiveFormData as any)}
+              disabled={!companySlug || isUpdating}
+              className="flex items-center justify-center gap-3 bg-primary text-brand-navy rounded-2xl font-black text-xs uppercase tracking-widest shadow-yellow hover:bg-primary-dim transition-all px-8 py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isUpdating ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+              Save Settings
+            </button>
           </div>
         </div>
       </div>
