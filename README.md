@@ -19,6 +19,7 @@ BuildHub is a premium, multi-tenant ERP platform designed for the African constr
 - **Verification-First BOQ**: Financial documents cannot be exported until every line item is verified by a human, preventing AI/Marketplace pricing errors.
 
 ## 🛠️ Getting Started
-1. Install dependencies in both `apps/api` and `apps/web`.
-2. Configure `.env` in the API folder with MongoDB and OpenAI keys.
-3. Run `npm run dev` in both folders.
+1. Run `npm install` from the repo root to install both workspaces.
+2. Configure `.env` in `apps/api` with MongoDB and OpenAI keys.
+3. Run `npm run dev` from the repo root to start both apps together.
+4. Use `npm run dev:api` or `npm run dev:web` if you want to run them separately.

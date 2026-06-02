@@ -5,17 +5,11 @@ import { useDebounce } from '../hooks/useDebounce';
 import { PublicNavbar } from '../components/layout/PublicNavbar';
 import { PublicFooter } from '../components/layout/PublicFooter';
 import apiClient from '../api/client';
-import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle } from 'lucide-react';
+import { ShieldCheck, MapPin, Star, Search, Loader2, Inbox, UserCircle, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { t } from '../theme';
 
 const CompanyCard = ({ company }: { company: any }) => {
-  const handleContact = () => {
-    if (!company?.phone) return alert('Contact number not available.');
-    const clean = company.phone.replace(/[^0-9]/g, '');
-    window.open(`https://wa.me/${clean}`, '_blank');
-  };
-
   return (
     <motion.div
       layout
@@ -50,12 +44,12 @@ const CompanyCard = ({ company }: { company: any }) => {
           <span className="capitalize">{company.city}, {company.country}</span>
         </div>
         <div className="mt-auto pt-6 border-t border-brand-border flex items-center justify-between gap-3">
-          <button
-            onClick={handleContact}
-            className="flex-1 bg-brand-yellow text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-brand-yellow-dim transition-all"
+          <Link
+            to={`/company/${company.slug}?inquire=1`}
+            className="flex-1 bg-brand-yellow text-brand-navy py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-yellow hover:bg-brand-yellow-dim transition-all flex items-center justify-center gap-2"
           >
-            Contact
-          </button>
+            <MessageSquare size={16} /> Message
+          </Link>
           <Link
             to={`/company/${company.slug}`}
             className="flex-1 bg-brand-navy-light text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-brand-border flex items-center justify-center gap-2 hover:bg-brand-navy hover:border-brand-yellow/20 transition-all"
